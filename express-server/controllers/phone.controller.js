@@ -205,8 +205,203 @@ async function getAllUsage(req, res) {
   });
 }
 
+
+
+async function downloadAllForDevice(req, res) {
+
+  const { device_id } = req.params;
+
+  const result = await pool.query(`
+    SELECT
+      ud.device_id,
+      ud.usage_date,
+      ud.timezone,
+      ud.bucket_minutes,
+      ub.bucket_index,
+      ub.apps
+    FROM usage_days ud
+    JOIN usage_buckets ub ON ub.day_id = ud.id
+    WHERE ud.device_id = $1
+    ORDER BY ud.usage_date DESC, ub.bucket_index ASC
+  `, [device_id]);
+
+  res.setHeader("Content-Disposition",
+    `attachment; filename=${device_id}_ALL.json`);
+
+  res.json(result.rows);
+}
+
+
+
+async function downloadLast24(req, res) {
+
+  const { device_id } = req.params;
+
+  const response = await pool.query(`
+    SELECT
+      ud.device_id,
+      ud.usage_date,
+      ub.bucket_index,
+      ub.apps
+    FROM usage_days ud
+    JOIN usage_buckets ub ON ub.day_id = ud.id
+    WHERE ud.device_id = $1
+    ORDER BY ud.usage_date DESC, ub.bucket_index DESC
+    LIMIT 192
+  `, [device_id]);
+
+  res.setHeader("Content-Disposition",
+    `attachment; filename=${device_id}_last24.json`);
+
+  res.json(response.rows);
+}
+
+
+
+async function getLast24Hours(req, res) {
+
+  const { device_id } = req.params;
+
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+  const currentBucket =
+    Math.floor((now.getHours() * 60 + now.getMinutes()) / 15);
+
+  const result = await pool.query(`
+    SELECT
+      ud.usage_date,
+      ub.bucket_index,
+      ub.apps
+    FROM usage_days ud
+    JOIN usage_buckets ub ON ub.day_id = ud.id
+    WHERE ud.device_id = $1
+      AND ud.usage_date IN ($2,$3)
+    ORDER BY ud.usage_date DESC, ub.bucket_index DESC
+  `, [device_id, today, yesterdayStr]);
+
+  const filtered = result.rows.filter(r => {
+    if (r.usage_date.toISOString().slice(0,10) === today) {
+      return r.bucket_index <= currentBucket;
+    }
+    return r.bucket_index > currentBucket;
+  });
+
+  res.json({
+    ok: true,
+    device_id,
+    window: "last_24_hours",
+    bucket_count: filtered.length,
+    data: filtered
+  });
+}
+
+async function getAllDevices(req, res) {
+
+  const result = await pool.query(`
+    SELECT DISTINCT device_id
+    FROM usage_days
+    ORDER BY device_id ASC
+  `);
+
+  const devices = result.rows.map(r => r.device_id);
+
+  res.json({
+    ok: true,
+    count: devices.length,
+    devices
+  });
+}
+
+
+
+async function getUsageByDeviceAndDate(req, res) {
+
+  const { device_id, date } = req.params;
+
+  const result = await pool.query(`
+    SELECT
+      ud.device_id,
+      ud.usage_date,
+      ud.timezone,
+      ud.bucket_minutes,
+
+      COALESCE(
+        json_object_agg(
+          ub.bucket_index::text,
+          ub.apps
+        ) FILTER (WHERE ub.id IS NOT NULL),
+        '{}'::json
+      ) AS bucket_map
+
+    FROM usage_days ud
+    LEFT JOIN usage_buckets ub ON ub.day_id = ud.id
+    WHERE ud.device_id = $1
+      AND ud.usage_date = $2::date
+    GROUP BY ud.device_id, ud.usage_date, ud.timezone, ud.bucket_minutes
+  `,[device_id,date]);
+
+  if(result.rowCount === 0){
+    return res.json({
+      ok:true,
+      message:"No data for this date",
+      data:[]
+    });
+  }
+
+  const row = result.rows[0];
+
+  const fullBuckets = buildFull96Buckets(row.bucket_map);
+
+  res.json({
+    ok:true,
+    device_id,
+    date,
+    bucket_minutes: row.bucket_minutes,
+    buckets: fullBuckets
+  });
+}
+
+
+
+async function downloadUsageByDate(req,res){
+
+  const { device_id, date } = req.params;
+
+  const result = await pool.query(`
+    SELECT
+      ud.device_id,
+      ud.usage_date,
+      ub.bucket_index,
+      ub.apps
+    FROM usage_days ud
+    JOIN usage_buckets ub ON ub.day_id = ud.id
+    WHERE ud.device_id = $1
+      AND ud.usage_date = $2::date
+    ORDER BY ub.bucket_index ASC
+  `,[device_id,date]);
+
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename=${device_id}_${date}.json`
+  );
+
+  res.json(result.rows);
+}
+
 module.exports = {
   uploadUsageDay,
   getAllUsage,
   getUsageByDeviceId,
+  getAllDevices,
+  getLast24Hours,
+  downloadLast24,
+  downloadAllForDevice,
+
+  getUsageByDeviceAndDate,
+  downloadUsageByDate
 };

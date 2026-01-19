@@ -1,14 +1,19 @@
 const express = require("express");
 const pool = require("./db");
+const path = require("path");
+const cors = require("cors");
+
 const { startFcmScheduler } = require("./fcmScheduler");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json({ limit: "10mb" }));
+app.use(express.static(path.join(__dirname, "HTML")));
 
-// ✅ Health check (DB test)
-app.get("/", async (req, res) => {
+// ✅ Health check
+app.get("/health", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
     res.status(200).send(`✅ Server OK | DB OK | ${result.rows[0].now}`);
@@ -18,14 +23,30 @@ app.get("/", async (req, res) => {
   }
 });
 
-// ✅ Routes
+// ✅ Privacy Policy Route (MUST BE ABOVE 404)
+app.get("/privacy.html", (req, res) => {
+
+  const filePath = path.join(__dirname, "HTML", "privacy.html");
+
+  res.sendFile(filePath, err => {
+    if (err) {
+      console.error("Privacy file error:", err);
+      res.status(500).send("Privacy policy not available");
+    }
+  });
+
+});
+
+// ✅ API Routes
 app.use("/api/phone", require("./routes/phone"));
 app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
 app.use("/api/embedded", require("./routes/embeddedDevice"));
+app.use("/api/unified", require("./routes/unified"));
+
 startFcmScheduler();
 
-// ✅ 404 handler
+// ✅ 404 handler (ALWAYS LAST)
 app.use((req, res) => {
   res.status(404).json({ ok: false, error: "Route not found" });
 });

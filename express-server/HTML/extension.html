@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Extension Usage Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+body {
+ background:#0f172a;
+ color:white;
+ font-family:sans-serif;
+ padding:20px
+}
+
+.card {
+ background:#020617;
+ padding:20px;
+ border-radius:10px;
+ margin-bottom:15px
+}
+
+button {
+ padding:10px;
+ border:none;
+ background:#16a34a;
+ color:white;
+ border-radius:6px;
+ margin:5px;
+ cursor:pointer
+}
+
+select,input {
+ padding:8px;
+ width:100%;
+ margin-bottom:10px
+}
+
+pre {
+ background:black;
+ padding:10px;
+ max-height:400px;
+ overflow:auto
+}
+</style>
+
+</head>
+
+<body>
+<div class="navbar">
+   <a href="/">  <div class="logo"> Data Sunita</div>
+</a>
+
+  <div>
+    <a href="/">Home</a>
+    <a href="/about.html">My Story</a>
+    <a href="/support.html">Support</a>
+    <a href="/privacy.html">Privacy</a>
+  </div>
+</div>
+<h2>🌐 Browser Extension Dashboard</h2>
+
+<div class="card">
+
+<button onclick="loadDevices()">Load Devices</button>
+
+<select id="deviceSelect"></select>
+
+<label>Select Date</label>
+<input type="date" id="datePicker">
+
+<button onclick="loadDay()">Show Selected Day</button>
+
+<button onclick="downloadDay()">Download Day JSON</button>
+
+</div>
+
+<div class="card">
+<pre id="output">Waiting...</pre>
+</div>
+
+<script>
+
+async function loadDevices(){
+
+ const res = await fetch("/api/extension/devices");
+ const data = await res.json();
+
+ const select = document.getElementById("deviceSelect");
+ select.innerHTML = "";
+
+ data.devices.forEach(d => {
+   const opt = document.createElement("option");
+   opt.value = d;
+   opt.textContent = d;
+   select.appendChild(opt);
+ });
+}
+
+async function loadDay(){
+
+ const device = document.getElementById("deviceSelect").value;
+ const date = document.getElementById("datePicker").value;
+
+ if(!device || !date){
+   alert("Select device and date");
+   return;
+ }
+
+ const res = await fetch(`/api/extension/usage/day/${device}/${date}`);
+ const data = await res.json();
+
+ document.getElementById("output").innerText =
+ JSON.stringify(data,null,2);
+}
+
+function downloadDay(){
+
+ const device = document.getElementById("deviceSelect").value;
+ const date = document.getElementById("datePicker").value;
+
+ if(!device || !date){
+   alert("Select device and date");
+   return;
+ }
+
+ window.open(`/api/extension/download/day/${device}/${date}`);
+}
+
+</script>
+
+</body>
+</html>

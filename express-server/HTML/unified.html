@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Unified Bucket Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+ background:#0f172a;
+ color:white;
+ font-family:sans-serif;
+ padding:20px
+}
+
+.card {
+ background:#020617;
+ padding:20px;
+ border-radius:10px;
+ margin-bottom:20px
+}
+
+button,input {
+ padding:10px;
+ margin:5px;
+ border-radius:6px;
+ border:none
+}
+
+canvas {
+ background:#020617;
+ padding:10px;
+ border-radius:10px
+}
+
+pre {
+ background:black;
+ padding:10px;
+ max-height:350px;
+ overflow:auto
+}
+</style>
+</head>
+
+<body>
+<div class="navbar">
+   <a href="/">  <div class="logo"> Data Sunita</div>
+</a>
+
+  <div>
+    <a href="/">Home</a>
+    <a href="/about.html">My Story</a>
+    <a href="/support.html">Support</a>
+    <a href="/privacy.html">Privacy</a>
+  </div>
+</div>
+<h2>📊 Unified Device Bucket Timeline</h2>
+
+<div class="card">
+
+<input type="date" id="datePicker">
+<button onclick="loadData()">Load Buckets</button>
+
+</div>
+
+<div class="card">
+<canvas id="chart"></canvas>
+</div>
+
+<div class="card">
+<pre id="output">Waiting...</pre>
+</div>
+
+<script>
+
+let chart;
+
+async function loadData(){
+
+ const date = document.getElementById("datePicker").value;
+
+ if(!date){
+   alert("Select date");
+   return;
+ }
+
+ const res = await fetch(`/api/unified/buckets/${date}`);
+ const data = await res.json();
+
+ document.getElementById("output").innerText =
+ JSON.stringify(data,null,2);
+
+ drawChart(data.buckets);
+}
+
+function drawChart(rows){
+
+ const labels = rows.map(r => r.bucket);
+
+ const phone = rows.map(r => r.phone);
+ const laptop = rows.map(r => r.laptop);
+ const extension = rows.map(r => r.extension);
+ const embedded = rows.map(r => r.embedded);
+
+ if(chart) chart.destroy();
+
+ const ctx = document.getElementById("chart");
+
+ chart = new Chart(ctx, {
+   type: "line",
+   data: {
+     labels,
+     datasets: [
+       { label: "Phone", data: phone },
+       { label: "Laptop", data: laptop },
+       { label: "Extension", data: extension },
+       { label: "Embedded", data: embedded }
+     ]
+   },
+   options: {
+     responsive: true,
+     scales: {
+       y: {
+         min: 0,
+         max: 1,
+         ticks: { stepSize: 1 }
+       }
+     }
+   }
+ });
+}
+
+</script>
+
+</body>
+</html>
