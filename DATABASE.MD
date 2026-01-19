@@ -123,31 +123,99 @@ emdeded system
 
 DROP TABLE IF EXISTS embedded_data;
 
+-- =========================================
+-- EMBEDDED DEVICE TELEMETRY TABLE
+-- 15 Minute Bucketing (96 per day)
+-- Server-Time Based
+-- =========================================
+
+DROP TABLE IF EXISTS embedded_data CASCADE;
+
 CREATE TABLE embedded_data (
 
   id BIGSERIAL PRIMARY KEY,
 
   device_id TEXT NOT NULL,
 
-  -- Packed arrays
+  -- Telemetry payloads
   mpu SMALLINT[],
   gps DOUBLE PRECISION[],
   bio REAL[],
 
-  -- Server generated
+  -- Server controlled time
   server_time TIMESTAMPTZ DEFAULT NOW(),
-  bucket_15min SMALLINT,
-  bucket_date DATE DEFAULT CURRENT_DATE
+
+  -- Derived bucket fields
+  bucket_date DATE,
+  bucket_15min SMALLINT
 );
 
--- Performance indexes
+-- =========================================
+-- BUCKET CALCULATION TRIGGER FUNCTION
+-- =========================================
+
+CREATE OR REPLACE FUNCTION set_embedded_buckets()
+RETURNS TRIGGER AS $$
+BEGIN
+
+  -- Extract date from server timestamp
+  NEW.bucket_date := DATE(NEW.server_time);
+
+  -- Calculate 15-min bucket index (0–95)
+  NEW.bucket_15min :=
+      (EXTRACT(HOUR FROM NEW.server_time)::INT * 4) +
+      FLOOR(EXTRACT(MINUTE FROM NEW.server_time) / 15)::INT;
+
+  RETURN NEW;
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- =========================================
+-- ATTACH TRIGGER
+-- =========================================
+
+CREATE TRIGGER trg_set_embedded_buckets
+BEFORE INSERT ON embedded_data
+FOR EACH ROW
+EXECUTE FUNCTION set_embedded_buckets();
+
+-- =========================================
+-- SAFETY CONSTRAINTS (DATA QUALITY)
+-- =========================================
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT gps_length_check
+CHECK (gps IS NULL OR array_length(gps,1) = 6);
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT mpu_length_check
+CHECK (mpu IS NULL OR array_length(mpu,1) = 60);
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT bio_length_check
+CHECK (bio IS NULL OR array_length(bio,1) = 3);
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT bucket_range_check
+CHECK (bucket_15min BETWEEN 0 AND 95);
+
+-- =========================================
+-- PERFORMANCE INDEXES
+-- =========================================
+
 CREATE INDEX idx_embedded_time
 ON embedded_data(server_time DESC);
 
+CREATE INDEX idx_embedded_device_time
+ON embedded_data(device_id, server_time DESC);
+
 CREATE INDEX idx_embedded_bucket
-ON embedded_data(bucket_date, bucket_15min);
+ON embedded_data(bucket_date, bucket_15min, device_id);
 
-
+-- =========================================
+-- DONE
+-- =========================================
 
 
 

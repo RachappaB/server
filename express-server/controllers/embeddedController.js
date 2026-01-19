@@ -1,19 +1,8 @@
 const pool = require("../db");
 
-/* -------- 15 MIN BUCKET -------- */
-
-function calcBucket15() {
-
-  const now = new Date();
-
-  const totalMin =
-    now.getHours() * 60 +
-    now.getMinutes();
-
-  return Math.floor(totalMin / 15);
-}
-
-/* -------- INSERT DATA -------- */
+/* ============================
+   INSERT DATA
+============================ */
 
 async function insertData(req, res) {
 
@@ -21,45 +10,74 @@ async function insertData(req, res) {
 
     const body = req.body;
 
-    const bucket = calcBucket15();
+    console.log("Embedded Data Received:", body);
 
-    await pool.query(
-      `
+    /* -------- BASIC VALIDATION -------- */
+
+    if (!body.d) {
+      return res.status(400).json({ ok: 0, error: "Missing device_id" });
+    }
+
+    if (!Array.isArray(body.gps) || body.gps.length !== 6) {
+      return res.status(400).json({ ok: 0, error: "Invalid GPS payload" });
+    }
+
+    if (!Array.isArray(body.mpu) || body.mpu.length !== 60) {
+      return res.status(400).json({ ok: 0, error: "Invalid MPU payload" });
+    }
+
+    if (!Array.isArray(body.bio) || body.bio.length !== 3) {
+      return res.status(400).json({ ok: 0, error: "Invalid BIO payload" });
+    }
+
+    /* -------- DATABASE INSERT -------- */
+
+    const query = `
       INSERT INTO embedded_data
       (
         device_id,
         mpu,
         gps,
-        bio,
-        bucket_15min
+        bio
       )
-      VALUES ($1,$2,$3,$4,$5)
-      `,
-      [
-        body.d || "ESP32",
-        body.mpu || null,
-        body.gps || null,
-        body.bio || null,
-        bucket
-      ]
-    );
+      VALUES
+      (
+        $1,
+        $2::smallint[],
+        $3::double precision[],
+        $4::real[]
+      )
+      RETURNING id, server_time, bucket_15min, bucket_date
+    `;
+
+    const values = [
+      body.d,
+      body.mpu,
+      body.gps,
+      body.bio
+    ];
+
+    const result = await pool.query(query, values);
 
     res.json({
       ok: 1,
-      bucket
+      inserted: result.rows[0]
     });
 
   } catch (err) {
 
-    console.error("INSERT FAILED:", err.message);
+    console.error("INSERT FAILED:", err);
 
     res.status(500).json({
-      ok: 0
+      ok: 0,
+      error: "Database insert failed"
     });
   }
 }
 
-/* -------- GET LATEST -------- */
+/* ============================
+   GET LATEST
+============================ */
 
 async function getLatest(req, res) {
 
@@ -70,10 +88,12 @@ async function getLatest(req, res) {
     LIMIT 1
   `);
 
-  res.json(r.rows[0]);
+  res.json(r.rows[0] || {});
 }
 
-/* -------- DASHBOARD APIs -------- */
+/* ============================
+   LIST DEVICES
+============================ */
 
 async function getEmbeddedDevices(req, res) {
 
@@ -89,6 +109,10 @@ async function getEmbeddedDevices(req, res) {
     devices: result.rows.map(r => r.device_id)
   });
 }
+
+/* ============================
+   GET ONE DAY DATA
+============================ */
 
 async function getEmbeddedUsageByDate(req, res) {
 
@@ -111,6 +135,10 @@ async function getEmbeddedUsageByDate(req, res) {
   });
 }
 
+/* ============================
+   DOWNLOAD ONE DAY
+============================ */
+
 async function downloadEmbeddedUsageByDate(req, res) {
 
   const { device_id, date } = req.params;
@@ -131,12 +159,13 @@ async function downloadEmbeddedUsageByDate(req, res) {
   res.json(result.rows);
 }
 
-/* -------- EXPORTS -------- */
+/* ============================
+   EXPORTS
+============================ */
 
 module.exports = {
   insertData,
   getLatest,
-
   getEmbeddedDevices,
   getEmbeddedUsageByDate,
   downloadEmbeddedUsageByDate

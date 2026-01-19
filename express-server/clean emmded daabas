@@ -1,0 +1,102 @@
+-- =========================================
+-- FULL CLEAN RESET (SAFE REBUILD)
+-- =========================================
+
+-- Drop trigger first (if exists)
+DROP TRIGGER IF EXISTS trg_set_embedded_buckets ON embedded_data;
+
+-- Drop function
+DROP FUNCTION IF EXISTS set_embedded_buckets();
+
+-- Drop table and dependent objects
+DROP TABLE IF EXISTS embedded_data CASCADE;
+
+-- =========================================
+-- RECREATE TABLE
+-- =========================================
+
+CREATE TABLE embedded_data (
+
+  id BIGSERIAL PRIMARY KEY,
+
+  device_id TEXT NOT NULL,
+
+  -- Telemetry payloads
+  mpu SMALLINT[],
+  gps DOUBLE PRECISION[],
+  bio REAL[],
+
+  -- Server controlled timestamp
+  server_time TIMESTAMPTZ DEFAULT NOW(),
+
+  -- Derived bucket fields
+  bucket_date DATE,
+  bucket_15min SMALLINT
+);
+
+-- =========================================
+-- BUCKET FUNCTION
+-- =========================================
+
+CREATE OR REPLACE FUNCTION set_embedded_buckets()
+RETURNS TRIGGER AS $$
+BEGIN
+
+  -- Extract date from server timestamp
+  NEW.bucket_date := DATE(NEW.server_time);
+
+  -- Calculate 15 minute bucket (0 - 95)
+  NEW.bucket_15min :=
+      (EXTRACT(HOUR FROM NEW.server_time)::INT * 4) +
+      FLOOR(EXTRACT(MINUTE FROM NEW.server_time) / 15)::INT;
+
+  RETURN NEW;
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- =========================================
+-- ATTACH TRIGGER
+-- =========================================
+
+CREATE TRIGGER trg_set_embedded_buckets
+BEFORE INSERT ON embedded_data
+FOR EACH ROW
+EXECUTE FUNCTION set_embedded_buckets();
+
+-- =========================================
+-- DATA QUALITY CONSTRAINTS
+-- =========================================
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT gps_length_check
+CHECK (gps IS NULL OR array_length(gps,1) = 6);
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT mpu_length_check
+CHECK (mpu IS NULL OR array_length(mpu,1) = 60);
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT bio_length_check
+CHECK (bio IS NULL OR array_length(bio,1) = 3);
+
+ALTER TABLE embedded_data
+ADD CONSTRAINT bucket_range_check
+CHECK (bucket_15min BETWEEN 0 AND 95);
+
+-- =========================================
+-- PERFORMANCE INDEXES
+-- =========================================
+
+CREATE INDEX idx_embedded_time
+ON embedded_data(server_time DESC);
+
+CREATE INDEX idx_embedded_device_time
+ON embedded_data(device_id, server_time DESC);
+
+CREATE INDEX idx_embedded_bucket
+ON embedded_data(bucket_date, bucket_15min, device_id);
+
+-- =========================================
+-- CLEAN RESET COMPLETE
+-- =========================================
