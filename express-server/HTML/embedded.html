@@ -1,105 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Embedded Device Dashboard</title>
-<link rel="stylesheet" href="/css/style.css">
+<title>Activity + GPS Route Player</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
+
 body {
  background:#0f172a;
  color:white;
  font-family:sans-serif;
- padding:20px
+ margin:0;
 }
 
-.card {
+#map {
+ height:70vh;
+}
+
+.panel {
  background:#020617;
- padding:20px;
- border-radius:10px;
- margin-bottom:15px
+ padding:10px;
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ align-items:center;
+}
+
+select,input,button {
+ padding:8px;
+ border-radius:6px;
+ border:none;
 }
 
 button {
- padding:10px;
- border:none;
  background:#9333ea;
  color:white;
+ cursor:pointer;
+}
+
+button:hover {
+ opacity:0.85;
+}
+
+.infoBox {
+ background:#020617;
+ padding:8px 12px;
  border-radius:6px;
- margin:5px;
- cursor:pointer
+ font-size:14px;
 }
 
-select,input {
- padding:8px;
- width:100%;
- margin-bottom:10px
+@media (max-width: 768px) {
+
+ .panel {
+   position:sticky;
+   top:0;
+   z-index:999;
+ }
+
+ select,input,button {
+   width:100%;
+   font-size:16px;
+ }
+
+ #map {
+   height:75vh;
+ }
 }
 
-pre {
- background:black;
- padding:10px;
- max-height:400px;
- overflow:auto
-}
 </style>
-
 </head>
 
 <body>
-    <div class="navbar">
-   <a href="/">  <div class="logo"> Data Sunita</div>
-</a>
 
-  <div>
-    <a href="/">Home</a>
-    <a href="/about.html">My Story</a>
-    <a href="/support.html">Support</a>
-    <a href="/privacy.html">Privacy</a>
-  </div>
-</div>
-
-<h2>⚙ Embedded Device Dashboard</h2>
-
-<div class="card">
-
-<button onclick="loadDevices()">Load Devices</button>
+<div class="panel">
 
 <select id="deviceSelect"></select>
 
-<label>Select Date</label>
 <input type="date" id="datePicker">
 
-<button onclick="loadDay()">Show Selected Day</button>
+<select id="speedSelect">
+<option value="300">Fast (0.3s)</option>
+<option value="800" selected>Normal (0.8s)</option>
+<option value="1500">Slow (1.5s)</option>
+</select>
 
-<button onclick="downloadDay()">Download Day JSON</button>
+<button onclick="loadTrack()">Load</button>
+
+<button onclick="play()">▶ Play</button>
+
+<button onclick="pause()">⏸ Pause</button>
+
+<div class="infoBox" id="statusBox">
+ Waiting...
+</div>
 
 </div>
 
-<div class="card">
-<pre id="output">Waiting...</pre>
-</div>
+<div id="map"></div>
 
 <script>
+
+// ================= MAP =================
+
+const map = L.map('map').setView([12.9716,77.5946], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+ maxZoom:19
+}).addTo(map);
+
+// ================= STATE =================
+
+let route = [];
+let marker = null;
+let polyline = null;
+let index = 0;
+let timer = null;
+
+// ================= LOAD DEVICES =================
 
 async function loadDevices(){
 
  const res = await fetch("/api/embedded/devices");
- const data = await res.json();
+ const json = await res.json();
 
  const select = document.getElementById("deviceSelect");
  select.innerHTML = "";
 
- data.devices.forEach(d => {
+ json.devices.forEach(d=>{
    const opt = document.createElement("option");
    opt.value = d;
    opt.textContent = d;
    select.appendChild(opt);
  });
+
 }
 
-async function loadDay(){
+loadDevices();
+
+// ================= LOAD TRACK =================
+
+async function loadTrack(){
+
+ pause();
 
  const device = document.getElementById("deviceSelect").value;
  const date = document.getElementById("datePicker").value;
@@ -110,23 +158,132 @@ async function loadDay(){
  }
 
  const res = await fetch(`/api/embedded/usage/day/${device}/${date}`);
- const data = await res.json();
+ const json = await res.json();
 
- document.getElementById("output").innerText =
- JSON.stringify(data,null,2);
-}
-
-function downloadDay(){
-
- const device = document.getElementById("deviceSelect").value;
- const date = document.getElementById("datePicker").value;
-
- if(!device || !date){
-   alert("Select device and date");
+ if(!json.data || json.data.length === 0){
+   alert("No data available");
    return;
  }
 
- window.open(`/api/embedded/download/day/${device}/${date}`);
+ // Keep only points that have GPS
+ route = json.data
+   .filter(p => p.latitude && p.longitude)
+   .map(p => ({
+     lat: p.latitude,
+     lng: p.longitude,
+     time: p.gps_time || p.created_at,
+     activity: p.activity
+   }));
+
+ if(route.length === 0){
+   alert("No GPS points for this day");
+   return;
+ }
+
+ drawPath();
+ prepareMarker();
+}
+
+// ================= DRAW ROUTE =================
+
+function drawPath(){
+
+ if(polyline) map.removeLayer(polyline);
+
+ const coords = route.map(p => [p.lat, p.lng]);
+
+ polyline = L.polyline(coords,{
+   color:"cyan",
+   weight:4
+ }).addTo(map);
+
+ map.fitBounds(polyline.getBounds());
+}
+
+// ================= MARKER =================
+
+function prepareMarker(){
+
+ if(marker) map.removeLayer(marker);
+
+ index = 0;
+
+ marker = L.marker([route[0].lat, route[0].lng]).addTo(map);
+
+ marker.bindPopup("START").openPopup();
+
+ updateStatus(route[0]);
+}
+
+// ================= PLAY =================
+
+function play(){
+
+ if(route.length === 0) return;
+ if(timer) return;
+
+ timer = setInterval(stepForward, getSpeed());
+}
+
+// ================= PAUSE =================
+
+function pause(){
+
+ clearInterval(timer);
+ timer = null;
+}
+
+// ================= STEP =================
+
+function stepForward(){
+
+ if(index >= route.length){
+   pause();
+   updateStatus(null, true);
+   return;
+ }
+
+ const p = route[index];
+
+ marker.setLatLng([p.lat, p.lng]);
+
+ marker.setPopupContent(
+   `<b>${p.activity}</b><br>` +
+   new Date(p.time).toLocaleTimeString()
+ );
+
+ map.panTo([p.lat, p.lng], { animate:true });
+
+ updateStatus(p);
+
+ index++;
+}
+
+// ================= SPEED =================
+
+function getSpeed(){
+ return parseInt(document.getElementById("speedSelect").value);
+}
+
+// ================= STATUS UI =================
+
+function updateStatus(point, finished=false){
+
+ const box = document.getElementById("statusBox");
+
+ if(finished){
+   box.innerHTML = "Playback Finished";
+   return;
+ }
+
+ if(!point){
+   box.innerHTML = "Ready";
+   return;
+ }
+
+ box.innerHTML =
+   `<b>Activity:</b> ${point.activity}<br>` +
+   `<b>Time:</b> ${new Date(point.time).toLocaleTimeString()}`;
 }
 
 </script>

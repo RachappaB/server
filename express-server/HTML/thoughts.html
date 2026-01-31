@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Thought System</title>
+
+<style>
+
+body {
+ background:#0f172a;
+ color:white;
+ font-family:Arial;
+ padding:15px;
+ max-width:600px;
+ margin:auto;
+}
+
+.tabbar button {
+ padding:10px;
+ margin:4px;
+ border:none;
+ border-radius:8px;
+ cursor:pointer;
+}
+
+.active {
+ background:#22c55e;
+}
+
+.panel {
+ display:none;
+ background:#1e293b;
+ padding:15px;
+ border-radius:10px;
+ margin-top:10px;
+}
+
+textarea,input {
+ width:100%;
+ padding:8px;
+ margin:6px 0;
+ border-radius:6px;
+ border:none;
+}
+
+.mic {
+ background:#2563eb;
+ color:white;
+ padding:6px;
+}
+
+.save {
+ background:#16a34a;
+ width:100%;
+ padding:10px;
+ margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Daily Thought System</h2>
+
+<div class="tabbar">
+ <button onclick="showTab('morning')" id="btnMorning">Morning</button>
+ <button onclick="showTab('night')" id="btnNight">Night</button>
+ <button onclick="showTab('emotion')" id="btnEmotion">Emotion</button>
+</div>
+
+<!-- MORNING -->
+
+<div id="morning" class="panel">
+
+<h3>Morning Plan</h3>
+
+<textarea id="primary_goal" placeholder="Main goal"></textarea>
+<button class="mic" onclick="voice('primary_goal')">🎙</button>
+
+<textarea id="secondary_goal" placeholder="Secondary task"></textarea>
+<button class="mic" onclick="voice('secondary_goal')">🎙</button>
+
+<textarea id="distraction_risk" placeholder="Biggest risk"></textarea>
+<button class="mic" onclick="voice('distraction_risk')">🎙</button>
+
+<input id="expected_energy" placeholder="Energy level">
+
+<button class="save" onclick="saveMorning()">Save Morning</button>
+
+</div>
+
+<!-- NIGHT -->
+
+<div id="night" class="panel">
+
+<h3>Night Review</h3>
+
+<textarea id="went_wrong" placeholder="What went wrong"></textarea>
+<button class="mic" onclick="voice('went_wrong')">🎙</button>
+
+<textarea id="went_well" placeholder="What went well"></textarea>
+<button class="mic" onclick="voice('went_well')">🎙</button>
+
+<textarea id="time_waste" placeholder="Where time wasted"></textarea>
+<button class="mic" onclick="voice('time_waste')">🎙</button>
+
+<textarea id="tomorrow_correction" placeholder="Correction for tomorrow"></textarea>
+<button class="mic" onclick="voice('tomorrow_correction')">🎙</button>
+
+<button class="save" onclick="saveNight()">Save Night</button>
+
+</div>
+
+<!-- EMOTION -->
+
+<div id="emotion" class="panel">
+
+<h3>Emotional Check-in</h3>
+
+<input id="mood" placeholder="Mood (sad, anxious, calm)">
+
+<input id="intensity" type="number" min="1" max="10" placeholder="Intensity 1-10">
+
+<textarea id="reason" placeholder="Why"></textarea>
+<button class="mic" onclick="voice('reason')">🎙</button>
+
+<textarea id="context" placeholder="Context"></textarea>
+<button class="mic" onclick="voice('context')">🎙</button>
+
+<button class="save" onclick="saveEmotion()">Save Emotion</button>
+
+</div>
+
+<p id="status"></p>
+
+<script>
+
+showTab("morning");
+
+function showTab(tab){
+
+ document.querySelectorAll(".panel").forEach(p=>p.style.display="none");
+ document.getElementById(tab).style.display="block";
+
+ document.querySelectorAll(".tabbar button").forEach(b=>b.classList.remove("active"));
+ document.getElementById("btn"+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add("active");
+}
+
+// ================= VOICE =================
+
+let recognition;
+
+function voice(id){
+
+ if(!('webkitSpeechRecognition' in window)){
+  alert("Use Chrome for voice");
+  return;
+ }
+
+ const target=document.getElementById(id);
+ target.focus();
+
+ recognition=new webkitSpeechRecognition();
+ recognition.lang="en-US";
+
+ recognition.onresult=e=>{
+  target.value += " " + e.results[0][0].transcript;
+ };
+
+ recognition.start();
+}
+
+// ================= SAVE =================
+
+async function saveMorning(){
+ await send("/api/thoughts/morning",{
+  primary_goal:primary_goal.value,
+  secondary_goal:secondary_goal.value,
+  distraction_risk:distraction_risk.value,
+  expected_energy:expected_energy.value
+ });
+}
+
+async function saveNight(){
+ await send("/api/thoughts/night",{
+  went_wrong:went_wrong.value,
+  went_well:went_well.value,
+  time_waste:time_waste.value,
+  tomorrow_correction:tomorrow_correction.value
+ });
+}
+
+async function saveEmotion(){
+ await send("/api/thoughts/emotion",{
+  mood:mood.value,
+  intensity:intensity.value,
+  reason:reason.value,
+  context:context.value
+ });
+}
+
+async function send(url,data){
+
+ const res=await fetch(url,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify(data)
+ });
+
+ const r=await res.json();
+
+ if(r.ok){
+  status.innerText="Saved ✔";
+  document.querySelectorAll("textarea,input").forEach(e=>e.value="");
+ }
+}
+
+</script>
+
+</body>
+</html>

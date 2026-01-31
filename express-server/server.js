@@ -8,8 +8,34 @@ const { startFcmScheduler } = require("./fcmScheduler");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+
+// ✅ Trust reverse proxy headers
+app.set("trust proxy", true);
+
+
+
+app.use(cors({
+  origin: [
+    "https://sunita.space",
+    "https://data.sunita.space"
+  ],
+  methods: ["GET","POST"],
+  credentials: true
+}));
+
+app.use("/api/mpu-ai/data",
+  express.raw({ type: "application/octet-stream", limit: "200kb" })
+);
+
+
+
+
+
+
 app.use(express.json({ limit: "10mb" }));
+
+
+
 app.use(express.static(path.join(__dirname, "HTML")));
 
 // ✅ Health check
@@ -43,7 +69,10 @@ app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
 app.use("/api/embedded", require("./routes/embeddedDevice"));
 app.use("/api/unified", require("./routes/unified"));
-
+app.use("/api/admin", require("./routes/domainAdminRoutes"));
+app.use("/api/mpu-ai", require("./routes/mpuAiRoutes"));
+app.use("/api/thoughts",require("./routes/thoughts"));
+app.use("/api/gps",require("./routes/gps"));  
 startFcmScheduler();
 
 // ✅ 404 handler (ALWAYS LAST)
@@ -57,6 +86,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ ok: false, error: "Internal server error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Domain Classification Admin</title>
+
+<style>
+body {
+ font-family: Arial;
+ padding:20px;
+}
+
+table {
+ border-collapse: collapse;
+ width:100%;
+}
+
+th,td {
+ border:1px solid #ccc;
+ padding:8px;
+}
+
+select,button {
+ padding:4px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Domain Classification Control Panel</h2>
+
+<button onclick="loadAll()">Reload Data</button>
+
+<br><br>
+
+<table>
+<thead>
+<tr>
+ <th>ID</th>
+ <th>Domain</th>
+ <th>Master</th>
+ <th>Category</th>
+ <th>Productivity</th>
+ <th>Action</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+
+let categories = [];
+let productivity = [];
+
+// =========================
+// LOAD EVERYTHING
+// =========================
+
+async function loadAll(){
+ await loadLookups();
+ await loadDomains();
+}
+
+// =========================
+// LOAD CATEGORY + PRODUCTIVITY
+// =========================
+
+async function loadLookups(){
+
+ const catRes = await fetch("/api/admin/categories");
+ categories = await catRes.json();
+
+ const prodRes = await fetch("/api/admin/productivity");
+ productivity = await prodRes.json();
+}
+
+// =========================
+// LOAD DOMAINS
+// =========================
+
+async function loadDomains(){
+
+ const res = await fetch("/api/admin/domains");
+ const domains = await res.json();
+
+ const tbody = document.getElementById("tableBody");
+ tbody.innerHTML = "";
+
+ domains.forEach(d => {
+
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+   <td>${d.id}</td>
+   <td>${d.domain}</td>
+   <td>${d.master_domain}</td>
+ ]<td>
+  <div id="cat_${d.id}">
+    ${buildCategoryCheckboxes(d.id, d.categories)}
+  </div>
+</td>
+
+
+   <td>
+    <select id="prod_${d.id}">
+      ${buildOptions(productivity, d.productivity)}
+    </select>
+   </td>
+
+   <td>
+    <button onclick="saveRow(${d.id})">Save</button>
+   </td>
+  `;
+
+  tbody.appendChild(tr);
+
+ });
+
+}
+
+// =========================
+// BUILD DROPDOWN
+// =========================
+
+function buildOptions(list, selected){
+
+ let html = "";
+
+ list.forEach(item => {
+
+  const sel =
+   (selected && selected.includes(item.name))
+    ? "selected"
+    : "";
+
+  html += `<option value="${item.id}" ${sel}>${item.name}</option>`;
+ });
+
+ return html;
+}
+function buildCategoryCheckboxes(domainId, selectedCategories){
+
+ let html = "";
+
+ categories.forEach(cat => {
+
+  const checked =
+   (selectedCategories && selectedCategories.includes(cat.name))
+    ? "checked"
+    : "";
+
+  html += `
+    <label style="display:block">
+      <input
+        type="checkbox"
+        name="cat_${domainId}"
+        value="${cat.id}"
+        ${checked}
+      >
+      ${cat.name}
+    </label>
+  `;
+ });
+
+ return html;
+}
+
+
+// =========================
+// SAVE MAPPING
+// =========================
+
+
+
+async function saveRow(domainId){
+
+ // collect checked categories
+ const checkboxes =
+  document.querySelectorAll(`input[name="cat_${domainId}"]:checked`);
+
+ const categoryIds = [...checkboxes].map(cb => cb.value);
+
+ // clear old categories (important)
+ await fetch("/api/admin/assign/category/clear",{
+  method:"POST",
+  headers:{ "Content-Type":"application/json" },
+  body: JSON.stringify({ domain_id: domainId })
+ });
+
+ // insert selected categories
+ for(const catId of categoryIds){
+  await fetch("/api/admin/assign/category",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body: JSON.stringify({
+    domain_id: domainId,
+    category_id: catId
+   })
+  });
+ }
+
+ // productivity (single select stays dropdown)
+ const prod = document.getElementById("prod_"+domainId).value;
+
+ if(prod){
+  await fetch("/api/admin/assign/productivity",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body: JSON.stringify({
+    domain_id: domainId,
+    productivity_id: prod
+   })
+  });
+ }
+
+ alert("Saved");
+}
+
+
+// AUTO LOAD
+loadAll();
+
+</script>
+
+</body>
+</html>

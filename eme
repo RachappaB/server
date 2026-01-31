@@ -1,0 +1,29 @@
+CREATE TABLE device_activity_log (
+
+  id SERIAL PRIMARY KEY,
+
+  device_id TEXT NOT NULL,
+
+  activity TEXT NOT NULL,
+
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  altitude DOUBLE PRECISION DEFAULT 0,
+
+  satellites INTEGER DEFAULT 0,
+  hdop DOUBLE PRECISION DEFAULT 99,
+
+  gps_time TIMESTAMP,
+
+  bucket_15min INTEGER,
+  bucket_date DATE,
+
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+
+CREATE INDEX idx_device_time
+ON device_activity_log(device_id, created_at DESC);
+
+CREATE INDEX idx_device_day
+ON device_activity_log(device_id, bucket_date);

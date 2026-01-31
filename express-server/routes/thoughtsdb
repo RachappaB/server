@@ -1,0 +1,28 @@
+CREATE TABLE morning_plans (
+ id SERIAL PRIMARY KEY,
+ primary_goal TEXT NOT NULL,
+ secondary_goal TEXT,
+ distraction_risk TEXT,
+ expected_energy VARCHAR(20),
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE night_reviews (
+ id SERIAL PRIMARY KEY,
+ went_wrong TEXT,
+ went_well TEXT,
+ time_waste TEXT,
+ tomorrow_correction TEXT,
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE emotional_logs (
+ id SERIAL PRIMARY KEY,
+ mood VARCHAR(30) NOT NULL,
+ intensity INT CHECK (intensity BETWEEN 1 AND 10),
+ reason TEXT,
+ context TEXT,
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

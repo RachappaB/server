@@ -1,8 +1,8 @@
 const pool = require("../db");
 
-/* ============================
-   INSERT DATA
-============================ */
+/* ==============================
+   INSERT DEVICE DATA
+================================ */
 
 async function insertData(req, res) {
 
@@ -10,163 +10,247 @@ async function insertData(req, res) {
 
     const body = req.body;
 
-    console.log("Embedded Data Received:", body);
+    /*
+      REQUIRED:
+        d         -> device id
+        activity  -> activity label
 
-    /* -------- BASIC VALIDATION -------- */
+      OPTIONAL:
+        lat, lng, alt, sat, hdop, gps_time
+    */
 
-    if (!body.d) {
-      return res.status(400).json({ ok: 0, error: "Missing device_id" });
+    if (!body.d || !body.activity) {
+
+      return res.status(400).json({
+        ok: 0,
+        error: "device_id (d) and activity required"
+      });
     }
 
-    if (!Array.isArray(body.gps) || body.gps.length !== 6) {
-      return res.status(400).json({ ok: 0, error: "Invalid GPS payload" });
+    // ------------------------------
+    // TIME HANDLING
+    // ------------------------------
+
+    let eventTime;
+
+    // Prefer GPS time if present
+    if (body.gps_time) {
+
+      eventTime = convertUTCtoIST(body.gps_time);
+
+    } else {
+
+      // fallback to server receive time
+      eventTime = new Date();
     }
 
-    if (!Array.isArray(body.mpu) || body.mpu.length !== 60) {
-      return res.status(400).json({ ok: 0, error: "Invalid MPU payload" });
-    }
+    const bucket = calculate15MinBucket(eventTime);
+    const bucketDate = eventTime.toISOString().slice(0, 10);
 
-    if (!Array.isArray(body.bio) || body.bio.length !== 3) {
-      return res.status(400).json({ ok: 0, error: "Invalid BIO payload" });
-    }
+    // ------------------------------
+    // INSERT DATA
+    // ------------------------------
 
-    /* -------- DATABASE INSERT -------- */
-
-    const query = `
-      INSERT INTO embedded_data
+    const insertQuery = `
+      INSERT INTO device_activity_log
       (
         device_id,
-        mpu,
-        gps,
-        bio
+        activity,
+        latitude,
+        longitude,
+        altitude,
+        satellites,
+        hdop,
+        gps_time,
+        bucket_15min,
+        bucket_date,
+        created_at
       )
       VALUES
-      (
-        $1,
-        $2::smallint[],
-        $3::double precision[],
-        $4::real[]
-      )
-      RETURNING id, server_time, bucket_15min, bucket_date
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      RETURNING id
     `;
 
     const values = [
       body.d,
-      body.mpu,
-      body.gps,
-      body.bio
+      body.activity,
+
+      body.lat || null,
+      body.lng || null,
+      body.alt || 0,
+
+      body.sat || 0,
+      body.hdop || 99,
+
+      body.gps_time ? eventTime : null,
+
+      bucket,
+      bucketDate,
+
+      eventTime
     ];
 
-    const result = await pool.query(query, values);
+    const result = await pool.query(insertQuery, values);
 
     res.json({
       ok: 1,
-      inserted: result.rows[0]
+      id: result.rows[0].id,
+      device: body.d,
+      activity: body.activity,
+      gps_used: !!body.gps_time,
+      time: eventTime
     });
 
   } catch (err) {
 
-    console.error("INSERT FAILED:", err);
+    console.error("INSERT ERROR:", err);
 
     res.status(500).json({
       ok: 0,
-      error: "Database insert failed"
+      error: "Insert failed"
     });
   }
 }
 
-/* ============================
-   GET LATEST
-============================ */
+/* ==============================
+   GET LAST DEVICE STATUS
+================================ */
 
 async function getLatest(req, res) {
 
-  const r = await pool.query(`
-    SELECT *
-    FROM embedded_data
-    ORDER BY server_time DESC
-    LIMIT 1
-  `);
+  try {
 
-  res.json(r.rows[0] || {});
+    const device = req.query.device_id;
+
+    if (!device) {
+      return res.json({});
+    }
+
+    const result = await pool.query(`
+      SELECT *
+      FROM device_activity_log
+      WHERE device_id = $1
+      ORDER BY created_at DESC
+      LIMIT 1
+    `, [device]);
+
+    res.json(result.rows[0] || {});
+
+  } catch (err) {
+
+    console.error("LATEST FETCH ERROR:", err);
+
+    res.status(500).json({
+      ok: false,
+      error: "Fetch failed"
+    });
+  }
 }
 
-/* ============================
-   LIST DEVICES
-============================ */
+/* ==============================
+   GET DEVICE LIST
+================================ */
 
-async function getEmbeddedDevices(req, res) {
+async function getDevices(req, res) {
 
-  const result = await pool.query(`
-    SELECT DISTINCT device_id
-    FROM embedded_data
-    ORDER BY device_id ASC
-  `);
+  try {
 
-  res.json({
-    ok: true,
-    count: result.rows.length,
-    devices: result.rows.map(r => r.device_id)
-  });
+    const result = await pool.query(`
+      SELECT DISTINCT device_id
+      FROM device_activity_log
+      ORDER BY device_id ASC
+    `);
+
+    res.json({
+      ok: true,
+      devices: result.rows.map(r => r.device_id)
+    });
+
+  } catch (err) {
+
+    console.error("DEVICE FETCH ERROR:", err);
+
+    res.status(500).json({
+      ok: false,
+      error: "Failed to fetch devices"
+    });
+  }
 }
 
-/* ============================
-   GET ONE DAY DATA
-============================ */
+/* ==============================
+   GET DAILY USAGE
+================================ */
 
-async function getEmbeddedUsageByDate(req, res) {
+async function getUsageByDay(req, res) {
 
-  const { device_id, date } = req.params;
+  try {
 
-  const result = await pool.query(`
-    SELECT *
-    FROM embedded_data
-    WHERE device_id = $1
-      AND bucket_date = $2::date
-    ORDER BY bucket_15min ASC
-  `, [device_id, date]);
+    const { device, date } = req.params;
 
-  res.json({
-    ok: true,
-    device_id,
-    date,
-    count: result.rows.length,
-    data: result.rows
-  });
+    const result = await pool.query(`
+      SELECT
+        activity,
+        latitude,
+        longitude,
+        gps_time,
+        created_at
+      FROM device_activity_log
+      WHERE device_id = $1
+        AND bucket_date = $2::date
+      ORDER BY created_at ASC
+    `, [device, date]);
+
+    res.json({
+      ok: true,
+      device,
+      date,
+      count: result.rows.length,
+      data: result.rows
+    });
+
+  } catch (err) {
+
+    console.error("DAY FETCH ERROR:", err);
+
+    res.status(500).json({
+      ok: false,
+      error: "Failed to fetch day data"
+    });
+  }
 }
 
-/* ============================
-   DOWNLOAD ONE DAY
-============================ */
+/* ==============================
+   HELPERS
+================================ */
 
-async function downloadEmbeddedUsageByDate(req, res) {
+function calculate15MinBucket(dateObj) {
 
-  const { device_id, date } = req.params;
+  const hours = dateObj.getHours();
+  const minutes = dateObj.getMinutes();
 
-  const result = await pool.query(`
-    SELECT *
-    FROM embedded_data
-    WHERE device_id = $1
-      AND bucket_date = $2::date
-    ORDER BY bucket_15min ASC
-  `, [device_id, date]);
+  const totalMinutes = (hours * 60) + minutes;
 
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename=embedded_${device_id}_${date}.json`
-  );
-
-  res.json(result.rows);
+  return Math.floor(totalMinutes / 15) + 1;
 }
 
-/* ============================
+function convertUTCtoIST(utcString) {
+
+  const d = new Date(utcString);
+
+  // UTC → IST
+  d.setHours(d.getHours() + 5);
+  d.setMinutes(d.getMinutes() + 30);
+
+  return d;
+}
+
+/* ==============================
    EXPORTS
-============================ */
+================================ */
 
 module.exports = {
   insertData,
   getLatest,
-  getEmbeddedDevices,
-  getEmbeddedUsageByDate,
-  downloadEmbeddedUsageByDate
+  getDevices,
+  getUsageByDay
 };
