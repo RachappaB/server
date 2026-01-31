@@ -12,8 +12,6 @@ const PORT = process.env.PORT || 3000;
 // ✅ Trust reverse proxy headers
 app.set("trust proxy", true);
 
-
-
 app.use(cors({
   origin: [
     "https://sunita.space",
@@ -67,10 +65,6 @@ app.get("/privacy.html", (req, res) => {
 app.use("/api/phone", require("./routes/phone"));
 app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
-app.use("/api/embedded", require("./routes/embeddedDevice"));
-app.use("/api/unified", require("./routes/unified"));
-app.use("/api/admin", require("./routes/domainAdminRoutes"));
-app.use("/api/mpu-ai", require("./routes/mpuAiRoutes"));
 app.use("/api/thoughts",require("./routes/thoughts"));
 app.use("/api/fitband", require("./routes/fitband"));
 
