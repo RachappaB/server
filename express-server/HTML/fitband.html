@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FitBand Motion Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+:root{
+ --bg:#020617;
+ --card:#0f172a;
+ --accent:#38bdf8;
+ --text:#e5e7eb;
+ --muted:#94a3b8;
+}
+
+*{box-sizing:border-box;}
+
+body{
+ margin:0;
+ padding:20px;
+ background:linear-gradient(160deg,#020617,#0f172a);
+ font-family:system-ui,Segoe UI;
+ color:var(--text);
+}
+
+.header{
+ text-align:center;
+ font-size:26px;
+ font-weight:700;
+ margin-bottom:20px;
+}
+
+.card{
+ background:rgba(15,23,42,.9);
+ border-radius:16px;
+ padding:18px;
+ box-shadow:0 10px 25px rgba(0,0,0,.4);
+ max-width:900px;
+ margin:auto;
+}
+
+.title{
+ color:var(--accent);
+ font-size:18px;
+ margin-bottom:10px;
+}
+
+button{
+ padding:12px 18px;
+ border-radius:12px;
+ border:none;
+ background:linear-gradient(135deg,#2563eb,#38bdf8);
+ color:white;
+ font-weight:600;
+ cursor:pointer;
+ transition:.2s;
+ margin-bottom:12px;
+}
+
+button:hover{
+ opacity:.9;
+ transform:scale(1.02);
+}
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ font-size:14px;
+}
+
+th,td{
+ padding:10px;
+ text-align:left;
+ border-bottom:1px solid #1e293b;
+}
+
+th{
+ color:var(--accent);
+}
+
+.badge{
+ background:#020617;
+ padding:6px 10px;
+ border-radius:10px;
+ font-size:12px;
+ max-width:280px;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">📊 FitBand Motion Logs</div>
+
+<div class="card">
+
+<div class="title">Motion Data Table</div>
+
+<button onclick="loadMotionData()">Refresh Data</button>
+
+<table>
+<thead>
+<tr>
+ <th>ID</th>
+ <th>Bucket</th>
+ <th>Motion Data</th>
+ <th>Time</th>
+</tr>
+</thead>
+
+<tbody id="motionTable">
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const API="https://data.sunita.space/api/fitband";
+
+// ================= LOAD MOTION DATA =================
+
+async function loadMotionData(){
+
+ try{
+
+   const res = await fetch(API + "/motion");
+   const rows = await res.json();
+
+   const table = document.getElementById("motionTable");
+   table.innerHTML = "";
+
+   rows.forEach(r => {
+
+     const tr = document.createElement("tr");
+
+     tr.innerHTML = `
+       <td>#${r.id}</td>
+       <td>${r.bucket}</td>
+       <td><span class="badge">${r.motion_data.join(", ")}</span></td>
+       <td>${new Date(r.created_at).toLocaleString()}</td>
+     `;
+
+     table.appendChild(tr);
+
+   });
+
+ }catch(err){
+   console.error("Motion Fetch Error:", err);
+   alert("Failed to load motion data");
+ }
+
+}
+
+// Auto load on page open
+loadMotionData();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FitBand Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body {
+  background:#0f172a;
+  color:#e5e7eb;
+  font-family:Arial;
+  padding:20px;
+}
+
+.card {
+  background:#020617;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:20px;
+}
+
+h2 { color:#38bdf8 }
+
+input,select,button {
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+
+button:hover {
+  background:#1d4ed8;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td {
+  padding:8px;
+  border-bottom:1px solid #334155;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>📟 FitBand Control Panel</h1>
+
+<!-- ================= ALARM ================= -->
+
+<div class="card">
+
+<h2>⏰ Alarm</h2>
+
+<label>Time Format</label>
+<select id="timeFormat">
+  <option value="24">24 Hour</option>
+  <option value="12">12 Hour (AM/PM)</option>
+</select>
+
+<label>Hour</label>
+<input type="number" id="hour" min="1" max="12">
+
+<label>Minute</label>
+<input type="number" id="minute" min="0" max="59">
+
+<label id="ampmLabel">AM / PM</label>
+<select id="ampm">
+  <option value="AM">AM</option>
+  <option value="PM">PM</option>
+</select>
+
+<label>Vibration (ms)</label>
+<input type="number" id="alarmVibrate" value="3000">
+
+<label>Repeat Daily</label>
+<select id="alarmRepeat">
+  <option value="false">One Time</option>
+  <option value="true">Repeat Daily</option>
+</select>
+
+<button onclick="createAlarm()">Create Alarm</button>
+
+</div>
+
+<!-- ================= NOTIFICATION ================= -->
+
+<div class="card">
+
+<h2>🔔 Instant Notification</h2>
+
+<label>Vibration (ms)</label>
+<input type="number" id="notifyVibrate" value="1500">
+
+<button onclick="sendNotification()">Send Now</button>
+
+</div>
+
+<!-- ================= MOTION ================= -->
+
+<div class="card">
+
+<h2>📊 Motion Logs</h2>
+
+<button onclick="loadMotionData()">Refresh</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Bucket</th>
+<th>Motion</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody id="motionTable"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const API="https://data.sunita.space/api/fitband";
+
+// ================= ALARM =================
+
+async function createAlarm(){
+
+ let format=document.getElementById("timeFormat").value;
+ let hour=document.getElementById("hour").value;
+ let minute=document.getElementById("minute").value;
+ let ampm=document.getElementById("ampm").value;
+
+ if(!hour || !minute){
+  alert("Enter time");
+  return;
+ }
+
+ hour=parseInt(hour);
+ minute=parseInt(minute);
+
+ // Convert 12h → 24h
+ if(format==="12"){
+
+   if(ampm==="PM" && hour<12) hour+=12;
+   if(ampm==="AM" && hour===12) hour=0;
+ }
+
+ let time24 =
+   hour.toString().padStart(2,"0") + ":" +
+   minute.toString().padStart(2,"0") + ":00";
+
+ const vibrate=document.getElementById("alarmVibrate").value;
+ const repeat=document.getElementById("alarmRepeat").value==="true";
+
+ const res=await fetch(API+"/alarm",{
+  method:"POST",
+  headers:{ "Content-Type":"application/json" },
+  body:JSON.stringify({
+    alarm_time:time24,
+    vibrate_ms:vibrate,
+    repeat:repeat
+  })
+ });
+
+ const data=await res.json();
+
+ if(data.ok) alert("Alarm Created");
+ else alert("Alarm Failed");
+}
+
+// ================= NOTIFICATION =================
+
+async function sendNotification(){
+
+ const vibrate=document.getElementById("notifyVibrate").value;
+
+ const res=await fetch(API+"/notification",{
+  method:"POST",
+  headers:{ "Content-Type":"application/json" },
+  body:JSON.stringify({ vibrate_ms:vibrate })
+ });
+
+ const data=await res.json();
+
+ if(data.ok) alert("Notification Sent");
+ else alert("Failed");
+}
+
+// ================= MOTION =================
+
+async function loadMotionData(){
+
+ const res=await fetch(API+"/motion");
+ const rows=await res.json();
+
+ const table=document.getElementById("motionTable");
+ table.innerHTML="";
+
+ rows.forEach(r=>{
+
+  let tr=document.createElement("tr");
+
+  tr.innerHTML=`
+   <td>${r.id}</td>
+   <td>${r.bucket}</td>
+   <td>${r.motion_data.join(",")}</td>
+   <td>${new Date(r.created_at).toLocaleString()}</td>
+  `;
+
+  table.appendChild(tr);
+ });
+}
+
+</script>
+
+</body>
+</html>

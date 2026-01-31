@@ -1,135 +1,215 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Unified Bucket Dashboard</title>
+  <meta charset="UTF-8">
+  <title>FitBand Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    h2 {
+      color: #38bdf8;
+      margin-top: 30px;
+    }
 
-<style>
-body {
- background:#0f172a;
- color:white;
- font-family:sans-serif;
- padding:20px
-}
+    .card {
+      background: #020617;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
 
-.card {
- background:#020617;
- padding:20px;
- border-radius:10px;
- margin-bottom:20px
-}
+    input, select, button {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      margin: 6px 0;
+      width: 100%;
+    }
 
-button,input {
- padding:10px;
- margin:5px;
- border-radius:6px;
- border:none
-}
+    button {
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
 
-canvas {
- background:#020617;
- padding:10px;
- border-radius:10px
-}
+    button:hover {
+      background: #1d4ed8;
+    }
 
-pre {
- background:black;
- padding:10px;
- max-height:350px;
- overflow:auto
-}
-</style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #334155;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      color: #7dd3fc;
+    }
+
+    .danger {
+      background: #dc2626;
+    }
+
+    .danger:hover {
+      background: #b91c1c;
+    }
+  </style>
 </head>
-
 <body>
-<div class="navbar">
-   <a href="/">  <div class="logo"> Data Sunita</div>
-</a>
 
-  <div>
-    <a href="/">Home</a>
-    <a href="/about.html">My Story</a>
-    <a href="/support.html">Support</a>
-    <a href="/privacy.html">Privacy</a>
-  </div>
-</div>
-<h2>📊 Unified Device Bucket Timeline</h2>
+<h1>📟 FitBand Control Panel</h1>
+
+<!-- ================= ALARM SECTION ================= -->
 
 <div class="card">
+  <h2>⏰ Alarm Settings</h2>
 
-<input type="date" id="datePicker">
-<button onclick="loadData()">Load Buckets</button>
+  <label>Alarm Time</label>
+  <input type="time" id="alarmTime">
 
+  <label>Vibration Duration (ms)</label>
+  <input type="number" id="alarmVibrate" value="3000">
+
+  <label>Repeat Daily</label>
+  <select id="alarmRepeat">
+    <option value="false">One Time</option>
+    <option value="true">Repeat Daily</option>
+  </select>
+
+  <button onclick="createAlarm()">Create Alarm</button>
 </div>
+
+
+<!-- ================= NOTIFICATION SECTION ================= -->
 
 <div class="card">
-<canvas id="chart"></canvas>
+  <h2>🔔 Instant Notification</h2>
+
+  <label>Vibration Duration (ms)</label>
+  <input type="number" id="notifyVibrate" value="1500">
+
+  <button onclick="sendNotification()">Send Notification Now</button>
 </div>
 
+
+<!-- ================= MOTION DATA SECTION ================= -->
+
 <div class="card">
-<pre id="output">Waiting...</pre>
+  <h2>📊 Motion Data (Last 20)</h2>
+
+  <button onclick="loadMotionData()">Refresh Data</button>
+
+  <table id="motionTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Bucket</th>
+        <th>Motion Values</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
+
 
 <script>
 
-let chart;
+const API = "https://data.sunita.space/api/fitband";
 
-async function loadData(){
+// ================= CREATE ALARM =================
 
- const date = document.getElementById("datePicker").value;
+async function createAlarm() {
 
- if(!date){
-   alert("Select date");
-   return;
- }
+  const time = document.getElementById("alarmTime").value;
+  const vibrate = document.getElementById("alarmVibrate").value;
+  const repeat = document.getElementById("alarmRepeat").value === "true";
 
- const res = await fetch(`/api/unified/buckets/${date}`);
- const data = await res.json();
+  if (!time) {
+    alert("Select time");
+    return;
+  }
 
- document.getElementById("output").innerText =
- JSON.stringify(data,null,2);
+  const res = await fetch(API + "/alarm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      alarm_time: time,
+      vibrate_ms: vibrate,
+      repeat: repeat
+    })
+  });
 
- drawChart(data.buckets);
+  const data = await res.json();
+
+  if (data.ok) {
+    alert("Alarm created");
+  } else {
+    alert("Failed to create alarm");
+  }
 }
 
-function drawChart(rows){
 
- const labels = rows.map(r => r.bucket);
+// ================= SEND NOTIFICATION =================
 
- const phone = rows.map(r => r.phone);
- const laptop = rows.map(r => r.laptop);
- const extension = rows.map(r => r.extension);
- const embedded = rows.map(r => r.embedded);
+async function sendNotification() {
 
- if(chart) chart.destroy();
+  const vibrate = document.getElementById("notifyVibrate").value;
 
- const ctx = document.getElementById("chart");
+  const res = await fetch(API + "/notification", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ vibrate_ms: vibrate })
+  });
 
- chart = new Chart(ctx, {
-   type: "line",
-   data: {
-     labels,
-     datasets: [
-       { label: "Phone", data: phone },
-       { label: "Laptop", data: laptop },
-       { label: "Extension", data: extension },
-       { label: "Embedded", data: embedded }
-     ]
-   },
-   options: {
-     responsive: true,
-     scales: {
-       y: {
-         min: 0,
-         max: 1,
-         ticks: { stepSize: 1 }
-       }
-     }
-   }
- });
+  const data = await res.json();
+
+  if (data.ok) {
+    alert("Notification sent");
+  } else {
+    alert("Failed");
+  }
+}
+
+
+// ================= LOAD MOTION DATA =================
+
+async function loadMotionData() {
+
+  const res = await fetch(API + "/motion");
+  const rows = await res.json();
+
+  const tbody = document.querySelector("#motionTable tbody");
+  tbody.innerHTML = "";
+
+  rows.forEach(r => {
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${r.id}</td>
+      <td>${r.bucket}</td>
+      <td>${r.motion_data.join(",")}</td>
+      <td>${new Date(r.created_at).toLocaleString()}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
 }
 
 </script>

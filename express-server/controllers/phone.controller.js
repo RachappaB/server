@@ -4,6 +4,8 @@ const pool = require("../db");
  * ✅ POST /api/phone/usage/day
  * Store ONE day at a time (not batch)
  */
+
+
 async function uploadUsageDay(req, res) {
   const dayObj = req.body;
 
@@ -29,7 +31,7 @@ async function uploadUsageDay(req, res) {
   try {
     await client.query("BEGIN");
 
-    // ✅ upsert day row
+    // ✅ UPSERT DAY (safe)
     const dayResult = await client.query(
       `
       INSERT INTO usage_days (device_id, usage_date, timezone, bucket_minutes)
@@ -46,22 +48,31 @@ async function uploadUsageDay(req, res) {
 
     const dayId = dayResult.rows[0].id;
 
-    // ✅ save ALL buckets (even empty {} if you want)
     let bucketsSaved = 0;
 
     for (const b of buckets) {
+
       const bucketIndex = Number(b.bucket);
-      const apps = b.apps || {};
+      const apps = b.apps;
 
-      if (Number.isNaN(bucketIndex) || bucketIndex < 0 || bucketIndex > 95) continue;
+      // ✅ validate bucket index
+      if (
+        Number.isNaN(bucketIndex) ||
+        bucketIndex < 0 ||
+        bucketIndex > 95
+      ) continue;
 
+      // ✅ SKIP EMPTY BUCKETS (CRITICAL)
+      if (!apps || Object.keys(apps).length === 0) continue;
+
+      // ✅ MERGE JSON IN DB
       await client.query(
         `
         INSERT INTO usage_buckets (day_id, bucket_index, apps)
         VALUES ($1, $2, $3::jsonb)
         ON CONFLICT (day_id, bucket_index)
         DO UPDATE SET
-          apps = EXCLUDED.apps,
+          apps = usage_buckets.apps || EXCLUDED.apps,
           received_at = NOW()
         `,
         [dayId, bucketIndex, JSON.stringify(apps)]
@@ -78,13 +89,16 @@ async function uploadUsageDay(req, res) {
 
     return res.status(200).json({
       ok: true,
-      message: "✅ One day usage stored successfully",
+      message: "✅ Usage day stored safely",
       device_id: deviceId,
       date: dateStr,
       buckets_saved: bucketsSaved,
     });
+
   } catch (err) {
+
     await client.query("ROLLBACK");
+
     console.error("❌ uploadUsageDay error:", err.message);
 
     return res.status(500).json({
@@ -92,10 +106,15 @@ async function uploadUsageDay(req, res) {
       error: "Failed to store usage day",
       details: err.message,
     });
+
   } finally {
     client.release();
   }
 }
+
+
+
+
 
 /**
  * ✅ Helper: Convert bucket_map -> full 96 bucket list

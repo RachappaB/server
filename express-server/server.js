@@ -72,7 +72,8 @@ app.use("/api/unified", require("./routes/unified"));
 app.use("/api/admin", require("./routes/domainAdminRoutes"));
 app.use("/api/mpu-ai", require("./routes/mpuAiRoutes"));
 app.use("/api/thoughts",require("./routes/thoughts"));
-app.use("/api/gps",require("./routes/gps"));  
+app.use("/api/fitband", require("./routes/fitband"));
+
 startFcmScheduler();
 
 // ✅ 404 handler (ALWAYS LAST)
