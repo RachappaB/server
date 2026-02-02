@@ -3,6 +3,7 @@ const pool = require("../db");
 // ================= MORNING =================
 
 async function saveMorning(req,res){
+  console.log("thoughts")
 
  try{
 

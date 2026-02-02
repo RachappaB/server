@@ -1,7 +1,7 @@
 const pool = require("../db");
 
 // --------------------------------------
-// POST LAPTOP DATA (Agent Push Endpoint)
+// POST LAPTOP DATA (AGENT PUSH)
 // --------------------------------------
 
 async function receiveLaptopData(req, res) {
@@ -12,7 +12,10 @@ async function receiveLaptopData(req, res) {
 
     const query = `
       INSERT INTO laptop_activity_15m (
+
         timestamp,
+        bucket_15min_id,
+
         device_name,
         username,
         os,
@@ -34,19 +37,24 @@ async function receiveLaptopData(req, res) {
         background_media_title,
 
         apps
-      )
-      VALUES (
-        $1,$2,$3,$4,$5,
-        $6,$7,
-        $8,$9,$10,
-        $11,$12,
-        $13,$14,$15,$16,
-        $17
+
+      ) VALUES (
+
+        $1,$2,
+        $3,$4,$5,$6,
+        $7,$8,
+        $9,$10,$11,
+        $12,$13,
+        $14,$15,$16,$17,
+        $18
+
       )
     `;
 
     const values = [
+
       data.timestamp,
+      data.bucket_15min_id,
 
       data.device,
       data.user,
@@ -69,6 +77,7 @@ async function receiveLaptopData(req, res) {
       data.background_media_title,
 
       JSON.stringify(data.apps)
+
     ];
 
     await pool.query(query, values);
@@ -80,7 +89,7 @@ async function receiveLaptopData(req, res) {
 
   } catch (err) {
 
-    console.error("Laptop insert error:", err.message);
+    console.error("Laptop insert error:", err);
 
     res.status(500).json({
       ok: false,
@@ -90,7 +99,7 @@ async function receiveLaptopData(req, res) {
 }
 
 // --------------------------------------
-// GET RECENT ACTIVITY (Testing API)
+// GET LAST 20 RECORDS
 // --------------------------------------
 
 async function getLatestLaptopData(req, res) {
@@ -108,7 +117,7 @@ async function getLatestLaptopData(req, res) {
 
   } catch (err) {
 
-    console.error(err.message);
+    console.error(err);
 
     res.status(500).json({
       error: "Fetch failed"
@@ -117,7 +126,7 @@ async function getLatestLaptopData(req, res) {
 }
 
 // --------------------------------------
-// DASHBOARD APIs
+// GET DEVICE LIST
 // --------------------------------------
 
 async function getLaptopDevices(req, res) {
@@ -135,6 +144,10 @@ async function getLaptopDevices(req, res) {
   });
 }
 
+// --------------------------------------
+// GET USAGE BY DATE
+// --------------------------------------
+
 async function getLaptopUsageByDate(req, res) {
 
   const { device_name, date } = req.params;
@@ -143,7 +156,7 @@ async function getLaptopUsageByDate(req, res) {
     SELECT *
     FROM laptop_activity_15m
     WHERE device_name = $1
-      AND DATE(timestamp) = $2::date
+      AND DATE(timestamp AT TIME ZONE 'Asia/Kolkata') = $2::date
     ORDER BY timestamp ASC
   `, [device_name, date]);
 
@@ -156,6 +169,10 @@ async function getLaptopUsageByDate(req, res) {
   });
 }
 
+// --------------------------------------
+// DOWNLOAD JSON BY DATE
+// --------------------------------------
+
 async function downloadLaptopUsageByDate(req, res) {
 
   const { device_name, date } = req.params;
@@ -164,7 +181,7 @@ async function downloadLaptopUsageByDate(req, res) {
     SELECT *
     FROM laptop_activity_15m
     WHERE device_name = $1
-      AND DATE(timestamp) = $2::date
+      AND DATE(timestamp AT TIME ZONE 'Asia/Kolkata') = $2::date
     ORDER BY timestamp ASC
   `, [device_name, date]);
 
@@ -177,13 +194,10 @@ async function downloadLaptopUsageByDate(req, res) {
 }
 
 // --------------------------------------
-// EXPORTS
-// --------------------------------------
 
 module.exports = {
   receiveLaptopData,
   getLatestLaptopData,
-
   getLaptopDevices,
   getLaptopUsageByDate,
   downloadLaptopUsageByDate

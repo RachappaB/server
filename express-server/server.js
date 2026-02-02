@@ -2,12 +2,13 @@ const express = require("express");
 const pool = require("./db");
 const path = require("path");
 const cors = require("cors");
-
+require('dotenv').config(); 
 const { startFcmScheduler } = require("./fcmScheduler");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const cron = require('node-cron');
+const { runAutomatedAnalysis } = require('./controllers/geminicontroller');
 
 // ✅ Trust reverse proxy headers
 app.set("trust proxy", true);
@@ -61,14 +62,39 @@ app.get("/privacy.html", (req, res) => {
 
 });
 
-// ✅ API Routes
+// ✅ API Routes for data collection
 app.use("/api/phone", require("./routes/phone"));
 app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
 app.use("/api/thoughts",require("./routes/thoughts"));
 app.use("/api/fitband", require("./routes/fitband"));
+// data  getting routes
+app.use("/api/combined", require("./routes/combinedRoute"));
+app.use("/api/combinedfilter",require("./routes/combinedfillterRoute"));
+
+//gemini working test route 
+app.use("/api/gemini",require("./routes/geminiroute"));
+
+
+
+cron.schedule('*/15 * * * *', async () => {
+    console.log('⏰ Cron Triggered: Starting 15-minute Productivity Analysis...');
+    try {
+      console.log("function in  corn running")
+        // We call the function without req/res objects for automated runs
+        await runAutomatedAnalysis();
+    } catch (err) {
+      console.log("failed the corn")
+        console.error('❌ Cron Job Failed:', err);
+    }
+});
+
+
+
+
 
 startFcmScheduler();
+
 
 // ✅ 404 handler (ALWAYS LAST)
 app.use((req, res) => {

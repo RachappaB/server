@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Combined Activity Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body {
+ background:#0f172a;
+ color:white;
+ font-family:sans-serif;
+ padding:20px
+}
+
+.navbar {
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:20px
+}
+
+.navbar a {
+ color:white;
+ text-decoration:none;
+ margin-left:15px
+}
+
+.logo {
+ font-weight:bold;
+ font-size:20px
+}
+
+.card {
+ background:#020617;
+ padding:20px;
+ border-radius:10px;
+ margin-bottom:15px
+}
+
+button {
+ padding:10px 14px;
+ border:none;
+ background:#2563eb;
+ color:white;
+ border-radius:6px;
+ margin-top:10px;
+ cursor:pointer
+}
+
+select,input {
+ padding:8px;
+ width:100%;
+ margin-bottom:10px;
+ background:#1e293b;
+ color:white;
+ border:none;
+ border-radius:5px
+}
+
+label {
+ font-size:14px;
+ opacity:0.8
+}
+
+pre {
+ background:black;
+ padding:12px;
+ max-height:450px;
+ overflow:auto;
+ color:#c7d2fe;
+ border-radius:6px
+}
+
+.status {
+ margin-top:10px;
+ font-weight:bold
+}
+
+.flex {
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap
+}
+
+.toggle {
+ display:flex;
+ align-items:center;
+ gap:8px;
+ margin-bottom:10px
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<div class="navbar">
+  <a href="/">
+    <div class="logo">Data Sunita</div>
+  </a>
+
+  <div>
+    <a href="/">Home</a>
+    <a href="/about.html">My Story</a>
+    <a href="/support.html">Support</a>
+    <a href="/privacy.html">Privacy</a>
+  </div>
+</div>
+
+<h2>📊 Combined Activity Dashboard</h2>
+
+<!-- ================= CONTROL PANEL ================= -->
+
+<div class="card">
+
+<button onclick="loadAllDevices()">🔄 Load All Devices</button>
+
+<div class="toggle">
+  <input type="checkbox" id="fitbandToggle">
+  <label for="fitbandToggle">⌚ Include Fitband Data</label>
+</div>
+
+<label>📱 Phone Device</label>
+<select id="phoneSelect">
+  <option value="">-- Optional --</option>
+</select>
+
+<label>🌐 Extension Device</label>
+<select id="extensionSelect">
+  <option value="">-- Optional --</option>
+</select>
+
+<label>💻 Laptop Device</label>
+<select id="laptopSelect">
+  <option value="">-- Optional --</option>
+</select>
+
+<label>📅 Select Date</label>
+<input type="date" id="datePicker">
+
+<label>🕒 Select Bucket (15 min slot)</label>
+<select id="bucketSelect">
+  <option value="">-- All Buckets --</option>
+</select>
+
+<button onclick="loadCombined()">🚀 Fetch Combined Data</button>
+
+</div>
+
+<!-- ================= OUTPUT PANEL ================= -->
+
+<div class="card">
+
+<div id="status" class="status">Waiting...</div>
+
+<pre id="output">No data loaded</pre>
+
+</div>
+
+<script>
+
+// ============================
+// LOAD DEVICES
+// ============================
+
+async function loadAllDevices(){
+
+ try {
+
+   // PHONE
+   const phoneRes = await fetch("/api/phone/devices");
+   const phoneData = await phoneRes.json();
+
+   const phoneSelect = document.getElementById("phoneSelect");
+   phoneSelect.innerHTML = `<option value="">-- Optional --</option>`;
+
+   phoneData.devices.forEach(id => {
+     const opt = document.createElement("option");
+     opt.value = id;
+     opt.textContent = id;
+     phoneSelect.appendChild(opt);
+   });
+
+   // EXTENSION
+   const extRes = await fetch("/api/extension/devices");
+   const extData = await extRes.json();
+
+   const extSelect = document.getElementById("extensionSelect");
+   extSelect.innerHTML = `<option value="">-- Optional --</option>`;
+
+   extData.devices.forEach(id => {
+     const opt = document.createElement("option");
+     opt.value = id;
+     opt.textContent = id;
+     extSelect.appendChild(opt);
+   });
+
+   // LAPTOP
+   const laptopRes = await fetch("/api/laptop/devices");
+   const laptopData = await laptopRes.json();
+
+   const laptopSelect = document.getElementById("laptopSelect");
+   laptopSelect.innerHTML = `<option value="">-- Optional --</option>`;
+
+   laptopData.devices.forEach(id => {
+     const opt = document.createElement("option");
+     opt.value = id;
+     opt.textContent = id;
+     laptopSelect.appendChild(opt);
+   });
+
+   loadBuckets();
+
+   document.getElementById("status").innerText =
+     "✅ Devices & Buckets Loaded";
+
+ } catch (err) {
+
+   console.error(err);
+
+   document.getElementById("status").innerText =
+     "❌ Failed to load devices";
+
+ }
+
+}
+
+
+// ============================
+// BUCKET DROPDOWN
+// ============================
+
+function loadBuckets(){
+
+ const bucketSelect = document.getElementById("bucketSelect");
+ bucketSelect.innerHTML = `<option value="">-- All Buckets --</option>`;
+
+ for(let i=0;i<96;i++){
+
+   const hour = Math.floor(i * 15 / 60);
+   const min = (i * 15) % 60;
+
+   const label =
+     `${i} → ${hour.toString().padStart(2,"0")}:${min.toString().padStart(2,"0")}`;
+
+   const opt = document.createElement("option");
+   opt.value = i;
+   opt.textContent = label;
+
+   bucketSelect.appendChild(opt);
+ }
+}
+
+
+// ============================
+// FETCH COMBINED DATA
+// ============================
+
+async function loadCombined(){
+
+ const phone = phoneSelect.value;
+ const ext = extensionSelect.value;
+ const laptop = laptopSelect.value;
+ const date = datePicker.value;
+ const bucket = bucketSelect.value;
+ const fitband = document.getElementById("fitbandToggle").checked;
+
+ if(!phone && !ext && !laptop && !fitband){
+   alert("Select at least ONE data source");
+   return;
+ }
+
+ let params = [];
+
+ if(phone) params.push(`phone_id=${phone}`);
+ if(ext) params.push(`extension_id=${ext}`);
+ if(laptop) params.push(`laptop_id=${laptop}`);
+ if(fitband) params.push(`fitband=true`);
+ if(date) params.push(`date=${date}`);
+ if(bucket) params.push(`bucket=${bucket}`);
+
+ const url = "/api/combined/data?" + params.join("&");
+
+ status.innerText = "⏳ Fetching data...";
+ output.innerText = "";
+
+ try {
+
+   const res = await fetch(url);
+   const data = await res.json();
+
+   if(!data.ok){
+     status.innerText = "❌ API Error";
+     output.innerText = JSON.stringify(data,null,2);
+     return;
+   }
+
+   status.innerText =
+     `✅ Records: ${data.total_records} | Date: ${data.date}`;
+
+   output.innerText =
+     JSON.stringify(data, null, 2);
+
+ } catch(err){
+
+   console.error(err);
+
+   status.innerText =
+     "❌ Server unreachable";
+
+ }
+
+}
+
+</script>
+
+</body>
+</html>

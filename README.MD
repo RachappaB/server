@@ -3,6 +3,9 @@ sudo nano /etc/systemd/system/usage-api.service
 
 --------:USE THIS UPDATE CODE AND SEE THE LOG:---
 
+
+
+clear
 sudo systemctl restart usage-api.service
 sudo systemctl daemon-reload
 sudo systemctl enable usage-api.service
