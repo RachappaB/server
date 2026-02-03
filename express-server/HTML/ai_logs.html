@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Productivity Logs</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); margin: 0; padding: 20px; color: var(--dark); }
+        .container { max-width: 900px; margin: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        
+        .controls { display: flex; gap: 10px; align-items: center; }
+        input[type="date"] { padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+        button { padding: 8px 16px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 6px; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+
+        .log-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
+        .log-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .bucket { font-weight: bold; color: #7f8c8d; }
+        .date { color: #95a5a6; font-size: 0.9rem; }
+        
+        .section { margin: 10px 0; }
+        .label { font-weight: bold; color: var(--dark); display: block; margin-bottom: 3px; font-size: 0.85rem; text-transform: uppercase; }
+        .bad-review { color: var(--danger); font-style: italic; }
+        .suggestion { color: #27ae60; background: #ebfaf0; padding: 10px; border-radius: 6px; }
+        .problem-tag { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px; }
+        
+        #loading { text-align: center; display: none; padding: 20px; }
+        .no-data { text-align: center; color: #95a5a6; padding: 40px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🤖 AI Auditor Logs</h1>
+        <div class="controls">
+            <input type="date" id="dateFilter">
+            <button onclick="fetchLogs()">Filter</button>
+            <button onclick="resetLogs()" style="background:#95a5a6">All</button>
+        </div>
+    </header>
+
+    <div id="loading">Gathering intelligence...</div>
+    <div id="logsContainer"></div>
+</div>
+
+<script>
+    const API_BASE = "https://data.sunita.space/api/gemini";
+    const logsContainer = document.getElementById('logsContainer');
+    const loading = document.getElementById('loading');
+
+    // Initial Fetch
+    window.onload = () => fetchLogs();
+
+    async function fetchLogs() {
+        const dateVal = document.getElementById('dateFilter').value;
+        const url = dateVal ? `${API_BASE}/logs/${dateVal}` : `${API_BASE}/logs`;
+        
+        loading.style.display = 'block';
+        logsContainer.innerHTML = '';
+
+        try {
+            const response = await fetch(url);
+            const result = await response.json();
+
+            if (result.ok && result.logs.length > 0) {
+                renderLogs(result.logs);
+            } else {
+                logsContainer.innerHTML = '<div class="no-data">No analysis found for this period.</div>';
+            }
+        } catch (error) {
+            console.error(error);
+            logsContainer.innerHTML = '<div class="no-data" style="color:red">Error connecting to server.</div>';
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    function resetLogs() {
+        document.getElementById('dateFilter').value = '';
+        fetchLogs();
+    }
+
+    function renderLogs(logs) {
+        logs.forEach(log => {
+            const card = document.createElement('div');
+            card.className = 'log-card';
+            
+            // Format Bucket Time (Approximate)
+            const hour = Math.floor(log.bucket_index / 4);
+            const min = (log.bucket_index % 4) * 15;
+            const timeStr = `${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+
+            card.innerHTML = `
+                <div class="log-header">
+                    <span class="bucket">Bucket ${log.bucket_index} (~${timeStr})</span>
+                    <span class="date">${log.activity_date.split('T')[0]}</span>
+                </div>
+                
+                <div class="section">
+                    <span class="label">Auditor's Critique</span>
+                    <p class="bad-review">"${log.bad_review}"</p>
+                </div>
+
+                <div class="section">
+                    <span class="label">The Problem</span>
+                    <span class="problem-tag">${log.problem}</span>
+                </div>
+
+                <div class="section">
+                    <span class="label">Actionable Suggestion</span>
+                    <p class="suggestion">${log.suggestion}</p>
+                </div>
+
+                <div class="section">
+                    <span class="label">Strategic Guidance</span>
+                    <p style="font-size: 0.9rem;">${log.guidance}</p>
+                </div>
+                
+                <div style="font-size: 0.8rem; color: #bdc3c7; text-align: right;">
+                    Followed Previous Advice: ${log.followed_previous_advice ? '✅ Yes' : '❌ No'}
+                </div>
+            `;
+            logsContainer.appendChild(card);
+        });
+    }
+</script>
+
+</body>
+</html>

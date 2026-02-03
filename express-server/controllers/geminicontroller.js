@@ -1,12 +1,11 @@
 require('dotenv').config();
 const pool = require("../db");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const axios = require("axios");
 
 // --- Configuration ---
 const CONFIG = {
-    GEMINI_KEY: process.env.GEMINI_API_KEY,
-    // Using the 2026 stable free-tier model
-    MODEL_NAME: "gemini-3-flash-preview", 
+    OLLAMA_URL: "http://10.10.3.83:11434/api/chat",
+    MODEL_NAME: "llama3.1:8b", // Change to your Ollama model name
     TIMEZONE: "Asia/Kolkata",
     DEVICE_IDS: {
         PHONE: process.env.DEVICE_ID_PHONE || "7a9d652fd4ee0d50",
@@ -14,8 +13,6 @@ const CONFIG = {
         LAPTOP: process.env.DEVICE_ID_LAPTOP || "ubuntu_laptop"
     }
 };
-
-const genAI = new GoogleGenerativeAI(CONFIG.GEMINI_KEY);
 
 /**
  * Calculates Date and Bucket (4 AM Productivity Day logic)
@@ -108,43 +105,62 @@ async function fetchContextData(targetDate, queryBucket) {
 }
 
 /**
- * Sends data to Gemini
+ * Sends data to Ollama
  */
 async function getAnalysisFromAI(morningPlan, usageRows) {
     try {
-        const model = genAI.getGenerativeModel({ 
+        const prompt = `You are a strict productivity auditor.
+CONTEXT:
+- Target Goals: ${JSON.stringify(morningPlan.data)}
+- Actual Activity (Last 15 mins): ${JSON.stringify(usageRows)}
+
+TASK:
+Analyze if the activity (Phone, Laptop, Browser, and Physical Motion) aligns with the goals.
+Note: FITBAND 'motion_summary' tells you if the user was sitting, walking, etc.
+
+Return ONLY a JSON object with no additional text:
+{
+    "bad_review": "string (concise critique)",
+    "suggestion": "string (actionable fix)",
+    "guidance": "string (strategic advice)",
+    "remark": "string (overall status)",
+    "problem": "string (the main distraction/issue)",
+    "followed_previous_advice": boolean
+}`;
+
+        console.log(`📡 Connecting to Ollama: ${CONFIG.OLLAMA_URL}`);
+        console.log(`🤖 Using model: ${CONFIG.MODEL_NAME}`);
+
+        const response = await axios.post(CONFIG.OLLAMA_URL, {
             model: CONFIG.MODEL_NAME,
-            generationConfig: { responseMimeType: "application/json" } 
+            messages: [
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ],
+            stream: false
+        }, {
+            timeout: 60000 // 60 second timeout
         });
 
-        const prompt = `
-            You are a strict productivity auditor.
-            CONTEXT:
-            - Target Goals: ${JSON.stringify(morningPlan.data)}
-            - Actual Activity (Last 15 mins): ${JSON.stringify(usageRows)}
+        // Extract the text content from Ollama response
+        const aiResponse = response.data.message.content;
+        
+        // Try to parse JSON from the response
+        // Handle cases where the AI might add extra text before/after JSON
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error("No JSON object found in response");
+        }
 
-            TASK:
-            Analyze if the activity (Phone, Laptop, Browser, and Physical Motion) aligns with the goals.
-            Note: FITBAND 'motion_summary' tells you if the user was sitting, walking, etc.
-            
-            Return a JSON object:
-            {
-                "bad_review": "string (concise critique)",
-                "suggestion": "string (actionable fix)",
-                "guidance": "string (strategic advice)",
-                "remark": "string (overall status)",
-                "problem": "string (the main distraction/issue)",
-                "followed_previous_advice": boolean
-            }
-        `;
-
-        const result = await model.generateContent(prompt);
-        return JSON.parse(result.response.text());
+        return JSON.parse(jsonMatch[0]);
 
     } catch (error) {
-        if (error.status === 429) {
-            console.warn("⏳ Quota hit, skipping this bucket.");
-            return null;
+        console.error("❌ Ollama Error:", error.message);
+        if (error.response) {
+            console.error("❌ Response Status:", error.response.status);
+            console.error("❌ Response Data:", error.response.data);
         }
         throw error;
     }
