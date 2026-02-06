@@ -2,213 +2,328 @@ require('dotenv').config();
 const pool = require("../db");
 const axios = require("axios");
 
-// --- Configuration ---
+// ================= CONFIG =================
+
 const CONFIG = {
-    OLLAMA_URL: "http://10.10.3.83:11434/api/chat",
-    MODEL_NAME: "llama3.1:8b", // Change to your Ollama model name
-    TIMEZONE: "Asia/Kolkata",
-    DEVICE_IDS: {
-        PHONE: process.env.DEVICE_ID_PHONE || "7a9d652fd4ee0d50",
-        EXTENSION: process.env.DEVICE_ID_EXTENSION || "ext_bfe15def-a7f3-4700-a",
-        LAPTOP: process.env.DEVICE_ID_LAPTOP || "ubuntu_laptop"
-    }
+  OLLAMA_URL: "http://10.10.3.83:11434/api/chat",
+  MODEL_NAME: "llama3.1:8b",
+  TIMEZONE: "Asia/Kolkata",
+  DEVICE_IDS: {
+    PHONE: process.env.DEVICE_ID_PHONE || "7a9d652fd4ee0d50",
+    EXTENSION: process.env.DEVICE_ID_EXTENSION || "ext_bfe15def-a7f3-4700-a",
+    LAPTOP: process.env.DEVICE_ID_LAPTOP || "ubuntu_laptop"
+  }
 };
 
-/**
- * Calculates Date and Bucket (4 AM Productivity Day logic)
- */
+// ================= TIME CONTEXT =================
+
 function getTimeContext() {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-US', { 
-        timeZone: CONFIG.TIMEZONE, hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric' 
-    });
-    const parts = formatter.formatToParts(now);
-    const getP = (type) => parseInt(parts.find(p => p.type === type).value);
-    
-    const hours = getP('hour');
-    const minutes = getP('minute');
-    const currentBucketIndex = Math.floor((hours * 60 + minutes) / 15);
-    // Analyze the *previous* 15-minute chunk
-    const queryBucket = (currentBucketIndex - 1) < 0 ? 95 : (currentBucketIndex - 1);
 
-    const targetDateObj = new Date(now);
-    if (hours < 4) targetDateObj.setDate(targetDateObj.getDate() - 1);
-    const targetDate = targetDateObj.toLocaleDateString('en-CA'); 
+  console.log("⏰ Calculating time context...");
 
-    return { targetDate, queryBucket };
+  const now = new Date();
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: CONFIG.TIMEZONE,
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  const parts = formatter.formatToParts(now);
+  const get = (t) => Number(parts.find(p => p.type === t).value);
+
+  const hours = get("hour");
+  const minutes = get("minute");
+
+  const currentBucket = Math.floor((hours * 60 + minutes) / 15);
+
+  let queryBucket = currentBucket - 1;
+  const targetDateObj = new Date(now);
+
+  if (queryBucket < 0) {
+    queryBucket = 95;
+    targetDateObj.setDate(targetDateObj.getDate() - 1);
+  }
+
+  if (hours < 4) {
+    targetDateObj.setDate(targetDateObj.getDate() - 1);
+  }
+
+  const targetDate = targetDateObj.toLocaleDateString("en-CA");
+
+  console.log("✅ Time context:", { targetDate, queryBucket });
+
+  return { targetDate, queryBucket };
 }
 
-/**
- * Fetches Context Data including Summarized Fitband Data
- */
+// ================= FETCH CONTEXT =================
+
 async function fetchContextData(targetDate, queryBucket) {
-    const query = `
-        WITH plan AS (
-            SELECT 'MORNING_PLAN' AS source_type, 
-                   jsonb_build_object('primary_goal', primary_goal, 'secondary_goal', secondary_goal) as data
-            FROM morning_plans 
-            WHERE created_at::date = $1 
-            ORDER BY created_at DESC LIMIT 1
-        ),
-        usage AS (
-            -- PHONE
-            SELECT 'PHONE' AS source_type, ub.apps::jsonb AS data
-            FROM usage_buckets ub 
-            JOIN usage_days ud ON ub.day_id = ud.id
-            WHERE ud.device_id = $2 AND ud.usage_date = $1 AND ub.bucket_index = $5
-            UNION ALL
-            -- BROWSER EXTENSION
-            SELECT 'EXTENSION' AS source_type, domains::jsonb AS data
-            FROM extension_usage_stream 
-            WHERE device_id = $3 AND usage_date = $1 AND bucket_index = $5
-            UNION ALL
-            -- LAPTOP
-            SELECT 'LAPTOP' AS source_type, apps::jsonb AS data
-            FROM laptop_activity_15m 
-            WHERE device_name = $4 
-              AND (timestamp AT TIME ZONE $6)::date = $1 
-              AND bucket_15min_id = $5
-            UNION ALL
-            -- FITBAND (Summarized)
-            SELECT 'FITBAND' AS source_type, 
-                   jsonb_build_object('motion_summary', 
-                       CASE (
-                           SELECT mode() WITHIN GROUP (ORDER BY val) 
-                           FROM unnest(motion_data) AS val
-                       )
-                       WHEN 0 THEN 'Sleeping'
-                       WHEN 1 THEN 'Sitting/Stationary'
-                       WHEN 2 THEN 'Standing'
-                       WHEN 3 THEN 'Walking'
-                       WHEN 4 THEN 'Running'
-                       ELSE 'Unknown'
-                       END
-                   ) AS data
-            FROM fitband_activity_logs
-            WHERE record_time::date = $1 AND bucket = $5
-            ORDER BY 1 DESC LIMIT 1 -- Get the latest log if multiples exist for the bucket
-        )
-        SELECT * FROM plan UNION ALL SELECT * FROM usage;
-    `;
 
-    const values = [
-        targetDate, 
-        CONFIG.DEVICE_IDS.PHONE, 
-        CONFIG.DEVICE_IDS.EXTENSION, 
-        CONFIG.DEVICE_IDS.LAPTOP, 
-        queryBucket,
-        CONFIG.TIMEZONE
-    ];
+  console.log("📥 Fetching context data...");
+  console.log("DATE:", targetDate, "BUCKET:", queryBucket);
 
-    const { rows } = await pool.query(query, values);
-    return rows;
+  const query = `
+WITH plan AS (
+  SELECT 'MORNING_PLAN' AS source_type,
+         jsonb_build_object(
+           'primary_goal', primary_goal,
+           'secondary_goal', secondary_goal
+         ) AS data
+  FROM morning_plans
+  WHERE created_at::date = $1
+  ORDER BY created_at DESC
+  LIMIT 1
+),
+
+usage AS (
+
+  SELECT 'PHONE' AS source_type, ub.apps::jsonb AS data
+  FROM usage_buckets ub
+  JOIN usage_days ud ON ub.day_id = ud.id
+  WHERE ud.device_id = $2
+    AND ud.usage_date = $1
+    AND ub.bucket_index = $5
+
+  UNION ALL
+
+  SELECT 'EXTENSION' AS source_type, domains::jsonb AS data
+  FROM extension_usage_stream
+  WHERE device_id = $3
+    AND usage_date = $1
+    AND bucket_index = $5
+
+  UNION ALL
+
+  SELECT 'LAPTOP' AS source_type, apps::jsonb AS data
+  FROM laptop_activity_15m
+  WHERE device_name = $4
+    AND (timestamp AT TIME ZONE $6)::date = $1
+    AND bucket_15min_id = $5
+)
+
+SELECT * FROM plan
+UNION ALL
+SELECT * FROM usage;
+`;
+
+  const values = [
+    targetDate,
+    CONFIG.DEVICE_IDS.PHONE,
+    CONFIG.DEVICE_IDS.EXTENSION,
+    CONFIG.DEVICE_IDS.LAPTOP,
+    queryBucket,
+    CONFIG.TIMEZONE
+  ];
+
+  console.log("📡 Running SQL query...");
+
+  const { rows } = await pool.query(query, values);
+
+  console.log("✅ Rows fetched:", rows.length);
+  console.log("📦 Raw rows:", JSON.stringify(rows, null, 2));
+
+  return rows;
 }
 
-/**
- * Sends data to Ollama
- */
+// ================= OLLAMA =================
+
 async function getAnalysisFromAI(morningPlan, usageRows) {
-    try {
-        const prompt = `You are a strict productivity auditor.
-CONTEXT:
-- Target Goals: ${JSON.stringify(morningPlan.data)}
-- Actual Activity (Last 15 mins): ${JSON.stringify(usageRows)}
 
-TASK:
-Analyze if the activity (Phone, Laptop, Browser, and Physical Motion) aligns with the goals.
-Note: FITBAND 'motion_summary' tells you if the user was sitting, walking, etc.
+  console.log("🤖 Sending data to Ollama...");
+  console.log("Morning plan:", JSON.stringify(morningPlan.data));
+  console.log("Usage rows:", JSON.stringify(usageRows));
 
-Return ONLY a JSON object with no additional text:
-{
-    "bad_review": "string (concise critique)",
-    "suggestion": "string (actionable fix)",
-    "guidance": "string (strategic advice)",
-    "remark": "string (overall status)",
-    "problem": "string (the main distraction/issue)",
-    "followed_previous_advice": boolean
-}`;
+  const prompt = `
+You are a strict productivity auditor.
 
-        console.log(`📡 Connecting to Ollama: ${CONFIG.OLLAMA_URL}`);
-        console.log(`🤖 Using model: ${CONFIG.MODEL_NAME}`);
+Target Goals:
+${JSON.stringify(morningPlan.data)}
 
-        const response = await axios.post(CONFIG.OLLAMA_URL, {
-            model: CONFIG.MODEL_NAME,
-            messages: [
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
-            stream: false
-        }, {
-            timeout: 60000 // 60 second timeout
-        });
+Recent Activity:
+${JSON.stringify(usageRows)}
 
-        // Extract the text content from Ollama response
-        const aiResponse = response.data.message.content;
-        
-        // Try to parse JSON from the response
-        // Handle cases where the AI might add extra text before/after JSON
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error("No JSON object found in response");
-        }
+Return ONLY valid JSON.
+Use DOUBLE QUOTES only.
+No markdown.
+No commentary.
+`;
 
-        return JSON.parse(jsonMatch[0]);
+  const response = await axios.post(CONFIG.OLLAMA_URL, {
+    model: CONFIG.MODEL_NAME,
+    messages: [{ role: "user", content: prompt }],
+    format: "json",
+    stream: false
+  }, { timeout: 60000 });
 
-    } catch (error) {
-        console.error("❌ Ollama Error:", error.message);
-        if (error.response) {
-            console.error("❌ Response Status:", error.response.status);
-            console.error("❌ Response Data:", error.response.data);
-        }
-        throw error;
-    }
+  console.log("✅ Ollama responded");
+
+  const raw = response.data.message.content;
+
+  console.log("📥 RAW AI RESPONSE:");
+  console.log(raw);
+
+  let parsed;
+
+  try {
+
+    parsed = JSON.parse(raw);
+    console.log("✅ AI JSON parsed normally");
+
+  } catch (err) {
+
+    console.log("⚠️ JSON parse failed — attempting fix");
+
+    const fixed = raw
+      .replace(/(\w+):/g, '"$1":')
+      .replace(/'/g, '"');
+
+    console.log("🔧 Fixed AI JSON:");
+    console.log(fixed);
+
+    parsed = JSON.parse(fixed);
+
+    console.log("✅ AI JSON parsed after fix");
+  }
+
+  console.log("📊 Final AI object:", JSON.stringify(parsed, null, 2));
+
+  return parsed;
 }
 
-/**
- * Main Controller Function
- */
+// ================= MAIN CRON =================
+
 async function runAutomatedAnalysis(req, res) {
-    console.time("⏱️ Analysis Duration");
+
+  console.time("⏱️ Analysis Duration");
+
+  try {
+
+    console.log("🚀 Starting automated analysis...");
+
+    const { targetDate, queryBucket } = getTimeContext();
+
+    console.log("➡️ Step 1: Fetching DB context");
+
+    const rows = await fetchContextData(targetDate, queryBucket);
+
+    console.log("➡️ Step 2: Separating plan + usage");
+
+    const morningPlan = rows.find(r => r.source_type === "MORNING_PLAN");
+
+    const usageRows = rows
+      .filter(r => r.source_type !== "MORNING_PLAN")
+      .filter(r => r.data && Object.keys(r.data).length > 0)
+      .map(r => ({ source: r.source_type, data: r.data }));
+
+    console.log("Morning plan found:", !!morningPlan);
+    console.log("Usage rows count:", usageRows.length);
+
+    if (!morningPlan) {
+      console.log("⏭️ No morning plan — stopping");
+      return;
+    }
+
+    console.log("➡️ Step 3: Calling Ollama");
+
+    let aiAnalysis;
+
     try {
-        const { targetDate, queryBucket } = getTimeContext();
-        console.log(`🚀 Analysis: ${targetDate} | Bucket: ${queryBucket}`);
 
-        const rows = await fetchContextData(targetDate, queryBucket);
-        
-        const morningPlan = rows.find(r => r.source_type === 'MORNING_PLAN');
-        const usageRows = rows.filter(r => r.source_type !== 'MORNING_PLAN');
-
-        if (!morningPlan) {
-            console.log("⏭️ No plan found. Skipping.");
-            if (res) res.json({ ok: false, message: "No plan" });
-            return;
-        }
-
-        const aiAnalysis = await getAnalysisFromAI(morningPlan, usageRows);
-        
-        if (aiAnalysis) {
-            await pool.query(`
-                INSERT INTO gemini_analysis_logs 
-                (activity_date, bucket_index, morning_plan, sent_input_data, bad_review, suggestion, guidance, remark, problem, followed_previous_advice)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            `, [
-                targetDate, queryBucket, morningPlan.data, JSON.stringify(usageRows),
-                aiAnalysis.bad_review, aiAnalysis.suggestion, aiAnalysis.guidance, 
-                aiAnalysis.remark, aiAnalysis.problem, aiAnalysis.followed_previous_advice
-            ]);
-            console.log("✅ Analysis Saved.");
-        }
-
-        if (res) res.json({ ok: true, data: aiAnalysis });
+      aiAnalysis = await getAnalysisFromAI(morningPlan, usageRows);
 
     } catch (err) {
-        console.error("❌ Analysis Error:", err.message);
-        if (res) res.status(500).json({ ok: false, error: err.message });
-    } finally {
-        console.timeEnd("⏱️ Analysis Duration");
+
+      console.error("❌ AI CALL FAILED:", err.message);
+
+      aiAnalysis = {
+        bad_review: null,
+        suggestion: null,
+        guidance: null,
+        remark: "AI_PARSE_FAILED",
+        problem: null,
+        motion: null,
+        health: null,
+        roadmap: null,
+        topics_to_address: [],
+        followed_previous_advice: false
+      };
     }
+
+    console.log("➡️ Step 4: Preparing DB insert");
+
+    const insertValues = [
+
+      targetDate,
+      queryBucket,
+
+      JSON.stringify(morningPlan.data),
+      JSON.stringify(usageRows),
+
+      aiAnalysis.bad_review ?? null,
+      aiAnalysis.suggestion ?? null,
+      aiAnalysis.guidance ?? null,
+      aiAnalysis.remark ?? null,
+      aiAnalysis.problem ?? null,
+
+      aiAnalysis.followed_previous_advice ?? false,
+
+      aiAnalysis.motion ?? null,
+      aiAnalysis.health ?? null,
+      aiAnalysis.roadmap ?? null,
+
+      JSON.stringify(aiAnalysis.topics_to_address ?? []),
+      JSON.stringify(aiAnalysis)
+    ];
+
+    console.log("📤 Insert values preview:");
+    console.log(insertValues);
+
+    console.log("➡️ Step 5: Writing to DB");
+
+    await pool.query(`
+INSERT INTO gemini_analysis_logs
+(
+ activity_date,
+ bucket_index,
+ morning_plan,
+ sent_input_data,
+ bad_review,
+ suggestion,
+ guidance,
+ remark,
+ problem,
+ followed_previous_advice,
+ motion,
+ health,
+ roadmap,
+ topics_to_address,
+ full_response
+)
+VALUES
+($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+`, insertValues);
+
+    console.log("✅ Analysis Saved Successfully");
+
+    if (res) res.json({ ok: true });
+
+  } catch (err) {
+
+    console.error("❌ FINAL ERROR:", err.message);
+    console.error(err);
+
+    if (res) res.status(500).json({ ok: false });
+
+  } finally {
+
+    console.timeEnd("⏱️ Analysis Duration");
+
+  }
 }
 
 module.exports = { runAutomatedAnalysis };

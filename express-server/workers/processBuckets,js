@@ -1,0 +1,142 @@
+const pool = require("../db");
+
+const IST_OFFSET_MS = 19800 * 1000;
+
+// ================= HELPERS =================
+
+function bucketSummary(data) {
+
+  const counts = [0,0,0,0,0];
+  let postureChanges = 0;
+
+  for (let i = 0; i < data.length; i++) {
+
+    counts[data[i]]++;
+
+    if (i > 0 && data[i] !== data[i - 1]) {
+      postureChanges++;
+    }
+  }
+
+  const dominant = counts.indexOf(Math.max(...counts));
+
+  const activeMinutes = ((counts[3] + counts[4]) * 20) / 60;
+  const sedentaryMinutes = ((counts[0] + counts[1]) * 20) / 60;
+
+  return {
+    dominant,
+    activeMinutes: Number(activeMinutes.toFixed(2)),
+    sedentaryMinutes: Number(sedentaryMinutes.toFixed(2)),
+    postureChanges
+  };
+}
+
+function bucketTaskEngine(summary, hour) {
+
+  if (hour >= 23 || hour <= 5)
+    return summary.dominant >= 3 ? "Go back to sleep" : "Maintain rest";
+
+  if (hour >= 6 && hour <= 9)
+    return summary.activeMinutes < 3 ? "Morning walk" : "Good activity";
+
+  if (hour >= 10 && hour <= 18)
+    return summary.sedentaryMinutes > 10 ? "Stretch" : "Balanced posture";
+
+  if (hour >= 19 && hour <= 22)
+    return summary.activeMinutes > 8 ? "Slow down" : "Relax";
+
+  return "Normal movement";
+}
+
+// ================= MAIN PROCESS =================
+
+async function runAutomatedAnalysis1() {
+
+  console.log("⚙ Starting Fitband Bucket Processing...");
+
+  const raw = await pool.query(
+    `
+    SELECT r.id, r.bucket, r.motion_data, r.created_at
+    FROM fitband_activity_logs r
+    LEFT JOIN fitband_bucket_insights i
+      ON r.bucket = i.bucket
+     AND r.created_at::date = i.created_at::date
+    WHERE i.id IS NULL
+    ORDER BY r.id ASC
+    `
+  );
+
+  console.log("📦 Pending buckets:", raw.rowCount);
+
+  let processed = 0;
+
+  for (const row of raw.rows) {
+
+    try {
+
+      const summary = bucketSummary(row.motion_data);
+
+      const istHour =
+        new Date(row.created_at.getTime() + IST_OFFSET_MS).getHours();
+
+      const task = bucketTaskEngine(summary, istHour);
+
+      const healthState =
+        summary.sedentaryMinutes > 10 ? "SEDENTARY" : "ACTIVE";
+
+      await pool.query(
+        `
+        INSERT INTO fitband_bucket_insights
+        (
+          bucket,
+          dominant_activity,
+          active_minutes,
+          sedentary_minutes,
+          posture_changes,
+          suggested_task,
+          health_state,
+          created_at
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        `,
+        [
+          row.bucket,
+          summary.dominant,
+          summary.activeMinutes,
+          summary.sedentaryMinutes,
+          summary.postureChanges,
+          task,
+          healthState,
+          row.created_at
+        ]
+      );
+
+      await pool.query(
+        `
+        INSERT INTO fitband_task_log
+        (bucket, task, delivered_at)
+        VALUES ($1,$2,$3)
+        `,
+        [row.bucket, task, row.created_at]
+      );
+
+      processed++;
+
+      console.log("✅ Processed bucket:", row.bucket);
+
+    } catch (err) {
+
+      console.error("❌ Failed bucket:", row.bucket, err.message);
+    }
+  }
+
+  console.log("🏁 Processing complete. Total:", processed);
+
+  return processed;
+}
+
+// ================= EXPORT =================
+
+module.exports = {
+  runAutomatedAnalysis1
+};

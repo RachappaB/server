@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const cron = require('node-cron');
 const { runAutomatedAnalysis } = require('./controllers/geminicontroller');
-
+const { runAutomatedAnalysis1 } = require("./workers/processBuckets,js");
 // ✅ Trust reverse proxy headers
 app.set("trust proxy", true);
 
@@ -74,22 +74,42 @@ app.use("/api/combinedfilter",require("./routes/combinedfillterRoute"));
 
 //gemini working test route 
 app.use("/api/gemini",require("./routes/geminiroute"));
+app.use("/api/gps",require("./routes/gps"));  
 
 
 
-cron.schedule('*/15 * * * *', async () => {
-    console.log('⏰ Cron Triggered: Starting 15-minute Productivity Analysis...');
-    try {
-      console.log("function in  corn running")
-        // We call the function without req/res objects for automated runs
-        await runAutomatedAnalysis();
-    } catch (err) {
-      console.log("failed the corn")
-        console.error('❌ Cron Job Failed:', err);
-    }
+// cron.schedule('*/15 * * * *', async () => {
+//     console.log('⏰ Cron Triggered: Starting 15-minute Productivity Analysis...');
+//     try {
+//       console.log("function in  corn running")
+//         // We call the function without req/res objects for automated runs
+//         await runAutomatedAnalysis();
+//     } catch (err) {
+//       console.log("failed the corn")
+//         console.error('❌ Cron Job Failed:', err);
+//     }
+// });
+
+
+
+
+
+cron.schedule("*/5 * * * *", async () => {
+
+  console.log("⏰ Cron Triggered: Fitband Analysis");
+
+  try {
+
+    const count = await runAutomatedAnalysis1();
+
+    console.log("✅ Cron Completed. Buckets:", count);
+
+  } catch (err) {
+
+    console.error("❌ Cron Failed:", err);
+  }
+
 });
-
-
 
 
 

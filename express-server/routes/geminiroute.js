@@ -23,6 +23,11 @@ router.get("/logs", async (req, res) => {
                 guidance, 
                 remark, 
                 problem, 
+                motion,
+                health,
+                roadmap,
+                topics_to_address,
+                full_response,
                 followed_previous_advice,
                 created_at
             FROM gemini_analysis_logs 

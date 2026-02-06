@@ -3,33 +3,25 @@ const router = express.Router();
 
 const {
   saveMotionData,
-  getAlarm,
-  createAlarm,
-  deleteAlarm,
-  getMotionLogs,
-  ackAlarm
+  getBucketByDay,
+  getTaskHistory,
+  getDailySummary
 } = require("../controllers/fitbandController");
 
 // ================= DEVICE =================
 
-// ESP32 → upload bucket
+// ESP32 → upload bucket data
 router.post("/", saveMotionData);
-
-// ESP32 → fetch alarm queue
-router.get("/alarm", getAlarm);
-
-// ESP32 → acknowledge alarm
-router.post("/alarm/ack", ackAlarm);
 
 // ================= DASHBOARD =================
 
-// Web → view motion
-router.get("/motion", getMotionLogs);
+// Bucket analytics by day
+router.get("/bucket-day", getBucketByDay);
 
-// Web → create alarm
-router.post("/alarm", createAlarm);
+// Task history
+router.get("/tasks", getTaskHistory);
 
-// Web → delete alarm
-router.delete("/alarm/:id", deleteAlarm);
+// Daily summary
+router.get("/daily-summary", getDailySummary);
 
 module.exports = router;
