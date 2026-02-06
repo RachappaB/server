@@ -107,7 +107,9 @@ async function backfill() {
     // 3️⃣ Analyze bucket
     const summary = bucketSummary(motion_data);
 
-    const hour = new Date(created_at).getHours();
+    const { getISTParts } = require('./express-server/utils/timezone');
+
+    const { hour } = getISTParts(created_at);
 
     const task = bucketTaskEngine(summary, hour);
 

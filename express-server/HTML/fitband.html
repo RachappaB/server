@@ -102,6 +102,8 @@ th{
 
 <div class="title">Motion Data Table</div>
 
+<label for="datePicker">Filter Date:</label>
+<input type="date" id="datePicker" style="margin-right:10px">
 <button onclick="loadMotionData()">Refresh Data</button>
 
 <table>
@@ -123,7 +125,22 @@ th{
 
 <script>
 
-const API="https://data.sunita.space/api/fitband";
+// Use relative URL for local and production compatibility
+const API="/api/fitband";
+
+// Get today's IST date (not browser local date)
+function getTodayIST(){
+  const utcNow = new Date();
+  const istTime = new Date(utcNow.getTime() + 19800000); // UTC + 5.5 hours
+  const istYear = istTime.getUTCFullYear();
+  const istMonth = String(istTime.getUTCMonth() + 1).padStart(2, '0');
+  const istDay = String(istTime.getUTCDate()).padStart(2, '0');
+  return `${istYear}-${istMonth}-${istDay}`;
+}
+
+// Set default date to today IST
+const datePicker = document.getElementById("datePicker");
+datePicker.value = getTodayIST();
 
 // ================= LOAD MOTION DATA =================
 
@@ -131,7 +148,10 @@ async function loadMotionData(){
 
  try{
 
-   const res = await fetch(API + "/motion");
+  const date = document.getElementById("datePicker").value;
+  const url = API + "/motion" + (date ? `?date=${date}` : "");
+
+  const res = await fetch(url);
    const rows = await res.json();
 
    const table = document.getElementById("motionTable");
@@ -159,8 +179,11 @@ async function loadMotionData(){
 
 }
 
-// Auto load on page open
+// Auto load on page open with today's date
 loadMotionData();
+
+// Also auto-reload when date picker changes
+datePicker.addEventListener('change', loadMotionData);
 
 </script>
 

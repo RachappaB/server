@@ -5,7 +5,8 @@ const {
   saveMotionData,
   getBucketByDay,
   getTaskHistory,
-  getDailySummary
+  getDailySummary,
+  getMotionData
 } = require("../controllers/fitbandController");
 
 // ================= DEVICE =================
@@ -23,5 +24,8 @@ router.get("/tasks", getTaskHistory);
 
 // Daily summary
 router.get("/daily-summary", getDailySummary);
+
+// Motion logs for dashboard UI
+router.get("/motion", getMotionData);
 
 module.exports = router;

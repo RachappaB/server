@@ -284,6 +284,13 @@ canvas {
 <div class="card">
   <h3>Bucket Summary</h3>
   <div id="bucketList"></div>
+  <div id="bucketDetail" style="display:none; margin-top:12px;">
+    <div class="card">
+      <h3 id="detailTitle">Bucket Details</h3>
+      <div id="detailBody"></div>
+      <button id="closeDetail">Close</button>
+    </div>
+  </div>
 </div>
 
 <div class="card full">
@@ -446,16 +453,74 @@ function renderBuckets(data){
   el.innerHTML = '';
   if (!data || data.length === 0) { el.innerHTML = '<div class="list-item">No bucket data for this day</div>'; return; }
 
-  data.slice(0, 10).forEach(b => {
+  data.slice(0, 20).forEach(b => {
     const label = labelsMap[Number(b.dominant_activity)] || 'Unknown';
-    el.innerHTML += `
-      <div class="list-item">
-        <b>Bucket ${b.bucket}</b><br>
-        ${label} | Active ${b.active_minutes ?? '-'}m | Sit ${b.sedentary_minutes ?? '-'}m
-        ${b.health_insights ? `<br><small>${b.health_insights}</small>` : ''}
-      </div>`;
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.style.cursor = 'pointer';
+    item.innerHTML = `<b>Bucket ${b.bucket}</b> — ${label} &nbsp;|&nbsp; Active ${b.active_minutes ?? '-'}m | Sit ${b.sedentary_minutes ?? '-'}m`;
+    if (b.health_insights) {
+      const ins = document.createElement('div');
+      ins.innerHTML = `<small>${b.health_insights}</small>`;
+      item.appendChild(ins);
+    }
+    item.addEventListener('click', ()=> showBucketDetails(b));
+    el.appendChild(item);
   });
 }
+
+async function showBucketDetails(b){
+  const container = document.getElementById('bucketDetail');
+  const body = document.getElementById('detailBody');
+  document.getElementById('detailTitle').innerText = `Bucket ${b.bucket} Details`;
+  body.innerHTML = '';
+
+  const lines = [];
+  lines.push(`<div><strong>Dominant:</strong> ${labelsMap[Number(b.dominant_activity)] || 'Unknown'}</div>`);
+  lines.push(`<div><strong>Suggested Task:</strong> ${b.suggested_task || '-'}</div>`);
+  lines.push(`<div><strong>Health State:</strong> ${b.health_state || '-'}</div>`);
+  lines.push(`<div><strong>Active:</strong> ${b.active_minutes ?? '-'}m &nbsp; <strong>Sit:</strong> ${b.sedentary_minutes ?? '-'}m</div>`);
+  lines.push(`<div><strong>Times — Sleep/Sit/Stand/Walk/Run:</strong> ${b.time_sleep ?? 0} / ${b.time_sit ?? 0} / ${b.time_stand ?? 0} / ${b.time_walk ?? 0} / ${b.time_run ?? 0} (minutes)</div>`);
+  lines.push(`<div><strong>Posture Changes:</strong> ${b.posture_changes ?? '-'} &nbsp; <strong>Stability:</strong> ${b.posture_stability ?? '-'}%</div>`);
+  if (b.health_insights) {
+    const insights = b.health_insights.split('|').map(s=>s.trim()).filter(Boolean).map(s=>`<div class="insight">${s}</div>`).join('');
+    lines.push(`<div><strong>Insights:</strong>${insights}</div>`);
+  }
+
+  body.innerHTML = lines.join('');
+
+  // Try to fetch raw motion samples for this bucket
+  try {
+    const date = dayPicker.value;
+    const res = await fetch(`${API}/motion?date=${date}`);
+    const motions = await res.json();
+    const found = motions.find(m => Number(m.bucket) === Number(b.bucket));
+    if (found && Array.isArray(found.motion_data)) {
+      const viz = document.createElement('div');
+      viz.style.marginTop = '8px';
+      viz.style.display = 'flex';
+      viz.style.gap = '2px';
+      found.motion_data.forEach(v => {
+        const sq = document.createElement('div');
+        sq.style.width = '6px';
+        sq.style.height = '20px';
+        sq.title = String(v);
+        const colors = ['#334155','#475569','#64748b','#60a5fa','#34d399'];
+        sq.style.background = colors[v] || '#666';
+        viz.appendChild(sq);
+      });
+      body.appendChild(viz);
+    }
+  } catch (e) {
+    console.warn('Failed to fetch motion samples', e);
+  }
+
+  container.style.display = 'block';
+}
+
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  document.getElementById('bucketDetail').style.display = 'none';
+});
 
 function updateStats(data){
   let active = 0, sit = 0, stand = 0, walk = 0, run = 0, sleep = 0, changes = 0, stability = [];

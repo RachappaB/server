@@ -16,7 +16,6 @@
   --accent:#2b7cff;
   --green:#1f7a4a;
   --yellow:#a87900;
-  --red:#da3633;
   --text:#e6e6e6;
   --muted:#9aa0a6;
 }
@@ -32,7 +31,6 @@ body {
 }
 
 h2 { margin-bottom:10px; }
-h3 { margin-top:0; color:var(--accent); }
 
 .topbar {
   display:flex;
@@ -92,7 +90,6 @@ button {
   height:10px;
   border-radius:6px;
   overflow:hidden;
-  margin:8px 0;
 }
 
 .progress-fill {
@@ -104,25 +101,20 @@ button {
 .list-item {
   border-bottom:1px solid #2a2f3a;
   padding:8px 0;
-  font-size:13px;
 }
 
 .badge {
   padding:3px 8px;
   border-radius:6px;
   font-size:12px;
-  display:inline-block;
-  margin:2px;
 }
 
 .good { background:var(--green); }
 .warn { background:var(--yellow); }
-.bad { background:var(--red); }
 
 table {
   width:100%;
   border-collapse:collapse;
-  font-size:13px;
 }
 
 th,td {
@@ -134,35 +126,6 @@ th,td {
 canvas {
   width:100%!important;
   height:300px!important;
-}
-
-.health-metric {
-  margin:10px 0;
-  padding:10px;
-  background:#0f141b;
-  border-left:3px solid var(--accent);
-  border-radius:4px;
-}
-
-.health-metric-label {
-  font-weight:bold;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.health-metric-value {
-  font-size:18px;
-  font-weight:bold;
-  color:var(--accent);
-}
-
-.insight {
-  padding:8px;
-  margin:5px 0;
-  background:rgba(43,124,255,0.1);
-  border-left:3px solid var(--accent);
-  border-radius:4px;
-  font-size:12px;
 }
 
 .footer {
@@ -177,7 +140,7 @@ canvas {
 
 <body>
 
-<h2>🏥 Fitband Health Intelligence Dashboard</h2>
+<h2>📊 Fitband Health Intelligence Dashboard</h2>
 
 <div class="topbar">
   <label>Select Day:</label>
@@ -190,7 +153,7 @@ canvas {
 <div class="grid">
 
 <div class="card full">
-  <h3>📈 Daily Activity Progress</h3>
+  <h3>📈 Daily Progress</h3>
   <div class="progress-bar">
     <div id="dayProgress" class="progress-fill"></div>
   </div>
@@ -198,53 +161,20 @@ canvas {
 </div>
 
 <div class="card">
-  <h3>💪 Activity Summary</h3>
+  <h3>Quick Stats</h3>
   <div class="stats">
-    <div class="stat-box">Sleep<div id="sleepStat" class="stat-value">--</div>hrs</div>
-    <div class="stat-box">Active<div id="activeStat" class="stat-value">--</div>hrs</div>
-    <div class="stat-box">Sedentary<div id="sitStat" class="stat-value">--</div>hrs</div>
-    <div class="stat-box">Score<div id="scoreStat" class="stat-value">--</div>/100</div>
+    <div class="stat-box">Sleep<div id="sleepStat" class="stat-value">--</div></div>
+    <div class="stat-box">Active<div id="activeStat" class="stat-value">--</div></div>
+    <div class="stat-box">Sedentary<div id="sitStat" class="stat-value">--</div></div>
+    <div class="stat-box">Score<div id="scoreStat" class="stat-value">--</div></div>
   </div>
 </div>
 
 <div class="card">
-  <h3>🏥 Health State</h3>
+  <h3>Health State</h3>
   <div id="healthBadge"></div>
-  <small id="stabilityInfo"></small>
 </div>
 
-</div>
-
-<!-- ================= TIME BREAKDOWN ================= -->
-
-<div class="card full">
-  <h3>⏱️ Time Spent per Activity State</h3>
-  <div class="grid">
-    <div class="health-metric">
-      <div class="health-metric-label">😴 Sleep</div>
-      <div class="health-metric-value" id="timeSleep">--</div>
-    </div>
-    <div class="health-metric">
-      <div class="health-metric-label">🪑 Sitting</div>
-      <div class="health-metric-value" id="timeSit">--</div>
-    </div>
-    <div class="health-metric">
-      <div class="health-metric-label">🧍 Standing</div>
-      <div class="health-metric-value" id="timeStand">--</div>
-    </div>
-    <div class="health-metric">
-      <div class="health-metric-label">🚶 Walking</div>
-      <div class="health-metric-value" id="timeWalk">--</div>
-    </div>
-    <div class="health-metric">
-      <div class="health-metric-label">🏃 Running</div>
-      <div class="health-metric-value" id="timeRun">--</div>
-    </div>
-    <div class="health-metric">
-      <div class="health-metric-label">🔄 Posture Changes</div>
-      <div class="health-metric-value" id="postureChanges">--</div>
-    </div>
-  </div>
 </div>
 
 <!-- ================= MAIN DASHBOARD ================= -->
@@ -272,18 +202,13 @@ canvas {
 </div>
 
 <div class="card">
-  <h3>🧠 Health Insights</h3>
-  <div id="healthInsights"></div>
-</div>
-
-<div class="card">
-  <h3>💡 Daily Recommendations</h3>
-  <div id="recommendations"></div>
-</div>
-
-<div class="card">
   <h3>Bucket Summary</h3>
   <div id="bucketList"></div>
+</div>
+
+<div class="card">
+  <h3>AI Task Suggestions</h3>
+  <div id="taskList"></div>
 </div>
 
 <div class="card full">
@@ -294,7 +219,7 @@ canvas {
 </div>
 
 <div class="footer">
-Fitband Wearable Intelligence Platform • Real-time Human Activity Analytics | Promoting Health & Productivity
+Fitband Wearable Intelligence Platform • Real-time Human Activity Analytics
 </div>
 
 <script>
@@ -313,7 +238,7 @@ const labelsMap = ["Sleep", "Sit", "Stand", "Walk", "Run"];
 
 function getTodayIST(){
   const utcNow = new Date();
-  const istTime = new Date(utcNow.getTime() + 19800000);
+  const istTime = new Date(utcNow.getTime() + 19800000); // UTC + 5.5 hours
   const istYear = istTime.getUTCFullYear();
   const istMonth = String(istTime.getUTCMonth() + 1).padStart(2, '0');
   const istDay = String(istTime.getUTCDate()).padStart(2, '0');
@@ -330,6 +255,8 @@ async function loadDay(){
     if (!Array.isArray(data) || data.length === 0) {
       clearCharts();
       renderNoData();
+      loadTasks();
+      loadDailySummary();
       setStatsMissing();
       updateProgress([]);
       return;
@@ -341,10 +268,10 @@ async function loadDay(){
     drawPie(data);
 
     renderBuckets(data);
+    loadTasks();
+    loadDailySummary();
     updateStats(data);
     updateProgress(data);
-    renderHealthInsights(data);
-    renderRecommendations(data);
 
   } catch (err) {
     console.error("Load day error:", err);
@@ -446,100 +373,39 @@ function renderBuckets(data){
   el.innerHTML = '';
   if (!data || data.length === 0) { el.innerHTML = '<div class="list-item">No bucket data for this day</div>'; return; }
 
-  data.slice(0, 10).forEach(b => {
+  data.forEach(b => {
     const label = labelsMap[Number(b.dominant_activity)] || 'Unknown';
     el.innerHTML += `
       <div class="list-item">
         <b>Bucket ${b.bucket}</b><br>
-        ${label} | Active ${b.active_minutes ?? '-'}m | Sit ${b.sedentary_minutes ?? '-'}m
-        ${b.health_insights ? `<br><small>${b.health_insights}</small>` : ''}
+        ${label} |
+        Active ${b.active_minutes ?? '-'}m |
+        Sedentary ${b.sedentary_minutes ?? '-'}m<br>
+        Task: ${b.suggested_task ?? '-'}
       </div>`;
   });
 }
 
-function updateStats(data){
-  let active = 0, sit = 0, stand = 0, walk = 0, run = 0, sleep = 0, changes = 0, stability = [];
-
-  data.forEach(b => { 
-    active += Number(b.active_minutes) || 0; 
-    sit += Number(b.sedentary_minutes) || 0; 
-    stand += Number(b.standing_minutes) || 0;
-    walk += Number(b.time_walk) || 0;
-    run += Number(b.time_run) || 0;
-    sleep += Number(b.time_sleep) || 0;
-    changes += Number(b.posture_changes) || 0;
-    if (Number(b.posture_stability)) stability.push(Number(b.posture_stability));
-  });
-
-  const hrs = (val) => (val / 60).toFixed(1);
-
-  document.getElementById('activeStat').innerText = hrs(active);
-  document.getElementById('sitStat').innerText = hrs(sit);
-  document.getElementById('sleepStat').innerText = hrs(sleep);
-
-  const score = Math.max(0, 100 - sit * 2 + walk);
-  document.getElementById('scoreStat').innerText = Math.min(100, Math.round(score));
-
-  document.getElementById('timeSleep').innerText = `${sleep}m`;
-  document.getElementById('timeSit').innerText = `${sit}m`;
-  document.getElementById('timeStand').innerText = `${stand}m`;
-  document.getElementById('timeWalk').innerText = `${walk}m`;
-  document.getElementById('timeRun').innerText = `${run}m`;
-  document.getElementById('postureChanges').innerText = `${changes}`;
-
-  const avgStability = stability.length > 0 ? Math.round(stability.reduce((a,b)=>a+b)/stability.length) : 0;
-  const healthStatus = score > 70 ? 'Healthy' : sit > 120 ? 'Needs Movement' : 'Good';
-  document.getElementById('healthBadge').innerHTML = `<span class="badge ${score > 70 ? 'good' : sit > 120 ? 'bad' : 'warn'}">${healthStatus}</span>`;
-  document.getElementById('stabilityInfo').innerText = `Posture Stability: ${avgStability}%`;
+async function loadTasks(){
+  try {
+    const res = await fetch(`${API}/tasks`);
+    const data = await res.json();
+    const el = document.getElementById('taskList');
+    el.innerHTML = '';
+    if (!Array.isArray(data) || data.length === 0) { el.innerHTML = '<div class="list-item">No tasks</div>'; return; }
+    data.slice(0,12).forEach(t => { el.innerHTML += `<div class="list-item">Bucket ${t.bucket} → ${t.task}</div>`; });
+  } catch (err) { console.error('Tasks load error', err); }
 }
 
-function renderHealthInsights(data){
-  const el = document.getElementById('healthInsights');
-  el.innerHTML = '';
-  
-  const insights = new Set();
-  data.forEach(b => {
-    if (b.health_insights) {
-      b.health_insights.split('|').forEach(i => {
-        if (i.trim()) insights.add(i.trim());
-      });
-    }
-  });
-
-  if (insights.size === 0) {
-    el.innerHTML = '<div class="insight">📊 No specific insights</div>';
-  } else {
-    insights.forEach(insight => {
-      el.innerHTML += `<div class="insight">${insight}</div>`;
-    });
-  }
-}
-
-function renderRecommendations(data){
-  const el = document.getElementById('recommendations');
-  el.innerHTML = '';
-  
-  let active = 0, sit = 0, changes = 0;
-  data.forEach(b => { 
-    active += Number(b.active_minutes) || 0; 
-    sit += Number(b.sedentary_minutes) || 0;
-    changes += Number(b.posture_changes) || 0;
-  });
-
-  const recs = [];
-  if (sit > 120) recs.push('💪 Take a 10-minute walk break');
-  if (active < 30) recs.push('🚶 Increase activity level');
-  if (changes < 20) recs.push('🔄 Try changing positions more frequently');
-  if (active > 100) recs.push('✅ Excellent activity level! Keep it up');
-
-  el.innerHTML = recs.length > 0 ? recs.map(r => `<div class="insight">${r}</div>`).join('') : '<div class="insight">Keep monitoring your activity</div>';
-}
-
-function updateProgress(data){
-  const count = (Array.isArray(data) ? data.length : 0);
-  const pct = (count / 96) * 100;
-  document.getElementById('dayProgress').style.width = pct + '%';
-  document.getElementById('bucketCounter').innerText = `${count}/96 buckets`;
+async function loadDailySummary(){
+  try {
+    const res = await fetch(`${API}/daily-summary`);
+    const data = await res.json();
+    const table = document.getElementById('dailyTable');
+    table.innerHTML = `\n  <tr>\n    <th>Date</th><th>Sleep</th><th>Walk</th><th>Sit</th><th>Score</th>\n  </tr>`;
+    if (!Array.isArray(data) || data.length === 0) { table.innerHTML += '<tr><td colspan="5">No daily summary</td></tr>'; return; }
+    data.forEach(d => { table.innerHTML += `\n      <tr>\n        <td>${d.day}</td>\n        <td>${d.sleep_minutes}</td>\n        <td>${d.walk_minutes}</td>\n        <td>${d.sit_minutes}</td>\n        <td>${d.health_score}</td>\n      </tr>`; });
+  } catch (err) { console.error('Daily summary error', err); }
 }
 
 function setStatsMissing(){
@@ -550,10 +416,30 @@ function setStatsMissing(){
   document.getElementById('healthBadge').innerHTML = '<span class="badge warn">Data missing</span>';
 }
 
+function updateStats(data){
+  let active = 0, sit = 0, sleep = 0;
+  data.forEach(b => { active += Number(b.active_minutes) || 0; sit += Number(b.sedentary_minutes) || 0; if (Number(b.dominant_activity) === 0) sleep++; });
+
+  document.getElementById('activeStat').innerText = Math.round(active);
+  document.getElementById('sitStat').innerText = Math.round(sit);
+  document.getElementById('sleepStat').innerText = sleep * 15;
+
+  const score = Math.max(0, 100 - sit * 2);
+  document.getElementById('scoreStat').innerText = score;
+  document.getElementById('healthBadge').innerHTML = score > 70 ? '<span class="badge good">Healthy</span>' : '<span class="badge warn">Needs Improvement</span>';
+}
+
+function updateProgress(data){
+  const count = (Array.isArray(data) ? data.length : 0);
+  const pct = (count / 96) * 100;
+  document.getElementById('dayProgress').style.width = pct + '%';
+  document.getElementById('bucketCounter').innerText = `${count}/96 buckets`;
+}
+
 function renderNoData(){
   document.getElementById('bucketList').innerHTML = '<div class="list-item">No bucket data for this day</div>';
-  document.getElementById('healthInsights').innerHTML = '<div class="insight">No insights available</div>';
-  document.getElementById('recommendations').innerHTML = '<div class="insight">No recommendations</div>';
+  document.getElementById('taskList').innerHTML = '<div class="list-item">No tasks</div>';
+  document.getElementById('dailyTable').innerHTML = '<tr><td colspan="5">No daily summary</td></tr>';
 }
 
 // Auto load

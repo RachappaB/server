@@ -1,6 +1,6 @@
 const pool = require("../db");
 
-const IST_OFFSET_MS = 19800 * 1000;
+const { getISTParts } = require('../utils/timezone');
 
 // ================= HELPERS =================
 
@@ -76,10 +76,8 @@ async function runAutomatedAnalysis1() {
 
       const summary = bucketSummary(row.motion_data);
 
-      const istHour =
-        new Date(row.created_at.getTime() + IST_OFFSET_MS).getHours();
-
-      const task = bucketTaskEngine(summary, istHour);
+      const { hour } = getISTParts(row.created_at);
+      const task = bucketTaskEngine(summary, hour);
 
       const healthState =
         summary.sedentaryMinutes > 10 ? "SEDENTARY" : "ACTIVE";

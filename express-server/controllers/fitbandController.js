@@ -86,8 +86,7 @@ async function saveMotionData(req, res) {
       SELECT id
       FROM fitband_activity_logs
       WHERE bucket = $1
-      AND (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date =
-          (NOW() AT TIME ZONE 'Asia/Kolkata')::date
+      AND created_at::date = NOW()::date
       `,
       [bucket]
     );
@@ -113,10 +112,10 @@ async function saveMotionData(req, res) {
     await client.query(
       `
       INSERT INTO fitband_activity_logs
-      (bucket, motion_data)
-      VALUES ($1,$2)
+      (bucket, motion_data, raw_motion_data)
+      VALUES ($1,$2,$3)
       `,
-      [bucket, normalized]
+      [bucket, normalized, motion]
     );
 
     await client.query("COMMIT");
@@ -181,9 +180,18 @@ async function getBucketByDay(req, res) {
         dominant_activity,
         suggested_task,
         health_state,
+        posture_changes,
+        posture_stability,
+        health_insights,
+        time_sleep,
+        time_sit,
+        time_stand,
+        time_walk,
+        time_run,
+        standing_minutes,
         created_at
       FROM fitband_bucket_insights
-      WHERE (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date = $1
+      WHERE created_at::date = $1
       ORDER BY bucket ASC
       `,
       [date]
@@ -246,6 +254,56 @@ async function getDailySummary(req, res) {
   }
 }
 
+// ===== MOTION LOGS =====
+
+async function getMotionData(req, res) {
+
+  try {
+
+    const { date } = req.query;
+
+    let query;
+    let params = [];
+
+    if (date) {
+      query = `
+      SELECT id, bucket, motion_data, created_at
+      FROM fitband_activity_logs
+      WHERE created_at::date = $1::date
+      ORDER BY bucket ASC
+      LIMIT 200
+      `;
+      params = [date];
+      console.log(`[Motion] Fetching for IST date: ${date}`);
+    } else {
+      query = `
+      SELECT id, bucket, motion_data, created_at
+      FROM fitband_activity_logs
+      ORDER BY created_at DESC
+      LIMIT 200
+      `;
+    }
+
+    const result = await pool.query(query, params);
+
+    if (date) {
+      console.log(`[Motion] Returned ${result.rows.length} rows for ${date}`);
+      if (result.rows.length > 0) {
+        console.log(`[Motion] First: ${result.rows[0].bucket} at ${result.rows[0].created_at}`);
+        console.log(`[Motion] Last: ${result.rows[result.rows.length-1].bucket} at ${result.rows[result.rows.length-1].created_at}`);
+      }
+    }
+
+    res.json(result.rows);
+
+  } catch (err) {
+
+    console.error("Motion fetch error:", err);
+    res.status(500).json([]);
+  }
+
+}
+
 // ======================================================
 // EXPORT
 // ======================================================
@@ -258,5 +316,6 @@ module.exports = {
   // Dashboard
   getBucketByDay,
   getTaskHistory,
-  getDailySummary
+  getDailySummary,
+  getMotionData
 };
