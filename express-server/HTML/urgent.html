@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Behavioral Usage Prediction Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+/* Dark Theme Match */
+
+body {
+    font-family: system-ui, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    margin: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.card {
+    background: #020617;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    border: 1px solid #1e293b;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+ul {
+    line-height: 1.8;
+    opacity: 0.85;
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.allow-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.allow-btn:hover {
+    background: #1d4ed8;
+}
+
+.deny-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.deny-btn:hover {
+    opacity: 0.85;
+}
+
+.hidden {
+    display: none;
+}
+
+canvas {
+    max-height: 400px;
+}
+
+a {
+    color: #60a5fa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+  <a href="/">
+    <div class="logo">Data Sunita</div>
+  </a>
+  <div>
+    <a href="/">Home</a>
+    <a href="/about.html">My Story</a>
+    <a href="/support.html">Support</a>
+    <a href="/privacy.html">Privacy</a>
+  </div>
+</div>
+
+<!-- ================= PRIVACY GATE ================= -->
+
+<div id="privacyGate" class="container">
+    <div class="card" style="text-align:center; max-width:700px; margin:auto;">
+        <h1>🔐 Data Usage Notice</h1>
+
+        <p style="opacity:0.85; margin-top:15px;">
+            This dashboard analyzes behavioral phone usage data using machine learning
+            to predict heavy usage bursts and behavioral patterns.
+        </p>
+
+        <p style="margin-top:20px;">
+            👉 <a href="/privacy.html" target="_blank">View Privacy Policy</a>
+        </p>
+
+        <p style="margin-top:15px;">
+            By clicking <strong>"I Allow"</strong>, you confirm that you understand and agree.
+        </p>
+
+        <div style="margin-top:25px;">
+            <button class="allow-btn" onclick="allowAccess()">I Allow</button>
+            &nbsp;
+            <button class="deny-btn" onclick="denyAccess()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+
+<div id="dashboard" class="container hidden">
+
+<h1 style="margin-bottom:30px;">📊 Behavioral Usage Prediction Dashboard</h1>
+
+<div class="card">
+<h2>📌 System Overview</h2>
+<ul>
+<li>Heavy Usage Prediction (Next 15-min bucket)</li>
+<li>Next Category Prediction (Active Apps Only)</li>
+<li>Memory Windows: 3, 6, 9 buckets</li>
+<li>Best Performing Model: Random Forest</li>
+</ul>
+</div>
+
+<div class="card"><h2>📈 Heavy Usage AUC</h2><canvas id="aucChart"></canvas></div>
+<div class="card"><h2>🔥 Heavy Burst Recall</h2><canvas id="recallChart"></canvas></div>
+<div class="card"><h2>⚡ Heavy Usage Ratio per User</h2><canvas id="ratioChart"></canvas></div>
+<div class="card"><h2>🎯 Next Category Prediction Accuracy</h2><canvas id="categoryChart"></canvas></div>
+<div class="card"><h2>🏆 Best Model Comparison</h2><canvas id="modelChart"></canvas></div>
+<div class="card"><h2>📊 Window Size Comparison</h2><canvas id="windowChart"></canvas></div>
+<div class="card"><h2>📈 Overall System Performance</h2><canvas id="overallChart"></canvas></div>
+
+<div class="card">
+<h2>🧠 Interpretation</h2>
+<p style="opacity:0.85; line-height:1.7;">
+• Heavy usage bursts are highly predictable (AUC up to 0.93).<br>
+• Next category behavior can be predicted up to 70%.<br>
+• Structured users show stronger behavioral momentum.<br>
+• Random Forest performs most consistently.<br>
+• Oversampling and undersampling degraded performance.<br>
+• The system models behavioral momentum — not random usage.
+</p>
+</div>
+
+</div>
+
+
+<script>
+
+// ================= PRIVACY CONTROL =================
+
+let chartsInitialized = false;
+
+function allowAccess() {
+    document.getElementById("privacyGate").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+
+    if (!chartsInitialized) {
+        initCharts();
+        chartsInitialized = true;
+    }
+}
+
+function denyAccess() {
+    alert("You must accept the privacy policy to access the dashboard.");
+}
+
+// ================= DATA =================
+
+const devices = [
+    "1289181bf9e8a830",
+    "575ad8bb58b1fc73",
+    "7a9d652fd4ee0d50",
+    "9d933a90976adf27",
+    "9f237dee273a6258"
+];
+
+const aucValues = [0.71, 0.92, 0.74, 0.91, 0.93];
+const recallValues = [0.00, 0.77, 0.37, 0.47, 0.74];
+const heavyRatio = [0.03, 0.24, 0.18, 0.07, 0.27];
+const categoryAccuracy = [0.00, 0.70, 0.52, 0.61, 0.62];
+const bestModelScore = [0, 1, 1, 1, 1];
+const windowLabels = ["3 Buckets", "6 Buckets", "9 Buckets"];
+const windowAccuracy = [0.70, 0.70, 0.70];
+
+// ================= INIT CHARTS =================
+
+function initCharts() {
+
+    function createBarChart(id, label, data) {
+        new Chart(document.getElementById(id), {
+            type: 'bar',
+            data: {
+                labels: devices,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: "#2563eb"
+                }]
+            },
+            options: chartOptions()
+        });
+    }
+
+    function chartOptions() {
+        return {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: "#e5e7eb" } }
+            },
+            scales: {
+                x: { ticks: { color: "#e5e7eb" } },
+                y: { min: 0, max: 1, ticks: { color: "#e5e7eb" } }
+            }
+        };
+    }
+
+    // First 4
+    createBarChart("aucChart", "AUC", aucValues);
+    createBarChart("recallChart", "Recall", recallValues);
+    createBarChart("ratioChart", "Heavy Usage Ratio", heavyRatio);
+    createBarChart("categoryChart", "Category Accuracy", categoryAccuracy);
+
+    // Model Chart
+    new Chart(document.getElementById("modelChart"), {
+        type: 'bar',
+        data: {
+            labels: devices,
+            datasets: [{
+                label: "Best Model (1 = Random Forest)",
+                data: bestModelScore,
+                backgroundColor: "#2563eb"
+            }]
+        },
+        options: chartOptions()
+    });
+
+    // Window Chart
+    new Chart(document.getElementById("windowChart"), {
+        type: 'line',
+        data: {
+            labels: windowLabels,
+            datasets: [{
+                label: "Best Device Accuracy",
+                data: windowAccuracy,
+                borderColor: "#2563eb",
+                backgroundColor: "#2563eb",
+                tension: 0.3
+            }]
+        },
+        options: chartOptions()
+    });
+
+    // Overall Chart
+    new Chart(document.getElementById("overallChart"), {
+        type: 'bar',
+        data: {
+            labels: ["Best Heavy AUC", "Best Category Accuracy"],
+            datasets: [{
+                label: "System Peak Performance",
+                data: [0.93, 0.70],
+                backgroundColor: "#2563eb"
+            }]
+        },
+        options: chartOptions()
+    });
+
+}
+
+</script>
+
+
+</body>
+</html>

@@ -110,13 +110,17 @@ async function saveMotionData(req, res) {
     const normalized = normalizeMotionArray(motion);
 
     await client.query(
-      `
-      INSERT INTO fitband_activity_logs
-      (bucket, motion_data, raw_motion_data)
-      VALUES ($1,$2,$3)
-      `,
-      [bucket, normalized, motion]
+      `INSERT INTO fitband_activity_logs
+        (bucket, motion_data, raw_motion_data)
+         VALUES ($1, $2, $3::jsonb) `,
+      [
+        bucket,
+        normalized,                // stays array
+        JSON.stringify(motion)     // stringify for jsonb
+     ]
+      
     );
+
 
     await client.query("COMMIT");
 

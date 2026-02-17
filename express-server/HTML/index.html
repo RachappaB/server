@@ -11,30 +11,97 @@
 <meta name="robots" content="index, follow">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<link rel="canonical" href="https://data.sunita.space/">
 
-<!-- OpenGraph -->
 <meta property="og:title" content="Data Sunita Platform">
 <meta property="og:description" content="Unified personal productivity and telemetry analytics platform.">
 <meta property="og:url" content="https://data.sunita.space/">
 <meta property="og:type" content="website">
 
-<!-- Favicon -->
 <link rel="icon" href="/favicon.ico">
-
-<!-- Styles -->
 <link rel="stylesheet" href="/css/style.css">
+
+<style>
+
+/* =========================
+ URGENT LAUNCH LINK
+========================= */
+
+.urgent-container {
+    margin-top: 50px;
+}
+
+.urgent-launch {
+    font-size: 32px;
+    font-weight: 800;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: gold;
+    position: relative;
+    display: inline-block;
+    transition: all 0.4s ease;
+    animation: goldBlink 1.4s infinite alternate;
+}
+
+/* Gold glow */
+@keyframes goldBlink {
+    0% {
+        text-shadow: 0 0 5px gold, 0 0 10px orange;
+        opacity: 1;
+    }
+    100% {
+        text-shadow: 0 0 25px gold, 0 0 50px orange;
+        opacity: 0.85;
+    }
+}
+
+/* Rocket icon */
+.urgent-launch::before {
+    content: "🚀";
+    position: absolute;
+    left: -45px;
+    transition: transform 0.6s ease;
+}
+
+/* Hover effect */
+.urgent-launch:hover {
+    color: #ffffff;
+    text-shadow: 0 0 35px gold, 0 0 70px orange;
+    transform: scale(1.12);
+}
+
+/* Rocket flight */
+.urgent-launch:hover::before {
+    transform: translateX(120px) translateY(-25px);
+}
+
+/* Slight shake */
+.urgent-launch:hover {
+    animation: shake 0.25s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) scale(1.12); }
+    25% { transform: translate(-1px, 2px) scale(1.12); }
+    50% { transform: translate(-2px, -1px) scale(1.12); }
+    75% { transform: translate(2px, 1px) scale(1.12); }
+    100% { transform: translate(1px, -2px) scale(1.12); }
+}
+
+</style>
 
 </head>
 
 <body>
 
-<!-- =========================
- NAVBAR
-========================= -->
+<!-- NAVBAR -->
 
 <div class="navbar">
-   <a href="/">  <div class="logo"> Data Sunita</div>
-</a>
+  <a href="/">
+    <div class="logo">Data Sunita</div>
+  </a>
 
   <div>
     <a href="/">Home</a>
@@ -44,17 +111,15 @@
   </div>
 </div>
 
-<!-- =========================
- HERO SECTION
-========================= -->
+<!-- HERO SECTION -->
 
 <div class="hero">
 
-  <h1>Unified Personal Data Platform</h1>
+  <h1>Own Your Data. Own Your Mind.</h1>
 
   <p>
-    Track productivity, devices, habits and telemetry
-    in one intelligent dashboard.
+    Track productivity, habits, device usage and personal telemetry
+    in one intelligent control system.
   </p>
 
   <a class="btn" href="/ai_logs.html">
@@ -70,35 +135,76 @@
 
 </div>
 
-<!-- =========================
- FEATURES
-========================= -->
+<!-- FEATURES -->
 
 <div class="container">
 
-<h2>Connected Systems</h2>
- <p style="margin-top:18px; opacity:0.7;">
-    Built by
+  <h2>Connected Systems</h2>
+
+  <p style="margin-top:18px; opacity:0.7;">
+    Dashboard:
     <a href="/fitband_dashboard.html" style="color:#60a5fa; text-decoration:none;">
-      Rachappa Biradar
+      Fitband Dashboard
     </a>
   </p>
-<br>
 
+</div>
 
-<!-- =========================
- FOOTER
-========================= -->
+<!-- MENTAL CONTROL SECTION -->
+
+<div class="container" style="margin-top:80px; text-align:center; max-width:900px;">
+
+  <h2>You Are Not Lazy. You Are Fighting Your Own Brain.</h2>
+
+  <p style="margin-top:25px; font-size:18px; line-height:1.7; opacity:0.85;">
+
+    Data Sunita is built for people who constantly struggle
+    between their rational mind and emotional impulses.
+
+    <br><br>
+
+    • You plan your day — but end up scrolling your phone  
+    • You want to complete tasks — but delay them  
+    • You promise discipline — but feelings win  
+    • You feel regret at night — but repeat the same cycle  
+
+    <br><br>
+
+    This is not laziness.
+
+    It is a battle between logic and impulse.
+
+    <br><br>
+
+    This platform exists to help your rational brain take control.
+
+  </p>
+
+  <a class="btn" href="/ai_logs.html" style="margin-top:30px;">
+    Take Back Control
+  </a>
+
+  <!-- URGENT ROCKET LINK -->
+
+  <div class="urgent-container">
+    <a class="urgent-launch" href="https://data.sunita.space/urgent.html">
+      Look For Our Work
+    </a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
 
 <div class="footer">
 
-<p>
-Data Sunita Platform • Built with Express, PostgreSQL & Cloudflare
-</p>
+  <p>
+    Data Sunita Platform • Built with Express, PostgreSQL & Cloudflare
+  </p>
 
-<p style="margin-top:8px;">
-© 2026 Rachappa Biradar • All Rights Reserved
-</p>
+  <p style="margin-top:8px;">
+    © 2026 Rachappa Biradar • All Rights Reserved
+  </p>
 
 </div>
 

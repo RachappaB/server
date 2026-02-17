@@ -78,18 +78,18 @@ app.use("/api/gps",require("./routes/gps"));
 
 
 
-// ✅ CRON JOB: AI Analysis every 15 minutes
-cron.schedule('*/15 * * * *', async () => {
-    console.log('⏰ Cron Triggered: Starting 15-minute Productivity Analysis...');
-    try {
-      console.log("🤖 Running automated AI analysis via cron");
-        await runAutomatedAnalysis();
-        console.log("✅ Cron Analysis Completed Successfully");
-    } catch (err) {
-      console.log("❌ Cron Analysis Failed");
-        console.error('❌ Cron Job Failed:', err);
-    }
-});
+// // ✅ CRON JOB: AI Analysis every 15 minutes
+// cron.schedule('*/15 * * * *', async () => {
+//     console.log('⏰ Cron Triggered: Starting 15-minute Productivity Analysis...');
+//     try {
+//       console.log("🤖 Running automated AI analysis via cron");
+//         await runAutomatedAnalysis();
+//         console.log("✅ Cron Analysis Completed Successfully");
+//     } catch (err) {
+//       console.log("❌ Cron Analysis Failed");
+//         console.error('❌ Cron Job Failed:', err);
+//     }
+// });
 
 
 // cron.schedule("*/5 * * * *", async () => {
