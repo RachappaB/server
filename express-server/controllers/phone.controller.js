@@ -8,6 +8,13 @@ const pool = require("../db");
 
 async function uploadUsageDay(req, res) {
   const dayObj = req.body;
+  console.log("Received usage day:", {
+    device_id: dayObj.device_id,
+    date: dayObj.date,
+    timezone: dayObj.timezone,
+    bucket_minutes: dayObj.bucket_minutes,
+    bucket_count: Array.isArray(dayObj.buckets) ? dayObj.buckets.length : 0,
+  }); 
 
   if (!dayObj || typeof dayObj !== "object") {
     return res.status(400).json({ ok: false, error: "Invalid JSON body" });
@@ -120,6 +127,7 @@ async function uploadUsageDay(req, res) {
  * ✅ Helper: Convert bucket_map -> full 96 bucket list
  */
 function buildFull96Buckets(bucketMap) {
+  console.log("Building full 96 buckets from bucketMap keys:", bucketMap ? Object.keys(bucketMap) : "null");  
   const buckets = [];
   for (let i = 0; i < 96; i++) {
     const apps = (bucketMap && bucketMap[i.toString()]) ? bucketMap[i.toString()] : {};
