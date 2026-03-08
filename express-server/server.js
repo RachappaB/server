@@ -64,6 +64,8 @@ app.get("/privacy.html", (req, res) => {
 
 // ✅ API Routes for data collection
 app.use("/api/phone", require("./routes/phone"));
+app.use("/api/phonev2", require("./routes/phonev2"));
+
 app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
 app.use("/api/thoughts",require("./routes/thoughts"));

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Phone Usage Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family: Arial;
+margin:10px;
+background:#f5f5f5;
+}
+
+h2{
+text-align:center;
+}
+
+.card{
+background:white;
+padding:15px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+#device{
+font-size:14px;
+color:#555;
+}
+
+table{
+width:100%;
+border-collapse: collapse;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:6px;
+font-size:12px;
+}
+
+th{
+background:#eee;
+}
+
+canvas{
+width:100% !important;
+max-height:300px;
+}
+
+.stat{
+font-size:22px;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>📱 Phone Usage Dashboard</h2>
+
+<div class="card">
+<div id="device"></div>
+</div>
+
+<div class="card">
+<b>Total Screen Time</b>
+<div class="stat" id="screenTime">Loading...</div>
+</div>
+
+<div class="card">
+<b>Top Apps Today</b>
+<canvas id="appChart"></canvas>
+</div>
+
+<div class="card">
+<b>Hourly Usage</b>
+<canvas id="bucketChart"></canvas>
+</div>
+
+<div class="card">
+<b>Recent Activity</b>
+
+<table id="table">
+
+<thead>
+<tr>
+<th>Time Bucket</th>
+<th>Apps Used</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+
+const deviceId = params.get("device_id");
+
+document.getElementById("device").innerHTML =
+"<b>Device ID:</b> " + deviceId;
+
+let totalSeconds = 0;
+let appTotals = {};
+let bucketTotals = new Array(96).fill(0);
+
+async function loadData(){
+
+const res = await fetch("/api/phonev2/usage/" + deviceId);
+
+const json = await res.json();
+
+const tbody = document.querySelector("#table tbody");
+
+json.data.forEach(day=>{
+
+day.buckets.forEach(bucket=>{
+
+const apps = bucket.apps;
+
+if(Object.keys(apps).length === 0) return;
+
+let bucketSeconds = 0;
+
+Object.keys(apps).forEach(app=>{
+
+let seconds = apps[app].seconds || 0;
+
+bucketSeconds += seconds;
+
+totalSeconds += seconds;
+
+if(!appTotals[app]) appTotals[app] = 0;
+
+appTotals[app] += seconds;
+
+});
+
+bucketTotals[bucket.bucket] += bucketSeconds;
+
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
+<td>${bucket.bucket}</td>
+<td>${Object.keys(apps).join("<br>")}</td>
+`;
+
+tbody.appendChild(tr);
+
+});
+
+});
+
+renderStats();
+renderAppChart();
+renderBucketChart();
+
+}
+
+function renderStats(){
+
+let hours = (totalSeconds / 3600).toFixed(2);
+
+document.getElementById("screenTime").innerText =
+hours + " hours";
+
+}
+
+function renderAppChart(){
+
+let sorted = Object.entries(appTotals)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,6);
+
+const labels = sorted.map(a=>a[0].split(".").pop());
+
+const data = sorted.map(a=>Math.round(a[1]/60));
+
+new Chart(document.getElementById("appChart"),{
+
+type:"pie",
+
+data:{
+labels:labels,
+datasets:[{
+data:data
+}]
+}
+
+});
+
+}
+
+function renderBucketChart(){
+
+const labels = bucketTotals.map((_,i)=>i);
+
+const data = bucketTotals.map(s=>Math.round(s/60));
+
+new Chart(document.getElementById("bucketChart"),{
+
+type:"bar",
+
+data:{
+labels:labels,
+datasets:[{
+label:"Minutes",
+data:data
+}]
+}
+
+});
+
+}
+
+loadData();
+
+</script>
+
+</body>
+
+</html>

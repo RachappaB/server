@@ -7,6 +7,7 @@ const pool = require("../db");
 
 
 async function uploadUsageDay(req, res) {
+  console.log(req.body)
   const dayObj = req.body;
   console.log("Received usage day:", {
     device_id: dayObj.device_id,
@@ -141,6 +142,7 @@ function buildFull96Buckets(bucketMap) {
  * Returns ALL 96 buckets always (0..95) for each day
  */
 async function getUsageByDeviceId(req, res) {
+  console.log(req.body)
   const { device_id } = req.params;
   console.log("Fetching usage for device_id:", device_id);
 
