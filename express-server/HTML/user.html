@@ -59,6 +59,34 @@ font-size:22px;
 font-weight:bold;
 }
 
+input{
+width:100%;
+padding:8px;
+margin-top:8px;
+margin-bottom:8px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+
+button{
+padding:8px 12px;
+border:none;
+background:#2196F3;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1976D2;
+}
+
+#emailStatus{
+font-size:12px;
+color:#666;
+margin-top:5px;
+}
+
 </style>
 
 </head>
@@ -70,6 +98,20 @@ font-weight:bold;
 <div class="card">
 <div id="device"></div>
 </div>
+
+
+<div class="card">
+
+<b>Link Device To Email</b>
+
+<input id="emailInput" placeholder="Enter your email">
+
+<button onclick="linkEmail()">Link Device</button>
+
+<div id="emailStatus"></div>
+
+</div>
+
 
 <div class="card">
 <b>Total Screen Time</b>
@@ -116,6 +158,46 @@ document.getElementById("device").innerHTML =
 let totalSeconds = 0;
 let appTotals = {};
 let bucketTotals = new Array(96).fill(0);
+
+
+async function linkEmail(){
+
+const email = document.getElementById("emailInput").value;
+
+if(!email){
+document.getElementById("emailStatus").innerText =
+"Please enter email";
+return;
+}
+
+const res = await fetch("/api/user/register-device",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email:email,
+device_id:deviceId
+})
+});
+
+const json = await res.json();
+
+if(json.ok){
+
+document.getElementById("emailStatus").innerText =
+"✅ Device linked successfully";
+
+}else{
+
+document.getElementById("emailStatus").innerText =
+"❌ Failed to link device";
+
+}
+
+}
+
+
 
 async function loadData(){
 
@@ -170,6 +252,7 @@ renderBucketChart();
 
 }
 
+
 function renderStats(){
 
 let hours = (totalSeconds / 3600).toFixed(2);
@@ -178,6 +261,7 @@ document.getElementById("screenTime").innerText =
 hours + " hours";
 
 }
+
 
 function renderAppChart(){
 
@@ -204,6 +288,7 @@ data:data
 
 }
 
+
 function renderBucketChart(){
 
 const labels = bucketTotals.map((_,i)=>i);
@@ -225,6 +310,7 @@ data:data
 });
 
 }
+
 
 loadData();
 
