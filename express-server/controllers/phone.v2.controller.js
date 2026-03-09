@@ -4,6 +4,9 @@ const pool = require("../db");
  * POST /api/phonev2/usage/day
  */
 
+
+
+
 async function uploadUsageDay(req, res) {
 
   const dayObj = req.body;
@@ -55,7 +58,9 @@ async function uploadUsageDay(req, res) {
 
     const dayId = dayResult.rows[0].id;
 
-    let bucketsSaved = 0;
+    const values = [];
+    const params = [];
+    let paramIndex = 1;
 
     for (const b of buckets) {
 
@@ -74,28 +79,38 @@ async function uploadUsageDay(req, res) {
         timeline.length === 0
       ) continue;
 
-      await client.query(
-        `
+      values.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}::jsonb, $${paramIndex++}::jsonb, $${paramIndex++}::jsonb)`);
+
+      params.push(
+        dayId,
+        bucketIndex,
+        JSON.stringify(apps),
+        JSON.stringify(switchPairs),
+        JSON.stringify(timeline)
+      );
+
+    }
+
+    let bucketsSaved = 0;
+
+    if (values.length > 0) {
+
+      const insertQuery = `
         INSERT INTO usage_buckets_v2
         (day_id, bucket_index, apps, switch_pairs, timeline)
-        VALUES ($1,$2,$3::jsonb,$4::jsonb,$5::jsonb)
+        VALUES ${values.join(",")}
+
         ON CONFLICT (day_id, bucket_index)
         DO UPDATE SET
           apps = usage_buckets_v2.apps || EXCLUDED.apps,
           switch_pairs = usage_buckets_v2.switch_pairs || EXCLUDED.switch_pairs,
           timeline = usage_buckets_v2.timeline || EXCLUDED.timeline,
           received_at = NOW()
-        `,
-        [
-          dayId,
-          bucketIndex,
-          JSON.stringify(apps),
-          JSON.stringify(switchPairs),
-          JSON.stringify(timeline)
-        ]
-      );
+      `;
 
-      bucketsSaved++;
+      await client.query(insertQuery, params);
+
+      bucketsSaved = values.length;
 
     }
 
@@ -127,8 +142,6 @@ async function uploadUsageDay(req, res) {
   }
 
 }
-
-
 
 /**
  * Convert bucket_map -> 96 buckets

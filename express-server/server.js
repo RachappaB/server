@@ -1,6 +1,8 @@
 const express = require("express");
 const pool = require("./db");
 const path = require("path");
+const morgan = require("morgan");
+
 const cors = require("cors");
 require('dotenv').config(); 
 const { startFcmScheduler } = require("./fcmScheduler");
@@ -28,6 +30,9 @@ app.use("/api/mpu-ai/data",
 
 
 
+
+
+app.use(morgan(":date[iso] :method :url :status :response-time ms"));
 
 
 
