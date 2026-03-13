@@ -7,6 +7,8 @@ const {
   getLaptopDevices,
   getLaptopUsageByDate,
   downloadLaptopUsageByDate
+
+ 
 } = require("../controllers/laptopcontrol");
 
 // ============================
@@ -25,6 +27,16 @@ router.get("/latest", getLatestLaptopData);
 
 // list devices
 router.get("/devices", getLaptopDevices);
+
+
+
+// ============================
+// USER REMARK ROUTES
+// ============================
+
+// save/update remark
+
+// get remarks for day
 
 // fetch one day
 router.get("/usage/day/:device_name/:date", getLaptopUsageByDate);

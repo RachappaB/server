@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fitband Health Intelligence Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+:root {
+  --bg:#0e1117;
+  --card:#161b22;
+  --accent:#2b7cff;
+  --green:#1f7a4a;
+  --yellow:#a87900;
+  --text:#e6e6e6;
+  --muted:#9aa0a6;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+h2 { margin-bottom:10px; }
+
+.topbar {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+input, button {
+  padding:8px 12px;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:15px;
+}
+
+.card {
+  background:var(--card);
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 0 12px rgba(0,0,0,.4);
+}
+
+.full { grid-column:span 2; }
+
+.stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;
+}
+
+.stat-box {
+  background:#0f141b;
+  padding:12px;
+  border-radius:8px;
+  text-align:center;
+}
+
+.stat-value {
+  font-size:22px;
+  font-weight:bold;
+}
+
+.progress-bar {
+  background:#222;
+  height:10px;
+  border-radius:6px;
+  overflow:hidden;
+}
+
+.progress-fill {
+  height:100%;
+  background:var(--accent);
+  width:0%;
+}
+
+.list-item {
+  border-bottom:1px solid #2a2f3a;
+  padding:8px 0;
+}
+
+.badge {
+  padding:3px 8px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+.good { background:var(--green); }
+.warn { background:var(--yellow); }
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td {
+  padding:8px;
+  border-bottom:1px solid #2a2f3a;
+  text-align:center;
+}
+
+canvas {
+  width:100%!important;
+  height:300px!important;
+}
+
+.footer {
+  text-align:center;
+  font-size:12px;
+  margin-top:20px;
+  color:var(--muted);
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>📊 Fitband Health Intelligence Dashboard</h2>
+
+<div class="topbar">
+  <label>Select Day:</label>
+  <input type="date" id="dayPicker">
+  <button onclick="loadDay()">Load</button>
+</div>
+
+<!-- ================= TOP STATS ================= -->
+
+<div class="grid">
+
+<div class="card full">
+  <h3>📈 Daily Progress</h3>
+  <div class="progress-bar">
+    <div id="dayProgress" class="progress-fill"></div>
+  </div>
+  <small id="bucketCounter"></small>
+</div>
+
+<div class="card">
+  <h3>Quick Stats</h3>
+  <div class="stats">
+    <div class="stat-box">Sleep<div id="sleepStat" class="stat-value">--</div></div>
+    <div class="stat-box">Active<div id="activeStat" class="stat-value">--</div></div>
+    <div class="stat-box">Sedentary<div id="sitStat" class="stat-value">--</div></div>
+    <div class="stat-box">Score<div id="scoreStat" class="stat-value">--</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Health State</h3>
+  <div id="healthBadge"></div>
+</div>
+
+</div>
+
+<!-- ================= MAIN DASHBOARD ================= -->
+
+<div class="grid">
+
+<div class="card full">
+  <h3>📉 Active vs Sedentary Trend</h3>
+  <canvas id="activityChart"></canvas>
+</div>
+
+<div class="card full">
+  <h3>🕒 Time → Activity Timeline</h3>
+  <canvas id="timeActivityChart"></canvas>
+</div>
+
+<div class="card">
+  <h3>📊 Activity Distribution (0–4)</h3>
+  <canvas id="classBar"></canvas>
+</div>
+
+<div class="card">
+  <h3>🥧 Active vs Sedentary Share</h3>
+  <canvas id="pieChart"></canvas>
+</div>
+
+<div class="card">
+  <h3>Bucket Summary</h3>
+  <div id="bucketList"></div>
+</div>
+
+<div class="card">
+  <h3>AI Task Suggestions</h3>
+  <div id="taskList"></div>
+</div>
+
+<div class="card full">
+  <h3>Daily History</h3>
+  <table id="dailyTable"></table>
+</div>
+
+</div>
+
+<div class="footer">
+Fitband Wearable Intelligence Platform • Real-time Human Activity Analytics
+</div>
+
+<script>
+
+const API = "/api/fitband";
+
+let activityChart = null, timeChart = null, barChart = null, pieChart = null;
+
+const dayPicker = document.getElementById("dayPicker");
+const activityCtx = document.getElementById("activityChart").getContext("2d");
+const timeCtx = document.getElementById("timeActivityChart").getContext("2d");
+const classBarCtx = document.getElementById("classBar").getContext("2d");
+const pieCtx = document.getElementById("pieChart").getContext("2d");
+
+const labelsMap = ["Sleep", "Sit", "Stand", "Walk", "Run"];
+
+function getTodayIST(){
+  const utcNow = new Date();
+  const istTime = new Date(utcNow.getTime() + 19800000); // UTC + 5.5 hours
+  const istYear = istTime.getUTCFullYear();
+  const istMonth = String(istTime.getUTCMonth() + 1).padStart(2, '0');
+  const istDay = String(istTime.getUTCDate()).padStart(2, '0');
+  return `${istYear}-${istMonth}-${istDay}`;
+}
+
+async function loadDay(){
+  const date = dayPicker.value;
+
+  try {
+    const res = await fetch(`${API}/bucket-day?date=${date}`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      clearCharts();
+      renderNoData();
+      loadTasks();
+      loadDailySummary();
+      setStatsMissing();
+      updateProgress([]);
+      return;
+    }
+
+    drawActivityLine(data);
+    drawTimeActivityTimeline(data);
+    drawClassBar(data);
+    drawPie(data);
+
+    renderBuckets(data);
+    loadTasks();
+    loadDailySummary();
+    updateStats(data);
+    updateProgress(data);
+
+  } catch (err) {
+    console.error("Load day error:", err);
+    alert("Failed to load day data");
+  }
+}
+
+function clearCharts(){
+  if (activityChart) { activityChart.destroy(); activityChart = null; }
+  if (timeChart) { timeChart.destroy(); timeChart = null; }
+  if (barChart) { barChart.destroy(); barChart = null; }
+  if (pieChart) { pieChart.destroy(); pieChart = null; }
+}
+
+function drawActivityLine(data){
+  data.sort((a,b)=>a.bucket-b.bucket);
+
+  const labels = data.map(d => `B${d.bucket}`);
+  const active = data.map(b => Number(b.active_minutes) || 0);
+  const sit = data.map(b => Number(b.sedentary_minutes) || 0);
+
+  if (activityChart) activityChart.destroy();
+
+  activityChart = new Chart(activityCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Active Minutes', data: active, tension: 0.3, borderColor: '#2b7cff', backgroundColor: 'rgba(43,124,255,0.08)', fill: true },
+        { label: 'Sedentary Minutes', data: sit, tension: 0.3, borderColor: '#a87900', backgroundColor: 'rgba(168,121,0,0.06)', fill: true }
+      ]
+    },
+    options: { maintainAspectRatio: false, responsive: true }
+  });
+}
+
+function drawTimeActivityTimeline(data){
+  data.sort((a,b)=>a.bucket-b.bucket);
+
+  const labels = data.map(b => {
+    const m = b.bucket * 15;
+    const h = Math.floor(m/60) % 24;
+    const mm = m % 60;
+    return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  });
+
+  const classes = data.map(b => Number(b.dominant_activity) || 0);
+
+  if (timeChart) timeChart.destroy();
+
+  timeChart = new Chart(timeCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{ label: 'Activity Class', data: classes, stepped: true, borderWidth: 2, pointRadius: 3, borderColor: '#38bdf8' }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      scales: {
+        y: {
+          min: 0,
+          max: 4,
+          ticks: { stepSize: 1, callback: v => labelsMap[Math.round(v)] }
+        }
+      }
+    }
+  });
+}
+
+function drawClassBar(data){
+  const counts = [0,0,0,0,0];
+  data.forEach(b => { const idx = Number(b.dominant_activity); if (!isNaN(idx) && idx >=0 && idx <=4) counts[idx]++; });
+
+  if (barChart) barChart.destroy();
+
+  barChart = new Chart(classBarCtx, {
+    type: 'bar',
+    data: { labels: labelsMap, datasets: [{ label: 'Buckets', data: counts, backgroundColor: ['#334155','#475569','#64748b','#60a5fa','#34d399'] }] },
+    options: { maintainAspectRatio: false, responsive: true }
+  });
+}
+
+function drawPie(data){
+  let active = 0, sit = 0;
+  data.forEach(b => { active += Number(b.active_minutes) || 0; sit += Number(b.sedentary_minutes) || 0; });
+
+  if (pieChart) pieChart.destroy();
+
+  pieChart = new Chart(pieCtx, {
+    type: 'doughnut',
+    data: { labels: ['Active','Sedentary'], datasets: [{ data: [active, sit], backgroundColor: ['#2b7cff','#a87900'] }] },
+    options: { maintainAspectRatio: false, responsive: true }
+  });
+}
+
+function renderBuckets(data){
+  const el = document.getElementById('bucketList');
+  el.innerHTML = '';
+  if (!data || data.length === 0) { el.innerHTML = '<div class="list-item">No bucket data for this day</div>'; return; }
+
+  data.forEach(b => {
+    const label = labelsMap[Number(b.dominant_activity)] || 'Unknown';
+    el.innerHTML += `
+      <div class="list-item">
+        <b>Bucket ${b.bucket}</b><br>
+        ${label} |
+        Active ${b.active_minutes ?? '-'}m |
+        Sedentary ${b.sedentary_minutes ?? '-'}m<br>
+        Task: ${b.suggested_task ?? '-'}
+      </div>`;
+  });
+}
+
+async function loadTasks(){
+  try {
+    const res = await fetch(`${API}/tasks`);
+    const data = await res.json();
+    const el = document.getElementById('taskList');
+    el.innerHTML = '';
+    if (!Array.isArray(data) || data.length === 0) { el.innerHTML = '<div class="list-item">No tasks</div>'; return; }
+    data.slice(0,12).forEach(t => { el.innerHTML += `<div class="list-item">Bucket ${t.bucket} → ${t.task}</div>`; });
+  } catch (err) { console.error('Tasks load error', err); }
+}
+
+async function loadDailySummary(){
+  try {
+    const res = await fetch(`${API}/daily-summary`);
+    const data = await res.json();
+    const table = document.getElementById('dailyTable');
+    table.innerHTML = `\n  <tr>\n    <th>Date</th><th>Sleep</th><th>Walk</th><th>Sit</th><th>Score</th>\n  </tr>`;
+    if (!Array.isArray(data) || data.length === 0) { table.innerHTML += '<tr><td colspan="5">No daily summary</td></tr>'; return; }
+    data.forEach(d => { table.innerHTML += `\n      <tr>\n        <td>${d.day}</td>\n        <td>${d.sleep_minutes}</td>\n        <td>${d.walk_minutes}</td>\n        <td>${d.sit_minutes}</td>\n        <td>${d.health_score}</td>\n      </tr>`; });
+  } catch (err) { console.error('Daily summary error', err); }
+}
+
+function setStatsMissing(){
+  document.getElementById('activeStat').innerText = '-';
+  document.getElementById('sitStat').innerText = '-';
+  document.getElementById('sleepStat').innerText = '-';
+  document.getElementById('scoreStat').innerText = '-';
+  document.getElementById('healthBadge').innerHTML = '<span class="badge warn">Data missing</span>';
+}
+
+function updateStats(data){
+  let active = 0, sit = 0, sleep = 0;
+  data.forEach(b => { active += Number(b.active_minutes) || 0; sit += Number(b.sedentary_minutes) || 0; if (Number(b.dominant_activity) === 0) sleep++; });
+
+  document.getElementById('activeStat').innerText = Math.round(active);
+  document.getElementById('sitStat').innerText = Math.round(sit);
+  document.getElementById('sleepStat').innerText = sleep * 15;
+
+  const score = Math.max(0, 100 - sit * 2);
+  document.getElementById('scoreStat').innerText = score;
+  document.getElementById('healthBadge').innerHTML = score > 70 ? '<span class="badge good">Healthy</span>' : '<span class="badge warn">Needs Improvement</span>';
+}
+
+function updateProgress(data){
+  const count = (Array.isArray(data) ? data.length : 0);
+  const pct = (count / 96) * 100;
+  document.getElementById('dayProgress').style.width = pct + '%';
+  document.getElementById('bucketCounter').innerText = `${count}/96 buckets`;
+}
+
+function renderNoData(){
+  document.getElementById('bucketList').innerHTML = '<div class="list-item">No bucket data for this day</div>';
+  document.getElementById('taskList').innerHTML = '<div class="list-item">No tasks</div>';
+  document.getElementById('dailyTable').innerHTML = '<tr><td colspan="5">No daily summary</td></tr>';
+}
+
+// Auto load
+dayPicker.value = getTodayIST();
+loadDay();
+
+</script>
+
+</body>
+</html>

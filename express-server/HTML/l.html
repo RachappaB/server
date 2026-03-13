@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>Usage Dashboard + Remarks</title>
+
+<style>
+
+body{
+background:#0f172a;
+color:white;
+font-family:sans-serif;
+padding:20px;
+}
+
+input,button{
+padding:6px;
+border:none;
+border-radius:6px;
+}
+
+button{
+background:#16a34a;
+color:white;
+cursor:pointer;
+font-size:12px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+border:1px solid #1f2937;
+padding:6px;
+vertical-align:top;
+}
+
+th{
+background:#020617;
+}
+
+.bucket{
+text-align:center;
+font-weight:bold;
+}
+
+.time{
+text-align:center;
+}
+
+.app{
+font-size:12px;
+margin-bottom:6px;
+}
+
+.barwrap{
+width:100%;
+height:10px;
+background:#1f2937;
+border-radius:4px;
+overflow:hidden;
+}
+
+.bar{
+height:100%;
+}
+
+.phone{ background:#22c55e }
+.laptop{ background:#3b82f6 }
+
+.remarkBox{
+width:95%;
+background:#020617;
+color:white;
+border:1px solid #1f2937;
+padding:4px;
+font-size:12px;
+margin-bottom:4px;
+}
+
+.submitBtn{
+background:#2563eb;
+}
+
+.empty{
+color:#64748b;
+text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Usage Dashboard</h2>
+
+User:
+<input id="username" placeholder="your name">
+
+Date:
+<input type="date" id="date">
+
+<button onclick="loadUsage()">Load</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Time</th>
+<th>Phone</th>
+<th>Laptop</th>
+<th>Remark</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+<script>
+
+const PHONE="7a9d652fd4ee0d50"
+const LAPTOP="ubuntu_laptop"
+
+const BUCKET_SECONDS=900
+
+let remarkMap={}
+
+/* ---------------- TIME ---------------- */
+
+function bucketTime(i){
+
+const min=i*15
+const h=Math.floor(min/60)
+const m=min%60
+
+return String(h).padStart(2,'0')+":"+String(m).padStart(2,'0')
+
+}
+
+function secondsToMin(s){
+return (s/60).toFixed(1)+"m"
+}
+
+/* ---------------- RENDER APPS ---------------- */
+
+function renderApps(items,type){
+
+if(!items || Object.keys(items).length===0)
+return '<div class="empty">-</div>'
+
+let html=""
+
+for(const name in items){
+
+const val=items[name]
+
+const sec=val.seconds ?? val
+const ratio=val.ratio ?? (sec/BUCKET_SECONDS)
+
+const pct=Math.min(ratio*100,100)
+
+html+=`
+
+<div class="app">
+
+<div>${name} (${secondsToMin(sec)})</div>
+
+<div class="barwrap">
+<div class="bar ${type}" style="width:${pct}%"></div>
+</div>
+
+</div>
+
+`
+}
+
+return html
+
+}
+
+/* ---------------- LOAD DATA ---------------- */
+
+async function loadUsage(){
+
+const date=document.getElementById("date").value
+
+if(!date){
+alert("Select date")
+return
+}
+
+const phoneURL=`/api/phonev2/usage/day/${PHONE}/${date}`
+const laptopURL=`/api/laptop/usage/day/${LAPTOP}/${date}`
+const remarkURL=`/api/laptop/bucket/remark/${LAPTOP}/${date}`
+
+const [phoneRes,laptopRes,remarkRes]=await Promise.all([
+fetch(phoneURL),
+fetch(laptopURL),
+fetch(remarkURL)
+])
+
+const phone=await phoneRes.json()
+const laptop=await laptopRes.json()
+const remarks=await remarkRes.json()
+
+remarkMap={}
+
+if(remarks.data){
+remarks.data.forEach(r=>{
+remarkMap[r.bucket_index]=r.remark
+})
+}
+
+buildTable(phone,laptop)
+
+}
+
+/* ---------------- SAVE REMARK ---------------- */
+
+async function saveRemark(bucket){
+
+const username=document.getElementById("username").value
+const date=document.getElementById("date").value
+
+if(!username){
+alert("Enter username")
+return
+}
+
+const remark=document.getElementById("remark_"+bucket).value
+
+await fetch("/api/laptop/bucket/remark",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+device_name:LAPTOP,
+date:date,
+bucket_index:bucket,
+username:username,
+remark:remark
+
+})
+
+})
+
+alert("Saved bucket "+bucket)
+
+}
+
+/* ---------------- BUILD TABLE ---------------- */
+
+function buildTable(phone,laptop){
+
+const body=document.getElementById("tableBody")
+body.innerHTML=""
+
+/* phone map */
+
+const phoneMap={}
+
+if(phone.buckets){
+phone.buckets.forEach(b=>{
+phoneMap[b.bucket]=b
+})
+}
+
+/* laptop map */
+
+const laptopMap={}
+
+if(laptop.data){
+laptop.data.forEach(b=>{
+laptopMap[b.bucket_15min_id]=b
+})
+}
+
+/* render rows */
+
+for(let i=0;i<96;i++){
+
+const phoneCell=renderApps(phoneMap[i]?.apps,"phone")
+const laptopCell=renderApps(laptopMap[i]?.apps,"laptop")
+
+const remark=remarkMap[i] || ""
+
+const row=document.createElement("tr")
+
+row.innerHTML=`
+
+<td class="bucket">${i}</td>
+
+<td class="time">${bucketTime(i)}</td>
+
+<td>${phoneCell}</td>
+
+<td>${laptopCell}</td>
+
+<td>
+
+<input
+id="remark_${i}"
+class="remarkBox"
+value="${remark}"
+placeholder="write remark"
+/>
+
+<button
+class="submitBtn"
+onclick="saveRemark(${i})"
+>
+Submit
+</button>
+
+</td>
+
+`
+
+body.appendChild(row)
+
+}
+
+}
+
+/* auto select today */
+
+document.getElementById("date").value =
+new Date().toISOString().slice(0,10)
+
+</script>
+
+</body>
+</html>
