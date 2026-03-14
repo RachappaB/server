@@ -1,321 +1,861 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Phone Usage Dashboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Screen Time</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-
-body{
-font-family: Arial;
-margin:10px;
-background:#f5f5f5;
+:root{
+  --bg:#07080f;--s1:#0f1120;--s2:#161928;--s3:#1d2235;--bdr:#252a3a;
+  --acc:#4f9ef8;--acc2:#a78bfa;--grn:#34d399;--red:#f87171;--yel:#fbbf24;--orn:#fb923c;
+  --txt:#eef0f6;--mu:#8b9ab8;--mu2:#3d4560;
+  --fn:'Nunito',sans-serif;--fm:'JetBrains Mono',monospace;
 }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;display:flex;flex-direction:column}
 
-h2{
-text-align:center;
+/* ── TOP BAR ── */
+.topbar{
+  flex-shrink:0;background:var(--s1);border-bottom:1px solid var(--bdr);
+  padding:12px 16px 10px;display:flex;align-items:center;gap:10px;
 }
+.topbar h1{font-size:18px;font-weight:900;letter-spacing:-.3px;
+  background:linear-gradient(90deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2}
+.topbar .dev{font-family:var(--fm);font-size:11px;color:var(--mu);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-left{flex:1;min-width:0}
+.sync-btn{flex-shrink:0;background:var(--s3);border:1px solid var(--bdr);
+  border-radius:10px;padding:8px 14px;font-size:13px;font-weight:800;
+  color:var(--acc);cursor:pointer;font-family:var(--fn)}
+.sync-btn:active{opacity:.6}
 
-.card{
-background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
+/* ── TABS ── */
+.tabbar{flex-shrink:0;display:flex;background:var(--s1);
+  border-bottom:1px solid var(--bdr);overflow-x:auto;scrollbar-width:none}
+.tabbar::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:13px 18px;font-size:13px;font-weight:800;
+  color:var(--mu);cursor:pointer;border-bottom:3px solid transparent;
+  white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.2px}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc)}
 
-#device{
-font-size:14px;
-color:#555;
-}
+/* ── PAGES ── */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:12px 12px 32px;display:none;
+  scrollbar-width:thin;scrollbar-color:var(--bdr) transparent}
+.page.active{display:block}
+.page::-webkit-scrollbar{width:3px}
+.page::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
 
-table{
-width:100%;
-border-collapse: collapse;
-}
+/* ── LOADER ── */
+#loader{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;background:var(--bg);z-index:99}
+.spin{width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--acc);
+  border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load-txt{font-size:14px;color:var(--mu);font-weight:600}
 
-th,td{
-border:1px solid #ddd;
-padding:6px;
-font-size:12px;
-}
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:16px;
+  padding:14px 14px 16px;margin-bottom:10px}
+.card-title{font-size:12px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--mu);margin-bottom:12px}
 
-th{
-background:#eee;
-}
+/* ── SCORE CARD ── */
+.score-card{background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:1px solid var(--bdr);border-radius:18px;padding:16px;
+  margin-bottom:10px;display:flex;align-items:center;gap:16px}
+.ring-wrap{flex-shrink:0;width:88px;height:88px;position:relative}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-track{stroke:var(--bdr);stroke-width:7;fill:none}
+.ring-fill{stroke-width:7;fill:none;stroke-linecap:round;
+  transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.ring-num{font-size:24px;font-weight:900;font-family:var(--fm);line-height:1}
+.ring-sub{font-size:9px;color:var(--mu);letter-spacing:.5px;margin-top:1px}
+.score-info{flex:1;min-width:0}
+.score-lv{font-size:16px;font-weight:900;margin-bottom:5px;line-height:1.2}
+.score-desc{font-size:13px;color:var(--mu);line-height:1.55}
 
-canvas{
-width:100% !important;
-max-height:300px;
-}
+/* ── STAT GRID 2×3 ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.scard{background:var(--s1);border:1px solid var(--bdr);border-radius:14px;
+  padding:12px 12px 10px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.scard.c-blue::before{background:var(--acc)}
+.scard.c-red::before{background:var(--red)}
+.scard.c-grn::before{background:var(--grn)}
+.scard.c-pur::before{background:var(--acc2)}
+.scard.c-orn::before{background:var(--orn)}
+.scard.c-yel::before{background:var(--yel)}
+.scard .si{font-size:20px;margin-bottom:6px}
+.scard .sv{font-size:22px;font-weight:900;font-family:var(--fm);line-height:1.1}
+.scard .sl{font-size:11px;color:var(--mu);font-weight:700;text-transform:uppercase;
+  letter-spacing:.4px;margin-top:4px}
+.scard .ss{font-size:11px;color:var(--mu2);margin-top:2px}
 
-.stat{
-font-size:22px;
-font-weight:bold;
-}
+/* ── CHART BOX ── */
+.chart-box{height:180px;position:relative;margin-top:6px}
+.chart-box canvas{width:100%!important;height:100%!important}
 
-input{
-width:100%;
-padding:8px;
-margin-top:8px;
-margin-bottom:8px;
-border:1px solid #ccc;
-border-radius:6px;
-}
+/* ── METERS ── */
+.meter-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.meter-row:last-child{margin-bottom:0}
+.m-label{width:96px;font-size:13px;font-weight:700;flex-shrink:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-bar{flex:1;height:9px;background:var(--bdr);border-radius:5px;overflow:hidden}
+.m-fill{height:100%;border-radius:5px;transition:width .7s ease}
+.m-val{width:42px;text-align:right;font-family:var(--fm);font-size:11px;color:var(--mu);flex-shrink:0}
 
-button{
-padding:8px 12px;
-border:none;
-background:#2196F3;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
+/* ── APP ROWS ── */
+.app-row{display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--bdr)}
+.app-row:last-child{border-bottom:none}
+.app-num{font-family:var(--fm);font-size:11px;color:var(--mu2);width:16px;
+  text-align:right;flex-shrink:0}
+.app-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-family:var(--fm);font-size:10px;font-weight:700;
+  flex-shrink:0;letter-spacing:-.5px}
+.app-inf{flex:1;min-width:0}
+.app-nm{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-ct{font-size:11px;color:var(--mu);margin-top:2px}
+.app-right{text-align:right;flex-shrink:0}
+.app-tm{font-family:var(--fm);font-size:13px;font-weight:700}
+.app-bar2{width:52px;height:4px;background:var(--bdr);border-radius:2px;
+  margin-top:4px;overflow:hidden;position:relative}
+.app-bar2-fill{position:absolute;left:0;top:0;height:100%;border-radius:2px;
+  transition:width .6s ease}
 
-button:hover{
-background:#1976D2;
-}
+/* ── HEATMAP ── */
+.hmap{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin:8px 0 5px}
+.hcell{aspect-ratio:1;border-radius:3px;background:var(--bdr)}
+.hmap-lbl{display:flex;justify-content:space-between;
+  font-size:10px;color:var(--mu);font-family:var(--fm);margin-top:2px}
 
-#emailStatus{
-font-size:12px;
-color:#666;
-margin-top:5px;
-}
+/* ── INSIGHTS ── */
+.insight{display:flex;gap:12px;align-items:flex-start;
+  background:var(--s2);border:1px solid var(--bdr);
+  border-radius:14px;padding:13px;margin-bottom:8px}
+.insight:last-child{margin-bottom:0}
+.insight.warn{border-color:rgba(248,113,113,.3)}
+.insight.good{border-color:rgba(52,211,163,.3)}
+.insight.info{border-color:rgba(79,158,248,.25)}
+.insight-ic{font-size:22px;flex-shrink:0;margin-top:1px}
+.insight-tx{font-size:13px;line-height:1.6;color:var(--txt)}
+.insight-tx strong{color:var(--orn);font-weight:800}
 
+/* ── DATE BROWSER ── */
+.date-browser{display:flex;align-items:center;gap:8px;
+  background:var(--s2);border:1px solid var(--bdr);
+  border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.date-nav{background:var(--s3);border:1px solid var(--bdr);
+  border-radius:10px;padding:8px 14px;font-size:18px;color:var(--txt);
+  cursor:pointer;flex-shrink:0;line-height:1}
+.date-nav:active{opacity:.6}
+.date-disp{flex:1;text-align:center;font-family:var(--fm);font-size:14px;
+  font-weight:700;color:var(--acc);cursor:pointer;position:relative}
+#datePickerInput{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.day-badge{flex-shrink:0;background:var(--s3);border:1px solid var(--bdr);
+  border-radius:8px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--mu)}
+
+/* ── DAY HERO ── */
+.day-hero{background:var(--s2);border:1px solid var(--bdr);
+  border-radius:16px;padding:12px;margin-bottom:10px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.day-big{background:var(--s3);border-radius:12px;padding:12px 10px;text-align:center}
+.day-big .dv{font-size:20px;font-weight:900;font-family:var(--fm);
+  color:var(--acc);line-height:1.1}
+.day-big .dl{font-size:11px;color:var(--mu);font-weight:700;
+  text-transform:uppercase;margin-top:4px;letter-spacing:.3px}
+
+/* ── COMPARE ── */
+.cmp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cmp-lbl{font-size:12px;color:var(--mu);width:36px;text-align:right;
+  flex-shrink:0;font-family:var(--fm)}
+.cmp-bar{flex:1;height:12px;background:var(--bdr);border-radius:6px;overflow:hidden}
+.cmp-fill{height:100%;border-radius:6px;transition:width .6s ease}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.timeline::-webkit-scrollbar{display:none}
+.tl-item{flex-shrink:0;background:var(--s2);border:1px solid var(--bdr);
+  border-radius:12px;padding:8px 10px;min-width:62px;text-align:center;
+  cursor:pointer;transition:border-color .15s}
+.tl-item.today{border-color:var(--acc);background:rgba(79,158,248,.08)}
+.tl-h{font-size:10px;color:var(--mu);font-family:var(--fm)}
+.tl-v{font-family:var(--fm);font-size:12px;font-weight:700;margin:2px 0}
+.tl-b{height:28px;display:flex;align-items:flex-end;justify-content:center;margin:4px 0}
+.tl-bar{width:12px;border-radius:3px 3px 0 0;min-height:2px}
+
+/* ── WEEK STRIP ── */
+.ws-strip{display:flex;gap:4px;margin-bottom:10px}
+.ws-day{flex:1;background:var(--s2);border:1px solid var(--bdr);
+  border-radius:10px;padding:6px 4px;text-align:center;cursor:pointer;
+  transition:border-color .15s,background .15s}
+.ws-day.ws-active{border-color:var(--acc);background:rgba(79,158,248,.1)}
+.ws-dname{font-size:10px;color:var(--mu);font-weight:800}
+.ws-val{font-family:var(--fm);font-size:10px;font-weight:700;margin-top:3px}
+.ws-bar-w{height:22px;display:flex;align-items:flex-end;justify-content:center;margin:4px 0}
+.ws-bar{width:10px;border-radius:3px 3px 0 0;min-height:2px}
+
+/* ── PILLS ── */
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pill{display:flex;align-items:center;gap:5px;background:var(--s3);
+  border-radius:20px;padding:5px 11px;font-size:12px;font-weight:700;
+  cursor:pointer;border:1px solid transparent;transition:border-color .15s}
+.pill.active{border-color:var(--acc)}
+.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:28px 20px;color:var(--mu);font-size:14px}
+.empty .ei{font-size:32px;margin-bottom:10px}
+
+/* ── STREAKS ── */
+.streak-row{display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--bdr)}
+.streak-row:last-child{border-bottom:none}
+.streak-ico{font-size:24px;flex-shrink:0}
+.streak-info{flex:1;min-width:0}
+.streak-title{font-size:14px;font-weight:800}
+.streak-sub{font-size:12px;color:var(--mu);margin-top:2px}
+.streak-val{font-family:var(--fm);font-size:16px;font-weight:700;flex-shrink:0;color:var(--acc)}
 </style>
-
 </head>
-
 <body>
 
-<h2>📱 Phone Usage Dashboard</h2>
-
-<div class="card">
-<div id="device"></div>
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>📱 Screen Intelligence</h1>
+    <div class="dev" id="devLabel">Loading…</div>
+  </div>
+  <div class="sync-btn" onclick="doReload()">↻ Sync</div>
 </div>
 
-
-<div class="card">
-
-<b>Link Device To Email</b>
-
-<input id="emailInput" placeholder="Enter your email">
-
-<button onclick="linkEmail()">Link Device</button>
-
-<div id="emailStatus"></div>
-
+<div class="tabbar">
+  <div class="tab active" onclick="switchTab(0)">Overview</div>
+  <div class="tab" onclick="switchTab(1)">By Day</div>
+  <div class="tab" onclick="switchTab(2)">Apps</div>
+  <div class="tab" onclick="switchTab(3)">Trends</div>
+  <div class="tab" onclick="switchTab(4)">Insights</div>
 </div>
 
+<div class="pages">
+  <div id="loader">
+    <div class="spin"></div>
+    <div class="load-txt" id="loadTxt">Fetching your data…</div>
+  </div>
 
-<div class="card">
-<b>Total Screen Time</b>
-<div class="stat" id="screenTime">Loading...</div>
-</div>
+  <!-- ── PAGE 0: OVERVIEW ── -->
+  <div class="page active" id="p0">
 
-<div class="card">
-<b>Top Apps Today</b>
-<canvas id="appChart"></canvas>
-</div>
+    <div class="score-card">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 88 88" width="88" height="88">
+          <circle class="ring-track" cx="44" cy="44" r="37"/>
+          <circle class="ring-fill" id="ringArc" cx="44" cy="44" r="37"
+            stroke-dasharray="232.5" stroke-dashoffset="232.5"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-num" id="scoreNum">–</div>
+          <div class="ring-sub">/100</div>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="score-lv" id="scoreLv">Analysing…</div>
+        <div class="score-desc" id="scoreDesc">Loading your patterns</div>
+      </div>
+    </div>
 
-<div class="card">
-<b>Hourly Usage</b>
-<canvas id="bucketChart"></canvas>
-</div>
+    <div class="stats-grid">
+      <div class="scard c-blue"><div class="si">⏱️</div><div class="sv" id="s0">–</div><div class="sl">Daily Avg</div><div class="ss" id="s0b"></div></div>
+      <div class="scard c-red"><div class="si">🌙</div><div class="sv" id="s1">–</div><div class="sl">Night Avg</div><div class="ss">10PM – 6AM</div></div>
+      <div class="scard c-orn"><div class="si">📲</div><div class="sv" id="s2">–</div><div class="sl">Opens / Day</div><div class="ss" id="s2b"></div></div>
+      <div class="scard c-grn"><div class="si">🎯</div><div class="sv" id="s3">–</div><div class="sl">Focus Score</div><div class="ss">productive %</div></div>
+      <div class="scard c-pur"><div class="si">📅</div><div class="sv" id="s4">–</div><div class="sl">Days Tracked</div><div class="ss" id="s4b"></div></div>
+      <div class="scard c-yel"><div class="si">🔥</div><div class="sv" id="s5">–</div><div class="sl">Worst Day</div><div class="ss" id="s5b"></div></div>
+    </div>
 
-<div class="card">
-<b>Recent Activity</b>
+    <div class="card">
+      <div class="card-title">⚡ Time by Category  ·  daily avg</div>
+      <div id="meterList"></div>
+    </div>
 
-<table id="table">
+    <div class="card">
+      <div class="card-title">🕐 Usage Heatmap by Hour</div>
+      <div class="hmap" id="hmap"></div>
+      <div class="hmap-lbl">
+        <span>12AM</span><span>3AM</span><span>6AM</span><span>9AM</span>
+        <span>12PM</span><span>3PM</span><span>6PM</span><span>9PM</span>
+      </div>
+    </div>
 
-<thead>
-<tr>
-<th>Time Bucket</th>
-<th>Apps Used</th>
-</tr>
-</thead>
+    <div class="card">
+      <div class="card-title">📱 Top 5 Apps  ·  all-time</div>
+      <div id="top5List"></div>
+    </div>
+  </div>
 
-<tbody></tbody>
+  <!-- ── PAGE 1: BY DAY ── -->
+  <div class="page" id="p1">
+    <div class="date-browser">
+      <div class="date-nav" id="prevDay" onclick="navigateDay(-1)">‹</div>
+      <div class="date-disp">
+        <span id="dayDisp">–</span>
+        <input type="date" id="datePickerInput" oninput="onDatePick(this.value)">
+      </div>
+      <div class="day-badge" id="dayRelBadge">–</div>
+      <div class="date-nav" id="nextDay" onclick="navigateDay(1)">›</div>
+    </div>
 
-</table>
+    <div class="ws-strip" id="weekStrip"></div>
+    <div class="day-hero" id="dayHero"></div>
 
+    <div class="card">
+      <div class="card-title">⏰ Hour-by-Hour Breakdown</div>
+      <div class="chart-box"><canvas id="dayHourChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📱 Apps Used This Day</div>
+      <div id="dayAppList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🧩 Category Split</div>
+      <div id="dayCatMeters"></div>
+    </div>
+  </div>
+
+  <!-- ── PAGE 2: APPS ── -->
+  <div class="page" id="p2">
+    <div class="card" style="padding:12px">
+      <div class="card-title" style="margin-bottom:6px">Filter by Category</div>
+      <div class="pill-row" id="catFilter"></div>
+    </div>
+    <div id="fullAppList"></div>
+  </div>
+
+  <!-- ── PAGE 3: TRENDS ── -->
+  <div class="page" id="p3">
+    <div class="card">
+      <div class="card-title">📈 Daily Screen Time  ·  last 21 days</div>
+      <div class="chart-box" style="height:160px"><canvas id="dailyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Tap Any Day to View Details</div>
+      <div class="timeline" id="timeline14"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🍩 All-Time Category Split</div>
+      <div class="chart-box" style="height:170px"><canvas id="catChart"></canvas></div>
+      <div class="pill-row" id="catPills"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Average by Day of Week</div>
+      <div class="chart-box" style="height:140px"><canvas id="dowChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── PAGE 4: INSIGHTS ── -->
+  <div class="page" id="p4">
+    <div class="card">
+      <div class="card-title">🏅 Stats &amp; Records</div>
+      <div id="streakList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 Smart Insights</div>
+      <div id="insightList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Today vs Yesterday</div>
+      <div id="compareContent"></div>
+    </div>
+  </div>
 </div>
 
 <script>
+/* ══════════════════════ APP CATEGORY MAP ══════════════════════ */
+const APP_CAT={"advanced.scientific.calculator.calc991.plus":"productivity","anddea.youtube.music":"entertainment","android":"system","app.blinkit.onboarding":"shop","app.revanced.android.youtube":"entertainment","authenticator.two.factor.authentication.otp":"utility","badh.busyness.app":"productivity","cn.wps.moffice_eng":"knowledge","cn.wps.xiaomi.abroad.lite":"system","com.Dominos":"shop","com.adobe.lrmobile":"productivity","com.adobe.reader":"productivity","com.adobe.scan.android":"productivity","com.alokmandavgane.hinducalendar":"productivity","com.amazon.avod.thirdpartyclient":"shop","com.android.bips":"system","com.android.camera":"entertainment","com.android.chrome":"browser","com.android.contacts":"communication","com.android.credentialmanager":"system","com.android.deskclock":"system","com.android.dialer":"communication","com.android.incallui":"communication","com.android.intentresolver":"system","com.android.keychain":"utility","com.android.launcher3":"system","com.android.mms":"system","com.android.mtp":"system","com.android.phone":"communication","com.android.printspooler":"system","com.android.providers.downloads.ui":"system","com.android.server.telecom":"communication","com.android.settings":"system","com.android.settings.intelligence":"system","com.android.soundrecorder":"productivity","com.android.stk":"system","com.android.stk2":"system","com.android.systemui":"system","com.android.thememanager":"utility","com.android.updater":"system","com.android.vending":"system","com.android.vpndialogs":"system","com.anthropic.claude":"knowledge","com.app.cricketapp":"entertainment","com.apple.android.music":"entertainment","com.application.zomato.district":"shop","com.arlosoft.macrodroid":"knowledge","com.astrotalk":"utility","com.aum.nammametro":"gps","com.azure.authenticator":"utility","com.balancehero.truebalance":"payment","com.bbk.SuperPowerSave":"system","com.bbk.updater":"system","com.bharathi.shreerama":"entertainment","com.bigbasket.mobileapp":"shop","com.blinkslabs.blinkist.android":"productivity","com.bmtc.bmtcavls":"gps","com.boAt.hearables":"entertainment","com.branch_international.branch.branch_demo_android":"payment","com.brave.browser":"browser","com.buyhatke.assistant":"shop","com.camerasideas.instashot":"productivity","com.careerwill.careerwillapp":"knowledge","com.compass.digital.direction.qiblafinder.prayertimes":"utility","com.confirmtkt.lite":"gps","com.crrepa.band.dafit":"health","com.cv.docscanner":"productivity","com.dbtkarnataka":"utility","com.dddev.gallery.album.photo.editor":"utility","com.delphicoder.flud":"utility","com.desoline.android.pdfreader.lite":"productivity","com.dev47apps.droidcam":"productivity","com.digilocker.android":"productivity","com.dogerescue.drawpuzzle.save":"entertainment","com.domobile.applock.ind":"utility","com.done.faasos":"utility","com.dreamplug.androidapp":"payment","com.dubox.drive":"utility","com.duokan.phone.remotecontroller":"utility","com.duolingo":"productivity","com.dywx.larkplayer":"entertainment","com.eterno":"utility","com.example.edgedetector":"utility","com.example.gpsupdate":"gps","com.example.gpsuploader":"gps","com.example.productiveagent5":"system","com.example.productiveagent52":"system","com.example.usagepredictor":"system","com.facebook.appmanager":"social","com.facebook.katana":"social","com.facebook.stella":"social","com.fast.free.unblock.secure.vpn":"utility","com.fastbanking":"payment","com.fatakpay":"payment","com.fedmobile":"payment","com.fingersoft.hillclimb":"entertainment","com.finshell.fin":"payment","com.firebolttpro.watch":"utility","com.flipkart.android":"shop","com.fluffyfairygames.idleminertycoon":"entertainment","com.gallery.player":"entertainment","com.github.android":"knowledge","com.google.android.GoogleCamera":"utility","com.google.android.accessibility.switchaccess":"system","com.google.android.apps.adm":"utility","com.google.android.apps.authenticator2":"other","com.google.android.apps.bard":"knowledge","com.google.android.apps.chromecast.app":"browser","com.google.android.apps.classroom":"productivity","com.google.android.apps.docs":"knowledge","com.google.android.apps.docs.editors.docs":"productivity","com.google.android.apps.docs.editors.sheets":"productivity","com.google.android.apps.fitness":"health","com.google.android.apps.googleassistant":"productivity","com.google.android.apps.maps":"knowledge","com.google.android.apps.messaging":"social","com.google.android.apps.nbu.files":"utility","com.google.android.apps.nbu.paisa.user":"utility","com.google.android.apps.nexuslauncher":"system","com.google.android.apps.photos":"entertainment","com.google.android.apps.photosgo":"entertainment","com.google.android.apps.restore":"system","com.google.android.apps.safetyhub":"utility","com.google.android.apps.tachyon":"communication","com.google.android.apps.translate":"productivity","com.google.android.apps.wellbeing":"health","com.google.android.apps.youtube.music":"entertainment","com.google.android.calculator":"utility","com.google.android.calendar":"utility","com.google.android.captiveportallogin":"browser","com.google.android.cellbroadcastreceiver":"system","com.google.android.contacts":"communication","com.google.android.deskclock":"utility","com.google.android.dialer":"communication","com.google.android.documentsui":"knowledge","com.google.android.gm":"system","com.google.android.gms":"system","com.google.android.googlequicksearchbox":"browser","com.google.android.healthconnect.controller":"health","com.google.android.inputmethod.latin":"system","com.google.android.keep":"utility","com.google.android.markup":"utility","com.google.android.packageinstaller":"system","com.google.android.permissioncontroller":"system","com.google.android.photopicker":"entertainment","com.google.android.providers.media.module":"system","com.google.android.settings.intelligence":"system","com.google.android.tts":"utility","com.google.android.youtube":"entertainment","com.grofers.customerapp":"shop","com.hdfcbank.android.now":"payment","com.hirist.jobseeker":"utility","com.hmdglobal.app.camera":"entertainment","com.hmdglobal.app.fmradio":"entertainment","com.ideopay.user":"payment","com.idle.chop":"entertainment","com.indiabix":"utility","com.indus.appstore":"system","com.infrasoft.uboi":"payment","com.instagram.android":"social","com.instagram.barcelona":"social","com.jio.myjio":"payment","com.jio.web":"browser","com.jpl.jiomart":"shop","com.justvend":"shop","com.kannada.keyboard.for.android":"utility","com.kiloo.subwaysurf":"entertainment","com.king.candycrushsaga":"entertainment","com.kreditbee.android":"payment","com.ksrtc.awatar.new":"gps","com.lenskart.app":"shop","com.linkedin.android":"social","com.llamalab.automate":"system","com.ludo.king":"entertainment","com.machinelearningforsmallbusiness.leetcodepython":"productivity","com.manash.purplle":"shop","com.meesho.supply":"shop","com.mi.android.globalFileexplorer":"utility","com.mi.android.globallauncher":"system","com.mi.android.globalminusscreen":"system","com.mi.appfinder":"shop","com.mi.globalminusscreen":"system","com.microsoft.appmanager":"utility","com.microsoft.copilot":"productivity","com.microsoft.emmx":"browser","com.microsoft.office.excel":"productivity","com.microsoft.office.officehubrow":"productivity","com.microsoft.office.outlook":"communication","com.microsoft.office.powerpoint":"productivity","com.microsoft.skydrive":"utility","com.microsoft.teams":"communication","com.microsoft.xboxone.smartglass":"entertainment","com.milink.service":"system","com.miui.android.fashiongallery":"browser","com.miui.aod":"system","com.miui.bugreport":"system","com.miui.calculator":"productivity","com.miui.cleaner":"utility","com.miui.cloudservice":"system","com.miui.compass":"gps","com.miui.fm":"entertainment","com.miui.gallery":"entertainment","com.miui.global.packageinstaller":"system","com.miui.home":"system","com.miui.mediaeditor":"entertainment","com.miui.mediaviewer":"entertainment","com.miui.miservice":"system","com.miui.mishare.connectivity":"utility","com.miui.misound":"system","com.miui.notes":"productivity","com.miui.notification":"system","com.miui.player":"entertainment","com.miui.screenrecorder":"entertainment","com.miui.screenshot":"utility","com.miui.securityadd":"system","com.miui.securitycenter":"system","com.miui.securitycore":"system","com.miui.thirdappassistant":"system","com.miui.weather2":"utility","com.mpokket.app":"payment","com.mxtech.videoplayer.ad":"entertainment","com.myairtelapp":"utility","com.myntra.android":"shop","com.nekki.shadowfight":"entertainment","com.nemo.vidmate":"entertainment","com.netflix.mediaclient":"entertainment","com.nextbillion.groww":"payment","com.nomonkeys.ballblast":"entertainment","com.ojassoft.astrosage":"knowledge","com.olx.southasia":"shop","com.openai.chatgpt":"knowledge","com.osp.app.signin":"system","com.ovelin.guitartuna":"knowledge","com.pas.webcam":"utility","com.paypal.android.p2pmobile":"payment","com.pdfeditor.pdfeditorandriod":"productivity","com.phonepe.app":"payment","com.plato.android":"entertainment","com.playgendary.bowmasters":"entertainment","com.playit.videoplayer":"entertainment","com.rapido.passenger":"gps","com.rcflightsim.cvplane2":"entertainment","com.realvnc.viewer.android":"system","com.reddit.frontpage":"entertainment","com.redlinegames.attackhole":"entertainment","com.revanced.net.revancedmanager":"utility","com.ril.ajio":"shop","com.rsupport.rs.activity.rsupport.aas2":"utility","com.run.tower.defense":"entertainment","com.samsung.android.app.contacts":"communication","com.samsung.android.app.dressroom":"system","com.samsung.android.app.notes":"productivity","com.samsung.android.app.routines":"system","com.samsung.android.app.sharelive":"communication","com.samsung.android.app.smartcapture":"system","com.samsung.android.app.soundpicker":"system","com.samsung.android.app.telephonyui":"system","com.samsung.android.app.tips":"system","com.samsung.android.bixby.agent":"system","com.samsung.android.calendar":"utility","com.samsung.android.dialer":"utility","com.samsung.android.dynamiclock":"utility","com.samsung.android.emergency":"system","com.samsung.android.forest":"health","com.samsung.android.honeyboard":"system","com.samsung.android.incallui":"communication","com.samsung.android.lool":"utility","com.samsung.android.messaging":"communication","com.samsung.android.oneconnect":"system","com.samsung.android.privacydashboard":"system","com.samsung.android.samsungpassautofill":"system","com.samsung.android.scloud":"system","com.samsung.android.secsoundpicker":"system","com.samsung.android.smartsuggestions":"utility","com.samsung.android.spaymini":"payment","com.samsung.android.stickercenter":"system","com.samsung.android.themestore":"system","com.samsung.android.video":"entertainment","com.samsung.app.newtrim":"entertainment","com.samsung.crane":"system","com.samsung.ecomm.global.in":"shop","com.samsung.knox.securefolder":"utility","com.sbi.lotusintouch":"payment","com.sec.android.app.camera":"utility","com.sec.android.app.clockpackage":"utility","com.sec.android.app.launcher":"system","com.sec.android.app.myfiles":"utility","com.sec.android.app.popupcalculator":"utility","com.sec.android.app.samsungapps":"shop","com.sec.android.app.sbrowser":"browser","com.sec.android.app.soundalive":"system","com.sec.android.daemonapp":"utility","com.sec.android.gallery3d":"entertainment","com.sec.android.mimage.photoretouching":"entertainment","com.server.auditor.ssh.client":"knowledge","com.shopping.limeroad":"shop","com.si.heynote":"productivity","com.smallcase.android":"payment","com.snapchat.android":"social","com.spotify.music":"entertainment","com.tailscale.ipn":"productivity","com.tallteam.citychase":"entertainment","com.termux":"knowledge","com.tmstore.robu.in":"shop","com.truecaller":"communication","com.tvscs.tvscreditapp":"payment","com.twitter.android":"entertainment","com.vblast.flipaclip":"entertainment","com.video.fun.app":"entertainment","com.vincentb.MobControl":"entertainment","com.vivo.appstore":"shop","com.vivo.calculator":"utility","com.vivo.gallery":"entertainment","com.vivo.globalsearch":"browser","com.vivo.imanager":"utility","com.vivo.magazine":"shop","com.vivo.notes":"productivity","com.vivo.smartshot":"system","com.vivo.systemuiplugin":"system","com.whatsapp":"social","com.whatsapp.w4b":"social","com.whereismytrain.android":"gps","com.whizdm.moneyview.loans":"payment","com.wssyncmldm":"system","com.xiaomi.account":"system","com.xiaomi.aiasst.vision":"utility","com.xiaomi.aicr":"system","com.xiaomi.calendar":"productivity","com.xiaomi.discover":"entertainment","com.xiaomi.glgm":"system","com.xiaomi.midrop":"utility","com.xiaomi.mipicks":"shop","com.xiaomi.scanner":"utility","com.xiaomi.wearable":"health","com.zeptoconsumerapp":"shop","cris.org.in.prs.ima":"gps","eu.kanade.tachiyomi.j2k":"entertainment","free.programming.programming":"productivity","free.vpn.unblock.proxy.turbovpn":"utility","imagetopdf.pdfconverter.jpgtopdf.pdfeditor":"productivity","in.amazon.mShop.android.shopping":"shop","in.irisbyyes.app":"payment","in.juspay.nammayatri":"payment","in.org.npci.upiapp":"payment","in.rebase.app":"social","in.startv.hotstar":"entertainment","in.swiggy.android":"shop","in.swiggy.android.instamart":"shop","indwin.c3.shareapp":"utility","instagram.video.downloader.story.saver.ig":"social","io.voodoo.dune":"entertainment","io.voodoo.paper2":"entertainment","jp.co.shueisha.mangaplus":"entertainment","jp.or.nhk.nhkworld.tv":"entertainment","live.friend.dostt":"social","miui.systemui.plugin":"system","money.jupiter":"payment","money.super.payments":"payment","naukriApp.appModules.login":"productivity","net.one97.paytm":"payment","net.openvpn.openvpn":"utility","org.chromium.webapk.a603b9191b7a7c4d7_v2":"browser","org.cris.aikyam":"gps","org.fdroid.fdroid":"system","org.mozilla.firefox":"browser","org.sadhguru.miracleofmind":"health","org.telegram.messenger":"social","pes.pesu":"knowledge","placementapp.com":"productivity","python.programming.coding.python3.development":"productivity","ru.ok.android":"social","ryey.easer.beta":"system","sortpuz.water.sort.puzzle.game":"entertainment","us.zoom.videomeetings":"communication"};
 
-const params = new URLSearchParams(window.location.search);
+const SYS_PAT=[/^com\.android\./,/^com\.google\.android\.(gms|gsf|packageinstaller|permissioncontroller|setupwizard|inputmethod|accessibility|cellbroadcast|providers\.media|settings\.intelligence)/,/^com\.google\.android\.apps\.(nexuslauncher|restore)$/,/^com\.google\.android\.(gm|gms)$/,/^com\.miui\.(home|miservice|securityadd|securitycore|notification|aod|misound|bugreport|cloudservice|thirdappassistant|global\.packageinstaller)$/,/^com\.xiaomi\.(account|aicr|glgm)$/,/^com\.samsung\.android\.(bixby|themestore|honeyboard|emergency|oneconnect|privacydashboard|samsungpassautofill|scloud|secsoundpicker|stickercenter|crane|dressroom|app\.(routines|smartcapture|soundpicker|telephonyui|tips))$/,/^com\.(sec\.android\.app\.launcher|vivo\.(smartshot|systemuiplugin)|bbk\.|osp\.app|wssyncmldm|indus\.appstore|llamalab\.automate|realvnc|milink\.service)/,/^(miui\.systemui|org\.fdroid|ryey\.easer)/,/^com\.example\.(productiveagent|usagepredictor)/,/^com\.mi\.(android\.(globallauncher|globalminusscreen)|globalminusscreen)$/];
 
-const deviceId = params.get("device_id");
+function isSys(p){if(APP_CAT[p]==='system')return true;return SYS_PAT.some(r=>r.test(p))}
+function getCat(p){if(isSys(p))return'system';return APP_CAT[p]||'other'}
 
-document.getElementById("device").innerHTML =
-"<b>Device ID:</b> " + deviceId;
+const CAT={
+  entertainment:{c:'#f87171',ic:'🎬',lb:'Entertainment',bad:true},
+  social:       {c:'#fb923c',ic:'💬',lb:'Social Media', bad:true},
+  shop:         {c:'#fbbf24',ic:'🛒',lb:'Shopping',     bad:false},
+  browser:      {c:'#4f9ef8',ic:'🌐',lb:'Browser',      bad:false},
+  productivity: {c:'#34d399',ic:'✅',lb:'Productive',   bad:false},
+  knowledge:    {c:'#a78bfa',ic:'📚',lb:'Knowledge',    bad:false},
+  communication:{c:'#60a5fa',ic:'📞',lb:'Comms',        bad:false},
+  payment:      {c:'#10b981',ic:'💳',lb:'Payments',     bad:false},
+  utility:      {c:'#8b9ab8',ic:'🔧',lb:'Utility',      bad:false},
+  health:       {c:'#f0abfc',ic:'❤️',lb:'Health',       bad:false},
+  gps:          {c:'#34d399',ic:'📍',lb:'Navigation',   bad:false},
+  other:        {c:'#3d4560',ic:'📱',lb:'Other',        bad:false},
+};
 
-let totalSeconds = 0;
-let appTotals = {};
-let bucketTotals = new Array(96).fill(0);
+const NAMES={"com.google.android.youtube":"YouTube","app.revanced.android.youtube":"YouTube ReVanced","com.instagram.android":"Instagram","com.instagram.barcelona":"Threads","com.whatsapp":"WhatsApp","com.whatsapp.w4b":"WhatsApp Biz","com.facebook.katana":"Facebook","com.netflix.mediaclient":"Netflix","in.startv.hotstar":"Hotstar","com.spotify.music":"Spotify","com.twitter.android":"Twitter / X","org.telegram.messenger":"Telegram","com.snapchat.android":"Snapchat","com.linkedin.android":"LinkedIn","com.reddit.frontpage":"Reddit","com.android.chrome":"Chrome","com.brave.browser":"Brave","org.mozilla.firefox":"Firefox","com.microsoft.emmx":"Edge","com.google.android.apps.maps":"Google Maps","com.phonepe.app":"PhonePe","net.one97.paytm":"Paytm","com.google.android.apps.bard":"Gemini","com.openai.chatgpt":"ChatGPT","com.anthropic.claude":"Claude AI","in.swiggy.android":"Swiggy","com.zeptoconsumerapp":"Zepto","app.blinkit.onboarding":"Blinkit","com.bigbasket.mobileapp":"BigBasket","com.ludo.king":"Ludo King","com.king.candycrushsaga":"Candy Crush","com.duolingo":"Duolingo","us.zoom.videomeetings":"Zoom","com.microsoft.teams":"Teams","com.google.android.apps.youtube.music":"YT Music","com.mxtech.videoplayer.ad":"MX Player","com.truecaller":"Truecaller","com.termux":"Termux","com.miui.gallery":"Gallery","com.google.android.apps.photos":"Photos","com.flipkart.android":"Flipkart","com.myntra.android":"Myntra","in.amazon.mShop.android.shopping":"Amazon","com.microsoft.office.outlook":"Outlook","com.github.android":"GitHub","com.careerwill.careerwillapp":"CareerWill","anddea.youtube.music":"YT Music Alt","com.google.android.apps.classroom":"Classroom","com.samsung.android.video":"Samsung Video","com.xiaomi.discover":"Mi News","com.miui.player":"Mi Music","in.swiggy.android.instamart":"Swiggy Instamart","com.application.zomato.district":"Zomato"};
+function fname(p){if(NAMES[p])return NAMES[p];const pts=p.split('.');const l=pts[pts.length-1].replace(/([A-Z])/g,' $1').replace(/[_-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim();return l.length>2?l:pts.slice(-2).join('.')}
 
+const COLORS=['#f87171','#fb923c','#fbbf24','#4f9ef8','#a78bfa','#34d399','#60a5fa','#f0abfc','#10b981','#8b9ab8','#f87171','#fb923c','#fbbf24','#4f9ef8','#a78bfa'];
 
-async function linkEmail(){
+/* ── STATE ── */
+const PAR=new URLSearchParams(location.search);
+const DEVICE=PAR.get('device_id');
+let G={};let allDays=[];let dayMap={};let curDate='';
+let dayChartInst=null;let catFilterActive='all';
 
-const email = document.getElementById("emailInput").value;
-
-if(!email){
-document.getElementById("emailStatus").innerText =
-"Please enter email";
-return;
-}
-
-const res = await fetch("/api/user/register-device",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:email,
-device_id:deviceId
-})
-});
-
-const json = await res.json();
-
-if(json.ok){
-
-document.getElementById("emailStatus").innerText =
-"✅ Device linked successfully";
-
-}else{
-
-document.getElementById("emailStatus").innerText =
-"❌ Failed to link device";
-
-}
-
-}
-
-
+document.getElementById('devLabel').textContent=DEVICE?'Device: '+DEVICE:'No device_id in URL';
+if(!DEVICE){
+  document.getElementById('loader').innerHTML='<div style="padding:36px;text-align:center;color:var(--mu)"><div style="font-size:40px;margin-bottom:12px">📵</div><div style="font-size:15px;font-weight:700">No device linked</div><div style="font-size:13px;margin-top:6px">Open from the app with ?device_id=…</div></div>';
+}else{loadData()}
 
 async function loadData(){
+  document.getElementById('loadTxt').textContent='Fetching your data…';
+  try{
+    const r=await fetch('/api/phonev2/usage/'+DEVICE);
+    const j=await r.json();
+    if(!j.ok||!j.data.length){
+      document.getElementById('loader').innerHTML='<div style="padding:36px;text-align:center;color:var(--mu);font-size:14px">No data found for this device.</div>';
+      return;
+    }
+    process(j.data);
+  }catch(e){
+    document.getElementById('loader').innerHTML='<div style="padding:36px;text-align:center;color:var(--red);font-size:14px;font-weight:700">Failed to load data.<br><span style="font-size:12px;color:var(--mu);font-weight:400">'+e.message+'</span></div>';
+  }
+}
+function doReload(){document.getElementById('loader').style.display='flex';loadData()}
 
-const res = await fetch("/api/phonev2/usage/" + deviceId);
-
-const json = await res.json();
-
-const tbody = document.querySelector("#table tbody");
-
-json.data.forEach(day=>{
-
-day.buckets.forEach(bucket=>{
-
-const apps = bucket.apps;
-
-if(Object.keys(apps).length === 0) return;
-
-let bucketSeconds = 0;
-
-Object.keys(apps).forEach(app=>{
-
-let seconds = apps[app].seconds || 0;
-
-bucketSeconds += seconds;
-
-totalSeconds += seconds;
-
-if(!appTotals[app]) appTotals[app] = 0;
-
-appTotals[app] += seconds;
-
-});
-
-bucketTotals[bucket.bucket] += bucketSeconds;
-
-const tr = document.createElement("tr");
-
-tr.innerHTML = `
-<td>${bucket.bucket}</td>
-<td>${Object.keys(apps).join("<br>")}</td>
-`;
-
-tbody.appendChild(tr);
-
-});
-
-});
-
-renderStats();
-renderAppChart();
-renderBucketChart();
-
+/* ── PROCESS ── */
+function process(data){
+  G={app:{},cat:{},h24:new Array(24).fill(0),total:0,night:0,opens:0};
+  dayMap={};
+  data.forEach(day=>{
+    const dt=(typeof day.usage_date==='string'?day.usage_date:String(day.usage_date)).slice(0,10);
+    if(!dayMap[dt])dayMap[dt]={app:{},cat:{},h24:new Array(24).fill(0),total:0,opens:0};
+    const D=dayMap[dt];
+    day.buckets.forEach(b=>{
+      const h=Math.floor((b.bucket||0)/4);
+      const night=(b.bucket||0)>=88||(b.bucket||0)<=23;
+      Object.keys(b.apps||{}).forEach(p=>{
+        const cat=getCat(p);if(cat==='system')return;
+        const s=b.apps[p].seconds||0,o=b.apps[p].opens||0;
+        if(s===0&&o===0)return;
+        G.total+=s;G.opens+=o;if(night)G.night+=s;
+        G.h24[h]=(G.h24[h]||0)+s;
+        if(!G.app[p])G.app[p]={s:0,o:0,cat};
+        G.app[p].s+=s;G.app[p].o+=o;
+        G.cat[cat]=(G.cat[cat]||0)+s;
+        D.total+=s;D.opens+=o;D.h24[h]=(D.h24[h]||0)+s;
+        if(!D.app[p])D.app[p]={s:0,o:0,cat};
+        D.app[p].s+=s;D.app[p].o+=o;
+        D.cat[cat]=(D.cat[cat]||0)+s;
+      });
+    });
+  });
+  allDays=Object.keys(dayMap).filter(d=>dayMap[d].total>0).sort();
+  curDate=allDays[allDays.length-1]||'';
+  renderAll();
+  document.getElementById('loader').style.display='none';
 }
 
+/* ── HELPERS ── */
+function fhm(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
+  if(h===0)return m+'m';
+  return h+'h'+(m>0?' '+m+'m':'');
+}
+function fdow(dt){return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(dt+'T00:00:00').getDay()]}
+function animFills(el,delay=200){setTimeout(()=>el.querySelectorAll('[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),delay)}
 
-function renderStats(){
-
-let hours = (totalSeconds / 3600).toFixed(2);
-
-document.getElementById("screenTime").innerText =
-hours + " hours";
-
+function renderAll(){
+  renderOverview();renderTrends();renderInsightsPage();renderAppsPage();setDay(curDate,false);
 }
 
+/* ════════════════════ PAGE 0 · OVERVIEW ════════════════════ */
+function renderOverview(){
+  const n=allDays.length||1;
+  const avgD=G.total/n,avgN=G.night/n,avgO=G.opens/n;
+  const addS=(G.cat.entertainment||0)+(G.cat.social||0);
+  const addP=G.total>0?addS/G.total:0;
+  const nightP=G.total>0?G.night/G.total:0;
+  const prodS=(G.cat.productivity||0)+(G.cat.knowledge||0);
+  const focP=G.total>0?Math.round(prodS/G.total*100):0;
+  let score=Math.round(Math.min(100,
+    Math.min(40,(avgD/3600/8)*40)+
+    Math.min(25,addP*25)+
+    Math.min(20,nightP*40)+
+    Math.min(15,(avgO/200)*15)));
 
-function renderAppChart(){
+  /* ring */
+  const col=score>=70?'#f87171':score>=45?'#fb923c':score>=25?'#fbbf24':'#34d399';
+  const arc=document.getElementById('ringArc');arc.style.stroke=col;
+  setTimeout(()=>arc.style.strokeDashoffset=232.5*(1-score/100),120);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreNum').style.color=col;
+  const lvs=['Healthy 😌','Moderate 😐','Heavy Use 😟','Addicted 😨'];
+  const dsc=[
+    'You have healthy phone habits. Mostly productive usage.',
+    'Some patterns to watch. Entertainment eating time.',
+    'Distracting apps are dominating your screen time.',
+    'Your phone is controlling your schedule. Take action.'
+  ];
+  const li=score>=70?3:score>=45?2:score>=25?1:0;
+  document.getElementById('scoreLv').textContent=lvs[li];
+  document.getElementById('scoreDesc').textContent=dsc[li];
 
-let sorted = Object.entries(appTotals)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,6);
+  /* stats */
+  let wd='–',ws=0;
+  allDays.forEach(d=>{if(dayMap[d].total>ws){ws=dayMap[d].total;wd=d}});
+  document.getElementById('s0').textContent=fhm(avgD);
+  document.getElementById('s0b').textContent=n+' days tracked';
+  document.getElementById('s1').textContent=fhm(avgN);
+  document.getElementById('s2').textContent=Math.round(avgO)||'–';
+  document.getElementById('s2b').textContent='estimated per day';
+  document.getElementById('s3').textContent=focP+'%';
+  document.getElementById('s4').textContent=n;
+  document.getElementById('s4b').textContent=(allDays[0]||'').slice(5)+' → '+(allDays[n-1]||'').slice(5);
+  document.getElementById('s5').textContent=fhm(ws);
+  document.getElementById('s5b').textContent=wd.slice(5)||'–';
 
-const labels = sorted.map(a=>a[0].split(".").pop());
+  /* meters */
+  const ml=document.getElementById('meterList');ml.innerHTML='';
+  const sm=Object.entries(G.cat).filter(([c])=>c!=='system').sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const mx=sm[0]?.[1]||1;
+  sm.forEach(([cat,s])=>{
+    const cf=CAT[cat]||CAT.other;
+    const r=document.createElement('div');r.className='meter-row';
+    r.innerHTML=`<div class="m-label">${cf.ic} ${cf.lb}</div><div class="m-bar"><div class="m-fill" style="width:0%;background:${cf.c}" data-w="${(s/mx*100).toFixed(1)}"></div></div><div class="m-val">${fhm(s/n)}</div>`;
+    ml.appendChild(r);
+  });
+  animFills(ml);
 
-const data = sorted.map(a=>Math.round(a[1]/60));
+  /* heatmap */
+  const hm=document.getElementById('hmap');hm.innerHTML='';
+  const mxh=Math.max(...G.h24,1);
+  G.h24.forEach((v,h)=>{
+    const c=document.createElement('div');c.className='hcell';
+    const int=v/mxh,night=h>=22||h<6;
+    c.style.background=night?`rgba(248,113,113,${.12+int*.85})`:`rgba(79,158,248,${.12+int*.85})`;
+    c.title=h+':00  '+fhm(v/n)+'/day avg';
+    hm.appendChild(c);
+  });
 
-new Chart(document.getElementById("appChart"),{
-
-type:"pie",
-
-data:{
-labels:labels,
-datasets:[{
-data:data
-}]
+  /* top5 */
+  const t5=document.getElementById('top5List');t5.innerHTML='';
+  const top=Object.entries(G.app).sort((a,b)=>b[1].s-a[1].s).slice(0,5);
+  const mx5=top[0]?.[1]?.s||1;
+  top.forEach(([p,d],i)=>{
+    const cf=CAT[d.cat]||CAT.other;
+    const r=document.createElement('div');r.className='app-row';
+    r.innerHTML=`<div class="app-num">${i+1}</div>
+    <div class="app-ico" style="background:${COLORS[i]}22;color:${COLORS[i]}">${fname(p).slice(0,3).toUpperCase()}</div>
+    <div class="app-inf"><div class="app-nm">${fname(p)}</div><div class="app-ct">${cf.ic} ${cf.lb}</div></div>
+    <div class="app-right">
+      <div class="app-tm" style="color:${COLORS[i]}">${fhm(d.s/n)}/d</div>
+      <div class="app-bar2"><div class="app-bar2-fill" style="width:0%;background:${COLORS[i]}" data-w="${(d.s/mx5*100).toFixed(1)}"></div></div>
+    </div>`;
+    t5.appendChild(r);
+  });
+  animFills(t5,260);
 }
 
-});
+/* ════════════════════ PAGE 1 · BY DAY ════════════════════ */
+function setDay(dt,scroll=true){if(!dt||!dayMap[dt])return;curDate=dt;renderDayPage(dt);if(scroll)document.getElementById('p1').scrollTo(0,0)}
+function navigateDay(dir){const i=allDays.indexOf(curDate);const ni=i+dir;if(ni>=0&&ni<allDays.length)setDay(allDays[ni])}
+function onDatePick(v){if(v&&dayMap[v])setDay(v)}
 
+function renderDayPage(dt){
+  const D=dayMap[dt];
+  const td=new Date().toISOString().slice(0,10);
+  const yd=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const i=allDays.indexOf(dt);
+
+  document.getElementById('prevDay').style.opacity=i>0?'1':'0.3';
+  document.getElementById('nextDay').style.opacity=i<allDays.length-1?'1':'0.3';
+  document.getElementById('dayDisp').textContent=dt.slice(5);
+  document.getElementById('datePickerInput').value=dt;
+  document.getElementById('dayRelBadge').textContent=dt===td?'Today':dt===yd?'Yesterday':fdow(dt);
+
+  /* week strip */
+  const strip=document.getElementById('weekStrip');strip.innerHTML='';
+  const sl=allDays.slice(Math.max(0,i-6),i+1);
+  const mxs=Math.max(...sl.map(d=>dayMap[d].total),1);
+  sl.forEach(d=>{
+    const act=d===dt;const v=dayMap[d].total;
+    const bh=Math.max(2,Math.round(v/mxs*20));
+    const el=document.createElement('div');el.className='ws-day'+(act?' ws-active':'');
+    el.innerHTML=`<div class="ws-dname">${fdow(d).slice(0,2)}</div>
+    <div class="ws-bar-w"><div class="ws-bar" style="height:${bh}px;background:${act?'var(--acc)':'var(--mu2)'}"></div></div>
+    <div class="ws-val" style="color:${act?'var(--acc)':'var(--mu)'}">${fhm(v)}</div>`;
+    el.onclick=()=>setDay(d);strip.appendChild(el);
+  });
+
+  /* hero — 2×2 grid so numbers are BIG */
+  const hero=document.getElementById('dayHero');hero.innerHTML='';
+  const addS=(D.cat.entertainment||0)+(D.cat.social||0);
+  const dp=D.total>0?Math.round(addS/D.total*100):0;
+  const fp=D.total>0?Math.round(((D.cat.productivity||0)+(D.cat.knowledge||0))/D.total*100):0;
+  [{v:fhm(D.total),l:'Total Time',c:'var(--acc)'},{v:Object.keys(D.app).length+'',l:'Apps Used',c:'var(--acc2)'},{v:dp+'%',l:'Distraction',c:'var(--red)'},{v:fp+'%',l:'Focus',c:'var(--grn)'}].forEach(({v,l,c})=>{
+    const el=document.createElement('div');el.className='day-big';
+    el.innerHTML=`<div class="dv" style="color:${c}">${v}</div><div class="dl">${l}</div>`;
+    hero.appendChild(el);
+  });
+
+  /* hourly chart */
+  if(dayChartInst){dayChartInst.destroy();dayChartInst=null}
+  const ctx=document.getElementById('dayHourChart').getContext('2d');
+  dayChartInst=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:D.h24.map((_,h)=>h%6===0?h+':00':''),
+      datasets:[{
+        data:D.h24.map(s=>Math.round(s/60)),
+        backgroundColor:D.h24.map((_,h)=>h>=22||h<6?'rgba(248,113,113,.75)':'rgba(79,158,248,.65)'),
+        borderRadius:4,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#161928',titleColor:'#eef0f6',bodyColor:'#4f9ef8',callbacks:{title:(_)=>'',label:c=>c.raw+'m at '+(c.dataIndex)+':00'}}},
+      scales:{
+        x:{ticks:{color:'#8b9ab8',font:{size:11},maxRotation:0},grid:{display:false}},
+        y:{ticks:{color:'#8b9ab8',font:{size:11}},grid:{color:'#1d2235'}}
+      }
+    }
+  });
+
+  /* day apps */
+  const dal=document.getElementById('dayAppList');dal.innerHTML='';
+  const dapps=Object.entries(D.app).sort((a,b)=>b[1].s-a[1].s).slice(0,15);
+  if(!dapps.length){dal.innerHTML='<div class="empty"><div class="ei">📭</div>No app data for this day</div>';return}
+  const dmx=dapps[0][1].s;
+  dapps.forEach(([p,d],i)=>{
+    const cf=CAT[d.cat]||CAT.other;const col=COLORS[i]||cf.c;
+    const r=document.createElement('div');r.className='app-row';
+    r.innerHTML=`<div class="app-num">${i+1}</div>
+    <div class="app-ico" style="background:${col}22;color:${col}">${fname(p).slice(0,3).toUpperCase()}</div>
+    <div class="app-inf"><div class="app-nm">${fname(p)}</div><div class="app-ct">${cf.ic} ${cf.lb}${d.o>0?' · '+d.o+' opens':''}</div></div>
+    <div class="app-right"><div class="app-tm" style="color:${col}">${fhm(d.s)}</div>
+    <div class="app-bar2"><div class="app-bar2-fill" style="width:0%;background:${col}" data-w="${(d.s/dmx*100).toFixed(1)}"></div></div></div>`;
+    dal.appendChild(r);
+  });
+  animFills(dal);
+
+  /* day cat meters */
+  const dcm=document.getElementById('dayCatMeters');dcm.innerHTML='';
+  const dc=Object.entries(D.cat).filter(([c])=>c!=='system').sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const dmxc=dc[0]?.[1]||1;
+  dc.forEach(([cat,s])=>{
+    const cf=CAT[cat]||CAT.other;
+    const r=document.createElement('div');r.className='meter-row';
+    r.innerHTML=`<div class="m-label">${cf.ic} ${cf.lb}</div><div class="m-bar"><div class="m-fill" style="width:0%;background:${cf.c}" data-w="${(s/dmxc*100).toFixed(1)}"></div></div><div class="m-val">${fhm(s)}</div>`;
+    dcm.appendChild(r);
+  });
+  animFills(dcm);
 }
 
-
-function renderBucketChart(){
-
-const labels = bucketTotals.map((_,i)=>i);
-
-const data = bucketTotals.map(s=>Math.round(s/60));
-
-new Chart(document.getElementById("bucketChart"),{
-
-type:"bar",
-
-data:{
-labels:labels,
-datasets:[{
-label:"Minutes",
-data:data
-}]
+/* ════════════════════ PAGE 2 · APPS ════════════════════ */
+function renderAppsPage(){
+  const cf=document.getElementById('catFilter');cf.innerHTML='';
+  const cats=['all',...Object.keys(CAT).filter(c=>G.cat[c]>0&&c!=='system')];
+  cats.forEach(cat=>{
+    const isAll=cat==='all';const cfg=isAll?{c:'#4f9ef8',ic:'',lb:'All'}:(CAT[cat]||CAT.other);
+    const p=document.createElement('div');
+    p.className='pill'+(catFilterActive===cat?' active':'');
+    p.innerHTML=`<div class="pill-dot" style="background:${cfg.c}"></div>${cfg.ic?cfg.ic+' ':''}${cfg.lb}`;
+    p.onclick=()=>{catFilterActive=cat;renderAppsPage()};
+    cf.appendChild(p);
+  });
+  const fal=document.getElementById('fullAppList');fal.innerHTML='';
+  const sorted=Object.entries(G.app).sort((a,b)=>b[1].s-a[1].s)
+    .filter(([,d])=>catFilterActive==='all'||d.cat===catFilterActive);
+  const card=document.createElement('div');card.className='card';
+  const mx=sorted[0]?.[1]?.s||1;const n=allDays.length||1;
+  sorted.forEach(([p,d],i)=>{
+    const cf=CAT[d.cat]||CAT.other;const col=cf.c;
+    const r=document.createElement('div');r.className='app-row';
+    r.innerHTML=`<div class="app-num">${i+1}</div>
+    <div class="app-ico" style="background:${col}22;color:${col}">${fname(p).slice(0,3).toUpperCase()}</div>
+    <div class="app-inf"><div class="app-nm">${fname(p)}</div><div class="app-ct">${cf.ic} ${cf.lb}${d.o>0?' · '+d.o+' opens':''}</div></div>
+    <div class="app-right"><div class="app-tm" style="color:${col}">${fhm(d.s)}</div>
+    <div class="app-bar2"><div class="app-bar2-fill" style="width:0%;background:${col}" data-w="${(d.s/mx*100).toFixed(1)}"></div></div>
+    <div style="font-size:11px;color:var(--mu);margin-top:3px">${fhm(d.s/n)}/d avg</div></div>`;
+    card.appendChild(r);
+  });
+  if(!sorted.length)card.innerHTML='<div class="empty"><div class="ei">🔍</div>No apps in this category</div>';
+  fal.appendChild(card);
+  animFills(fal);
 }
 
-});
+/* ════════════════════ PAGE 3 · TRENDS ════════════════════ */
+function renderTrends(){
+  /* daily line */
+  const last21=allDays.slice(-21);
+  const dv=last21.map(d=>Math.round(dayMap[d].total/60));
+  const davg=dv.reduce((a,b)=>a+b,0)/dv.length;
+  const ctx1=document.getElementById('dailyChart').getContext('2d');
+  new Chart(ctx1,{type:'line',data:{
+    labels:last21.map(d=>d.slice(5)),
+    datasets:[
+      {data:dv,borderColor:'#4f9ef8',backgroundColor:'rgba(79,158,248,.08)',borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#4f9ef8',fill:true,tension:.4},
+      {data:dv.map(()=>Math.round(davg)),borderColor:'rgba(251,146,60,.5)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#161928',titleColor:'#eef0f6',bodyColor:'#4f9ef8',callbacks:{label:c=>c.raw+'m'}}},
+      scales:{
+        x:{ticks:{color:'#8b9ab8',font:{size:10},maxRotation:45},grid:{color:'#1d2235'}},
+        y:{ticks:{color:'#8b9ab8',font:{size:11}},grid:{color:'#1d2235'}}
+      }}
+  });
 
+  /* tap-to-view timeline */
+  const tl=document.getElementById('timeline14');tl.innerHTML='';
+  const l14=[...allDays].slice(-14).reverse();
+  const mx14=Math.max(...l14.map(d=>dayMap[d].total),1);
+  const todayStr=new Date().toISOString().slice(0,10);
+  l14.forEach(d=>{
+    const v=dayMap[d].total,bh=Math.max(2,Math.round(v/mx14*24)),isT=d===todayStr;
+    const col=isT?'var(--acc)':'var(--acc2)';
+    const el=document.createElement('div');el.className='tl-item'+(isT?' today':'');
+    el.innerHTML=`<div class="tl-h">${fdow(d).slice(0,2)}</div>
+    <div class="tl-h">${d.slice(5)}</div>
+    <div class="tl-b"><div class="tl-bar" style="height:${bh}px;background:${col}"></div></div>
+    <div class="tl-v" style="color:${col}">${fhm(v)}</div>`;
+    el.onclick=()=>{setDay(d,true);switchTab(1)};
+    tl.appendChild(el);
+  });
+
+  /* donut */
+  const cats=Object.entries(G.cat).filter(([c])=>c!=='system'&&c!=='other').sort((a,b)=>b[1]-a[1]);
+  const ctx2=document.getElementById('catChart').getContext('2d');
+  new Chart(ctx2,{type:'doughnut',
+    data:{labels:cats.map(([c])=>(CAT[c]||CAT.other).lb),datasets:[{data:cats.map(([,s])=>Math.round(s/60)),backgroundColor:cats.map(([c])=>(CAT[c]||CAT.other).c),borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#161928',callbacks:{label:c=>c.label+': '+c.raw+'m'}}}}
+  });
+  const pills=document.getElementById('catPills');pills.innerHTML='';
+  cats.slice(0,6).forEach(([cat,s])=>{
+    const cf=CAT[cat]||CAT.other;const p=document.createElement('div');p.className='pill';
+    p.innerHTML=`<div class="pill-dot" style="background:${cf.c}"></div>${cf.ic} ${cf.lb} <span style="font-family:var(--fm);font-size:11px;color:var(--mu)">${fhm(s)}</span>`;
+    pills.appendChild(p);
+  });
+
+  /* day of week */
+  const dow=new Array(7).fill(0),dowC=new Array(7).fill(0);
+  allDays.forEach(d=>{const dy=new Date(d+'T00:00:00').getDay();dow[dy]+=dayMap[d].total;dowC[dy]++});
+  const dowA=dow.map((s,i)=>dowC[i]>0?Math.round(s/dowC[i]/60):0);
+  const mxd=Math.max(...dowA)||1;
+  const ctx3=document.getElementById('dowChart').getContext('2d');
+  new Chart(ctx3,{type:'bar',
+    data:{labels:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],datasets:[{data:dowA,backgroundColor:dowA.map(v=>v===mxd?'rgba(248,113,113,.85)':'rgba(79,158,248,.55)'),borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#161928',callbacks:{label:c=>c.raw+'m avg'}}},
+      scales:{
+        x:{ticks:{color:'#8b9ab8',font:{size:12}},grid:{display:false}},
+        y:{ticks:{color:'#8b9ab8',font:{size:11}},grid:{color:'#1d2235'}}
+      }}
+  });
 }
 
+/* ════════════════════ PAGE 4 · INSIGHTS ════════════════════ */
+function renderInsightsPage(){
+  const n=allDays.length||1;
+  const avgD=G.total/n,avgN=G.night/n,avgO=G.opens/n;
+  const addS=(G.cat.entertainment||0)+(G.cat.social||0);
+  const addP=G.total>0?addS/G.total:0;
+  const nightP=G.total>0?G.night/G.total:0;
+  const prodS=(G.cat.productivity||0)+(G.cat.knowledge||0);
+  const focP=G.total>0?Math.round(prodS/G.total*100):0;
 
-loadData();
+  /* records / streaks */
+  const sl=document.getElementById('streakList');sl.innerHTML='';
+  const goal=2*3600;let best=0,cur=0;
+  [...allDays].reverse().forEach(d=>{
+    if(dayMap[d].total<=goal){cur++}else{if(cur>best)best=cur;cur=0}
+  });if(cur>best)best=cur;
+  const topApp=Object.entries(G.app).sort((a,b)=>b[1].s-a[1].s)[0];
+  const maxDay=Object.entries(dayMap).sort((a,b)=>b[1].total-a[1].total)[0];
+  [
+    {ic:'🏆',t:'Best low-screen streak',s:'Consecutive days under 2 hours',v:best+'d'},
+    {ic:'📊',t:'Total screen time tracked',s:'All days combined',v:fhm(G.total)},
+    {ic:'🌙',t:'Avg late-night usage',s:'10 PM – 6 AM, per day',v:fhm(avgN)},
+    {ic:'🔥',t:'Worst day ever',s:maxDay?.[0]||'–',v:fhm(maxDay?.[1]?.total||0)},
+    {ic:'📱',t:'Most used app',s:topApp?fname(topApp[0]):'–',v:topApp?fhm(topApp[1].s/n)+'/d':'–'},
+    {ic:'🎯',t:'Focus score',s:'Productive + knowledge %',v:focP+'%'},
+  ].forEach(({ic,t,s,v})=>{
+    const r=document.createElement('div');r.className='streak-row';
+    r.innerHTML=`<div class="streak-ico">${ic}</div><div class="streak-info"><div class="streak-title">${t}</div><div class="streak-sub">${s}</div></div><div class="streak-val">${v}</div>`;
+    sl.appendChild(r);
+  });
 
+  /* insights */
+  const ins=[];
+  if(addP>0.35)ins.push({type:'warn',ic:'🎬',tx:`<strong>${Math.round(addP*100)}%</strong> of your screen time (${fhm(addS/n)}/day) is entertainment & social. That's <strong>${Math.round(addS/3600/7)} hrs wasted per week.</strong>`});
+  if(nightP>0.12)ins.push({type:'warn',ic:'🌙',tx:`<strong>${Math.round(nightP*100)}%</strong> of usage happens between 10 PM – 6 AM. Late-night screens delay melatonin production by up to 3 hours.`});
+  if(avgO>120)ins.push({type:'warn',ic:'🔔',tx:`You're picking up your phone <strong>~${Math.round(avgO)} times/day</strong> — once every <strong>${Math.round(16*60/avgO)} minutes</strong> while awake. This is a dopamine habit loop.`});
+  if(focP>=20)ins.push({type:'good',ic:'✅',tx:`<strong>${focP}%</strong> of your screen time is productive or educational. Keep building on this!`});
+  if(avgD/3600>5)ins.push({type:'warn',ic:'⚠️',tx:`You're averaging <strong>${(avgD/3600).toFixed(1)} hours/day</strong>. Studies link 4+ hours of daily phone use to lower attention span and reduced sleep quality.`});
+  const topAdd=Object.entries(G.app).filter(([,d])=>d.cat==='entertainment'||d.cat==='social').sort((a,b)=>b[1].s-a[1].s)[0];
+  if(topAdd)ins.push({type:'info',ic:'📵',tx:`Your biggest time drain is <strong>${fname(topAdd[0])}</strong> at <strong>${fhm(topAdd[1].s/n)}/day</strong>. Try Digital Wellbeing to set a 30-min daily cap.`});
+  if((G.cat.shop||0)/n/3600>0.3)ins.push({type:'info',ic:'🛒',tx:`Shopping apps take <strong>${fhm((G.cat.shop||0)/n)}/day</strong>. Mindless browsing drives impulse purchases.`});
+  if(focP<5&&n>3)ins.push({type:'warn',ic:'📚',tx:`Almost no time on learning apps. Just <strong>15 min/day</strong> of education adds up to 91 hours a year.`});
+  if(!ins.length)ins.push({type:'good',ic:'📊',tx:'Use the app for a few more days to unlock personalised insights.'});
+  const il=document.getElementById('insightList');il.innerHTML='';
+  ins.forEach(({type,ic,tx})=>{
+    const d=document.createElement('div');d.className=`insight ${type}`;
+    d.innerHTML=`<div class="insight-ic">${ic}</div><div class="insight-tx">${tx}</div>`;
+    il.appendChild(d);
+  });
+
+  /* today vs yesterday */
+  const cc=document.getElementById('compareContent');
+  const tds=new Date().toISOString().slice(0,10);
+  const yds=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const T=dayMap[tds],Y=dayMap[yds];
+  if(!T&&!Y){
+    cc.innerHTML='<div class="empty" style="padding:16px"><div class="ei" style="font-size:28px">📅</div>No data for today or yesterday yet</div>';
+    return;
+  }
+  const rows=[
+    {l:'Screen Time', tc:T?.total||0,              yc:Y?.total||0},
+    {l:'Entertainment',tc:T?.cat.entertainment||0, yc:Y?.cat.entertainment||0},
+    {l:'Social Media', tc:T?.cat.social||0,         yc:Y?.cat.social||0},
+    {l:'Productive',   tc:(T?.cat.productivity||0)+(T?.cat.knowledge||0), yc:(Y?.cat.productivity||0)+(Y?.cat.knowledge||0)},
+  ];
+  const mxc=Math.max(...rows.map(r=>Math.max(r.tc,r.yc)),1);
+  cc.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:800;text-align:center;color:var(--acc)">TODAY</div>
+      <div style="font-size:13px;font-weight:800;text-align:center;color:var(--mu)">YESTERDAY</div>
+    </div>`+
+  rows.map(r=>`
+    <div style="margin-bottom:10px">
+      <div style="font-size:12px;color:var(--mu);font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">${r.l}</div>
+      <div class="cmp-row">
+        <div class="cmp-lbl" style="color:var(--acc);font-size:13px">${fhm(r.tc)}</div>
+        <div class="cmp-bar"><div class="cmp-fill" style="width:${(r.tc/mxc*100).toFixed(1)}%;background:var(--acc)"></div></div>
+      </div>
+      <div class="cmp-row">
+        <div class="cmp-lbl" style="font-size:13px">${fhm(r.yc)}</div>
+        <div class="cmp-bar"><div class="cmp-fill" style="width:${(r.yc/mxc*100).toFixed(1)}%;background:var(--mu2)"></div></div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── TAB SWITCH ── */
+const TABS=document.querySelectorAll('.tab');
+const PAGES=document.querySelectorAll('.page');
+function switchTab(i){
+  TABS.forEach((t,j)=>t.classList.toggle('active',j===i));
+  PAGES.forEach((p,j)=>p.classList.toggle('active',j===i));
+}
 </script>
-
 </body>
-
-</html>
+</html>++216
