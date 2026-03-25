@@ -118,7 +118,25 @@ app.use("/api/gps",require("./routes/gps"));
 
 
 
-startFcmScheduler();
+
+
+
+
+
+
+
+
+const instanceId = parseInt(process.env.NODE_APP_INSTANCE || "0");
+if (instanceId === 0) {
+  startFcmScheduler();
+  console.log("✅ FCM scheduler started on instance 0");
+} else {
+  console.log(`ℹ️  Instance ${instanceId} — FCM scheduler skipped`);
+}
+
+
+
+
 
 
 // ✅ 404 handler (ALWAYS LAST)
