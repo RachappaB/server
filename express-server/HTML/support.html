@@ -2,82 +2,140 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Support | Data Sunita Platform</title>
-
 <meta name="description" content="Get help and support for Data Sunita platform. Contact support or admin team for assistance.">
 <meta name="robots" content="index, follow">
-<link rel="icon" href="./assets//favicon.ico">
-
+<link rel="icon" href="./assets/favicon.ico">
 <link rel="stylesheet" href="/css/style.css">
 </head>
-
 <body>
 
 <!-- NAVBAR -->
-<div class="navbar">
-   <a href="/">  <div class="logo"> Data Sunita</div>
-</a>
-<div>
+<nav class="navbar">
+  <a href="/" class="logo">Data<span>Sunita</span></a>
+  <div class="nav-links">
     <a href="/">Home</a>
     <a href="/download.html">Get App</a>
     <a href="/about.html">My Story</a>
-    <a href="/support.html">Support</a>
+    <a href="/support.html" class="active">Support</a>
     <a href="/privacy.html">Privacy</a>
   </div>
-</div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
 
-<!-- CONTENT -->
-<div class="container">
+<!-- MOBILE DRAWER -->
+<nav class="nav-drawer" id="navDrawer">
+  <a href="/">🏠 Home</a>
+  <a href="/download.html">⬇ Get App</a>
+  <a href="/about.html">👤 My Story</a>
+  <a href="/support.html" class="active">🛟 Support</a>
+  <a href="/privacy.html">🔒 Privacy</a>
+</nav>
 
-<h1>Help & Support</h1>
+<!-- HERO -->
+<section class="hero" style="position:relative; overflow:hidden; padding-bottom:40px;">
+  <div class="orb orb-1"></div>
 
-<p>
-If you face issues with dashboards, syncing, device connections or data
-collection, please contact us.
-</p>
+  <div style="position:relative; z-index:2;">
+    <div class="hero-badge">🛟 We're here to help</div>
+    <h1>
+      Help &<br>
+      <span class="hl">Support</span>
+    </h1>
+    <p>
+      Having trouble with dashboards, syncing, or device connections?
+      Reach out — we'll get it sorted.
+    </p>
+  </div>
+</section>
 
-<br>
+<!-- MAIN CONTENT -->
+<div class="container" style="padding-top:20px;">
 
-<h3>Support Email</h3>
+  <!-- CONTACT CARDS -->
+  <div class="section-label">Contact Us</div>
+  <h2 class="section-title" style="margin-bottom:30px;">Get in Touch</h2>
 
-<p>
-<a href="mailto:support@sunita.space">
-support@sunita.space
-</a>
-</p>
+  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px,1fr));">
 
-<br>
+    <div class="support-card">
+      <div style="font-size:32px; margin-bottom:16px;">💬</div>
+      <h3>General Support</h3>
+      <p>For issues with dashboards, syncing, data collection, or general platform questions.</p>
+      <a href="/cdn-cgi/l/email-protection#c6b5b3b6b6a9b4b286b5b3a8afb2a7e8b5b6a7a5a3" class="email-link">✉ <span class="__cf_email__" data-cfemail="ed9e989d9d829f99ad9e988384998cc39e9d8c8e88">[email&#160;protected]</span></a>
+    </div>
 
-<h3>Admin Contact</h3>
+    <div class="support-card">
+      <div style="font-size:32px; margin-bottom:16px;">🛡</div>
+      <h3>Admin / Security</h3>
+      <p>For critical system issues, security vulnerabilities, or data breach concerns.</p>
+      <a href="/cdn-cgi/l/email-protection#0263666f6b6c4271776c6b76632c7172636167" class="email-link">✉ <span class="__cf_email__" data-cfemail="7c1d181115123c0f091215081d520f0c1d1f19">[email&#160;protected]</span></a>
+    </div>
 
-<p>
-For critical system or security issues:
-</p>
+    <div class="support-card">
+      <div style="font-size:32px; margin-bottom:16px;">👤</div>
+      <h3>Founder Direct</h3>
+      <p>For research collaboration, serious feedback, or platform improvement ideas.</p>
+      <a href="/cdn-cgi/l/email-protection#661407050e07161607261513080f1207481516070503" class="email-link">✉ <span class="__cf_email__" data-cfemail="374556545f56474756774442595e4356194447565452">[email&#160;protected]</span></a>
+    </div>
+  </div>
 
-<p>
-<a href="mailto:admin@sunita.space">
-admin@sunita.space
-</a>
-</p>
+  <div class="divider"></div>
 
-<br>
+  <!-- TROUBLESHOOTING -->
+  <div class="two-col">
 
-<h3>Quick Troubleshooting</h3>
+    <div>
+      <div class="section-label">Self-Help</div>
+      <h2 class="section-title" style="margin-bottom:20px;">Quick Troubleshooting</h2>
+      <p style="color:var(--muted); font-size:15px; margin-bottom:24px;">
+        Before reaching out, try these steps. Most issues are resolved in under 2 minutes.
+      </p>
 
-<ul>
-  <li>Verify device registration</li>
-  <li>Check selected date on dashboards</li>
-  <li>Confirm internet connectivity</li>
-  <li>Refresh page after data upload</li>
-</ul>
+      <ol class="steps">
+        <li>Verify your device is registered in the platform settings.</li>
+        <li>Check the selected date range on dashboards — it often defaults to today only.</li>
+        <li>Confirm your internet connectivity and that the sync agent is running.</li>
+        <li>Refresh the page after a data upload — the cache takes a moment to update.</li>
+        <li>Uninstall and reinstall the extension if browser tracking stops updating.</li>
+        <li>Check your email for any rate-limit or suspension notifications from the platform.</li>
+      </ol>
+    </div>
 
-</div>
+    <div>
+      <div class="section-label">Common Questions</div>
+      <h2 class="section-title" style="margin-bottom:20px;">FAQ</h2>
 
-<!-- FOOTER -->
-<div class="footer">
-Support Team • Data Sunita Platform
-</div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:4px;">
+        <div class="card" style="padding:20px;">
+          <h3 style="font-size:14px; margin-bottom:8px;">How do I delete my data?</h3>
+          <p style="font-size:13px;">Email <a href="/cdn-cgi/l/email-protection#20535550504f52546053554e4954410e5350414345" style="color:var(--accent);"><span class="__cf_email__" data-cfemail="f2818782829d8086b281879c9b8693dc8182939197">[email&#160;protected]</span></a> with your registered email address and request deletion. We'll process it within 48 hours.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <h3 style="font-size:14px; margin-bottom:8px;">Is my data shared with anyone?</h3>
+          <p style="font-size:13px;">Never. Your data is used strictly for your own analytics. See our <a href="/privacy.html" style="color:var(--accent);">Privacy Policy</a> for full details.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <h3 style="font-size:14px; margin-bottom:8px;">Which platforms are supported?</h3>
+          <p style="font-size:13px;">Currently: Chrome extension, Android app, and desktop agent. More platforms coming soon.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <h3 style="font-size:14px; margin-bottom:8px;">Where is my data stored?</h3>
+          <p style="font-size:13px;">On the Data Sunita server, transmitted over HTTPS and stored in an access-controlled database. Local cache is used temporarily for sync reliability.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-</body>
-</html>
+  <!-- CTA -->
+  <div style="text-align:center; margin-top:60px;">
+    <div class="section-label">Still stuck?</div>
+    <h3 style="font-size:22px; margin-bottom:12px;">We usually respond within 24 hours</h3>
+    <p style="color:var(--muted); margin-bottom:24px; font-size:14px;">Include your registered email and a brief description of the issue for the fastest response.</p>
+    <div class="hero-actions">
+      <a class="btn" href="/cdn-cgi/l/email-protection#34474144445b46407447415a5d40551a4744555751">✉ Email Support</a>
+      <a class="btn-outline" href="/privacy.html">Read Privacy Policy →</a>
+    </div>

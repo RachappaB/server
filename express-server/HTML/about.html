@@ -2,23 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rachappa Biradar | Developer & Founder of Data Sunita</title>
-
 <meta name="description" content="Rachappa Biradar is the founder of Data Sunita platform, working on productivity analytics, telemetry systems and cybersecurity learning.">
 <meta name="author" content="Rachappa Biradar">
 <meta name="robots" content="index, follow">
-<link rel="icon" href="./assets//favicon.ico">
-
-<!-- OpenGraph -->
 <meta property="og:title" content="Rachappa Biradar">
 <meta property="og:description" content="Founder of Data Sunita platform and developer working on analytics and cybersecurity.">
 <meta property="og:image" content="https://data.sunita.space/assets/rachappa.jpeg">
 <meta property="og:url" content="https://data.sunita.space/about.html">
-
+<link rel="icon" href="./assets/favicon.ico">
 <link rel="stylesheet" href="/css/style.css">
-
-<!-- PERSON SCHEMA -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -29,88 +23,164 @@
   "jobTitle": "Software Developer",
   "description": "Founder of Data Sunita platform, working on personal analytics, telemetry systems and cybersecurity learning.",
   "email": "mailto:rachappa@sunita.space",
-  "sameAs": [
-    "https://github.com/RachappaB",
-    "https://tryhackme.com/p/rachappabiradar6"
-  ],
+  "sameAs": ["https://github.com/RachappaB","https://tryhackme.com/p/rachappabiradar6"],
   "familyName": "Biradar",
   "givenName": "Rachappa"
 }
 </script>
-
 </head>
-
 <body>
 
 <!-- NAVBAR -->
-<div class="navbar">
-   <a href="/">  <div class="logo"> Data Sunita</div>
-</a>
-<div>
+<nav class="navbar">
+  <a href="/" class="logo">Data<span>Sunita</span></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/download.html">Get App</a>
+    <a href="/about.html" class="active">My Story</a>
+    <a href="/support.html">Support</a>
+    <a href="/privacy.html">Privacy</a>
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<nav class="nav-drawer" id="navDrawer">
+  <a href="/">🏠 Home</a>
+  <a href="/download.html">⬇ Get App</a>
+  <a href="/about.html" class="active">👤 My Story</a>
+  <a href="/support.html">🛟 Support</a>
+  <a href="/privacy.html">🔒 Privacy</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="position:relative; overflow:hidden; padding-bottom:40px;">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div style="position:relative; z-index:2;">
+    <div class="hero-badge">👤 Founder & Developer</div>
+    <h1>
+      Rachappa<br>
+      <span class="hl">Biradar</span>
+    </h1>
+    <p>Building systems that give humans control over their attention, time, and data.</p>
+  </div>
+</section>
+
+<!-- PROFILE + BIO -->
+<div class="container" style="padding-top:20px;">
+  <div class="two-col" style="align-items:start; gap:60px;">
+
+    <!-- LEFT: Profile -->
+    <div>
+      <img src="/assets/rachappa.jpeg"
+           alt="Rachappa Biradar — Founder of Data Sunita"
+           class="profile-img"
+           width="120" height="120">
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <span class="tag">💼 Software Developer</span>
+        <span class="tag">🏗 Platform Founder</span>
+        <span class="tag">🔐 Cybersecurity Learner</span>
+        <span class="tag">📊 Analytics Engineer</span>
+      </div>
+
+      <div style="margin-top:28px; display:flex; flex-direction:column; gap:10px;">
+        <a href="/cdn-cgi/l/email-protection#bdcfdcded5dccdcddcfdcec8d3d4c9dc93cecddcded8" class="email-link">✉ <span class="__cf_email__" data-cfemail="463427252e27363627063533282f3227683536272523">[email&#160;protected]</span></a>
+        <a href="https://github.com/RachappaB" target="_blank" class="btn-outline" style="margin-top:4px;">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub — RachappaB
+        </a>
+        <a href="https://tryhackme.com/p/rachappabiradar6" target="_blank" class="btn-outline" style="margin-top:4px;">
+          🛡 TryHackMe Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT: Story -->
+    <div>
+      <div class="section-label">My Story</div>
+      <h2 class="section-title" style="margin-bottom:20px;">Why I Built This</h2>
+
+      <div class="prose">
+        <p>
+          I am the founder of Data Sunita platform. I build systems focused on
+          productivity tracking, telemetry analytics, cybersecurity learning,
+          and personal data intelligence.
+        </p>
+
+        <p>
+          My goal is to create self-hosted platforms that help people understand
+          time usage, attention, habits, and device behaviour using real data —
+          not synthetic metrics from apps that profit off your attention.
+        </p>
+
+        <p>
+          I believe the most powerful thing you can do in the modern world is own your
+          own data. Not surrender it to platforms in exchange for a free service.
+          Not let algorithms decide what you see, think, or do next.
+        </p>
+      </div>
+
+      <div class="highlight-box" style="margin-top:28px;">
+        <p style="font-family:'Space Mono',monospace; font-size:13px; color:var(--accent); margin-bottom:8px;">// mission statement</p>
+        <p style="font-size:15px; font-style:italic; color:var(--text); line-height:1.7;">
+          "Build systems that let humans reclaim their time, attention,<br>
+          and agency — one data point at a time."
+        </p>
+        <p style="font-size:13px; color:var(--muted); margin-top:12px; font-family:'Space Mono',monospace;">
+          — Rachappa Biradar, sunita.space
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WHAT I'M WORKING ON -->
+  <div class="section-label">Current Focus</div>
+  <h2 class="section-title" style="margin-bottom:30px;">What I'm Building</h2>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">📡</div>
+      <h3>Telemetry Systems</h3>
+      <p>Passive data collection from laptops, phones, and wearables — unified into a single stream.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Productivity Analytics</h3>
+      <p>Pattern recognition across digital behaviour — identifying focus killers and attention leaks.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔐</div>
+      <h3>Cybersecurity Learning</h3>
+      <p>Active practice on TryHackMe — building the security layer for the Data Sunita platform.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:60px;">
+    <div class="section-label">Ready to explore?</div>
+    <h3 style="font-size:22px; margin-bottom:20px;">Check out the platform or get in touch</h3>
+    <div class="hero-actions">
+      <a class="btn" href="/">← Back to Home</a>
+      <a class="btn-outline" href="/support.html">Get Support</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">Data<span style="color:var(--accent2);">Sunita</span></div>
+  <div class="footer-links">
     <a href="/">Home</a>
     <a href="/download.html">Get App</a>
     <a href="/about.html">My Story</a>
     <a href="/support.html">Support</a>
     <a href="/privacy.html">Privacy</a>
+    <a href="https://sunita.space" target="_blank">sunita.space ↗</a>
   </div>
-</div>
-
-<!-- CONTENT -->
-<div class="container">
-
-<img src="/assets/rachappa.jpeg"
-     alt="Rachappa Biradar"
-     width="180"
-     style="border-radius:50%; border:2px solid #1e293b; margin-bottom:15px;">
-
-<h1>Rachappa Biradar</h1>
-
-<p>
-I am the founder of Data Sunita platform. I build systems focused on
-productivity tracking, telemetry analytics, cybersecurity learning,
-and personal data intelligence.
-</p>
-
-<br>
-
-<p>
-My goal is to create self-hosted platforms that help people understand
-time usage, attention, habits, and device behavior using real data.
-</p>
-
-<br>
-
-<h3>Contact</h3>
-
-<p>
-Email:
-<a href="mailto:rachappa@sunita.space">
-rachappa@sunita.space
-</a>
-</p>
-
-<br>
-
-<h3>Professional Profiles</h3>
-
-<p>
-<a href="https://github.com/RachappaB" target="_blank">
-GitHub — RachappaB
-</a>
-</p>
-
-<p>
-<a href="https://tryhackme.com/p/rachappabiradar6" target="_blank">
-TryHackMe — Cybersecurity Profile
-</a>
-</p>
-
-</div>
-
-<!-- FOOTER -->
-<div class="footer">
-Built by Rachappa Biradar • Data Sunita Platform
-</div>
-
-</body>
-</html>
+</footer>

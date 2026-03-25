@@ -2,212 +2,203 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<title>Data Sunita | Unified Personal Productivity Platform</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Sunita | Own Your Data. Own Your Mind.</title>
 <meta name="description" content="Data Sunita is a unified platform for tracking productivity, device activity, telemetry and personal analytics.">
 <meta name="keywords" content="productivity tracking, personal analytics, device monitoring, telemetry dashboard, habit tracking">
 <meta name="author" content="Rachappa Biradar">
 <meta name="robots" content="index, follow">
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#050a0e">
 <link rel="canonical" href="https://data.sunita.space/">
-
 <meta property="og:title" content="Data Sunita Platform">
 <meta property="og:description" content="Unified personal productivity and telemetry analytics platform.">
 <meta property="og:url" content="https://data.sunita.space/">
 <meta property="og:type" content="website">
-
-<link rel="icon" href="./assets//favicon.ico">
-<link rel="stylesheet" href="/css/style.css">
-
-<style>
-
-/* =========================
- URGENT LAUNCH LINK
-========================= */
-
-.urgent-container {
-    margin-top: 50px;
-}
-
-.urgent-launch {
-    font-size: 32px;
-    font-weight: 800;
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: gold;
-    position: relative;
-    display: inline-block;
-    transition: all 0.4s ease;
-    animation: goldBlink 1.4s infinite alternate;
-}
-
-/* Gold glow */
-@keyframes goldBlink {
-    0% {
-        text-shadow: 0 0 5px gold, 0 0 10px orange;
-        opacity: 1;
-    }
-    100% {
-        text-shadow: 0 0 25px gold, 0 0 50px orange;
-        opacity: 0.85;
-    }
-}
-
-/* Rocket icon */
-.urgent-launch::before {
-    content: "🚀";
-    position: absolute;
-    left: -45px;
-    transition: transform 0.6s ease;
-}
-
-/* Hover effect */
-.urgent-launch:hover {
-    color: #ffffff;
-    text-shadow: 0 0 35px gold, 0 0 70px orange;
-    transform: scale(1.12);
-}
-
-/* Rocket flight */
-.urgent-launch:hover::before {
-    transform: translateX(120px) translateY(-25px);
-}
-
-/* Slight shake */
-.urgent-launch:hover {
-    animation: shake 0.25s infinite;
-}
-
-@keyframes shake {
-    0% { transform: translate(1px, 1px) scale(1.12); }
-    25% { transform: translate(-1px, 2px) scale(1.12); }
-    50% { transform: translate(-2px, -1px) scale(1.12); }
-    75% { transform: translate(2px, 1px) scale(1.12); }
-    100% { transform: translate(1px, -2px) scale(1.12); }
-}
-
-</style>
-
+<link rel="icon" href="./assets/favicon.ico">
+<link rel="stylesheet" href="./css/style.css">
 </head>
-
 <body>
 
 <!-- NAVBAR -->
-
-<div class="navbar">
-  <a href="/">
-    <div class="logo">Data Sunita</div>
-  </a>
-
-<div>
-    <a href="/">Home</a>
+<nav class="navbar">
+  <a href="/" class="logo">Data<span>Sunita</span></a>
+  <div class="nav-links">
+    <a href="/" class="active">Home</a>
     <a href="/download.html">Get App</a>
     <a href="/about.html">My Story</a>
     <a href="/support.html">Support</a>
     <a href="/privacy.html">Privacy</a>
   </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<nav class="nav-drawer" id="navDrawer">
+  <a href="/" class="active">🏠 Home</a>
+  <a href="/download.html">⬇ Get App</a>
+  <a href="/about.html">👤 My Story</a>
+  <a href="/support.html">🛟 Support</a>
+  <a href="/privacy.html">🔒 Privacy</a>
+</nav>
+
+<!-- NEW USER WELCOME BANNER -->
+<div class="newuser-banner" style="margin-top:16px;">
+  <div class="nb-icon">👋</div>
+  <div class="nb-text">
+    <h3>New here? Welcome to Data Sunita</h3>
+    <p>This platform helps you track screen habits, understand your attention, and take back control of your time — using your own data.</p>
+  </div>
+  <div class="nb-actions">
+    <a class="btn" href="/download.html" style="font-size:13px; padding:10px 18px;">⬇ Get the App</a>
+    <a class="btn-outline" href="/about.html" style="font-size:13px; padding:9px 18px;">Learn More</a>
+  </div>
 </div>
 
-<!-- HERO SECTION -->
+<!-- HERO -->
+<section class="hero" style="position:relative; overflow:hidden;">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
 
-<div class="hero">
+  <div style="position:relative; z-index:2;">
+    <div class="hero-badge">🛰 sunita.space platform — v2 live</div>
+    <h1>
+      Own Your Data.<br>
+      <span class="hl">Own Your Mind.</span>
+    </h1>
+    <p>
+      Track productivity, habits, device usage and personal telemetry
+      in one intelligent control system — built for people who want to win
+      the battle against distraction.
+    </p>
+    <div class="hero-actions">
+      <a class="btn" href="/download.html">⬇ Get the App — It's Free</a>
+      <a class="btn-outline" href="/about.html">Who Built This? →</a>
+    </div>
+    <p style="margin-top:24px; font-size:12px; color:var(--muted);">
+      Built by <a href="/about.html" style="color:var(--accent); text-decoration:none;">Rachappa Biradar</a>
+      &nbsp;·&nbsp; <a href="https://sunita.space" target="_blank" style="color:var(--muted); text-decoration:none; font-family:'Space Mono',monospace; font-size:11px;">sunita.space ↗</a>
+    </p>
+  </div>
+</section>
 
-  <h1>Own Your Data. Own Your Mind.</h1>
+<!-- STATS -->
+<div class="container" style="padding-top:0;">
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Passive Tracking</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Data Points</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Ads. Ever.</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">Dashboard for Everything</div></div>
+  </div>
+</div>
 
-  <p>
-    Track productivity, habits, device usage and personal telemetry
-    in one intelligent control system.
-  </p>
+<!-- HOW IT WORKS -->
+<div class="container" style="padding-top:20px; padding-bottom:60px;">
+  <div style="text-align:center; max-width:600px; margin:0 auto 8px;">
+    <div class="section-label">Get Started in 3 Steps</div>
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-desc" style="margin:0 auto; max-width:480px;">No complicated setup. Install, register, and your data starts flowing in minutes.</p>
+  </div>
 
-  <!-- <a class="btn" href="/ai_logs.html">
-    Open Dashboard
-  </a> -->
+  <div class="how-it-works">
+    <div class="how-step">
+      <div class="how-step-num">1</div>
+      <h4>Install the App</h4>
+      <p>Download the Android APK or add the Chrome extension. Takes under 2 minutes.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">2</div>
+      <h4>Register Your Email</h4>
+      <p>Enter your email in the app. This links your device to your personal dashboard.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">3</div>
+      <h4>See Your Patterns</h4>
+      <p>Your screen habits, app usage, and attention leaks surface in real data — automatically.</p>
+    </div>
+  </div>
 
-  <p style="margin-top:18px; opacity:0.7;">
-    Built by
-    <a href="/about.html" style="color:#60a5fa; text-decoration:none;">
-      Rachappa Biradar
-    </a>
-  </p>
+  <div style="text-align:center; margin-top:40px;">
+    <a class="btn" href="/download.html">Start Tracking Now →</a>
+  </div>
+</div>
 
+<!-- PROBLEM STATEMENT -->
+<div class="container" style="padding-top:20px;">
+  <div style="max-width:760px; margin:0 auto; text-align:center;">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title">You Are Not Lazy.<br>You Are Fighting Your Own Brain.</h2>
+    <p class="section-desc" style="max-width:100%; margin:0 auto;">
+      Data Sunita is built for people who constantly struggle between their rational mind and emotional impulses.
+    </p>
+  </div>
+
+  <div class="grid" style="margin-top:40px;">
+    <div class="card"><div class="card-icon">📱</div><h3>Phone Scroll Trap</h3><p>You plan your day — but end up scrolling for hours without realising it.</p></div>
+    <div class="card"><div class="card-icon">⏳</div><h3>Procrastination Loop</h3><p>You want to complete tasks — but delay them until the last possible moment.</p></div>
+    <div class="card"><div class="card-icon">🧠</div><h3>Impulse vs Logic</h3><p>You promise discipline to yourself — but feelings win every single time.</p></div>
+    <div class="card"><div class="card-icon">🔁</div><h3>Regret Cycle</h3><p>You feel regret at night — but wake up and repeat the exact same cycle.</p></div>
+  </div>
+
+  <div class="highlight-box" style="text-align:center; margin-top:40px;">
+    <p style="font-size:18px; font-weight:600; margin-bottom:8px;">This is not laziness.</p>
+    <p style="color:var(--muted); font-size:15px;">It is a battle between logic and impulse. This platform exists to help your rational brain take control — with real data, real patterns, real insight.</p>
+  </div>
 </div>
 
 <!-- FEATURES -->
+<div class="container" style="padding-top:80px;">
+  <div class="section-label">What We Track</div>
+  <h2 class="section-title">Connected Systems</h2>
 
-<!-- <div class="container">
-
-  <h2>Connected Systems</h2>
-
-  <p style="margin-top:18px; opacity:0.7;">
-    Dashboard:
-    <a href="/fitband_dashboard.html" style="color:#60a5fa; text-decoration:none;">
-      Fitband Dashboard
-    </a>
-  </p> 
-
-</div> -->
-
-<!-- MENTAL CONTROL SECTION -->
-
-<div class="container" style="margin-top:80px; text-align:center; max-width:900px;">
-
-  <h2>You Are Not Lazy. You Are Fighting Your Own Brain.</h2>
-
-  <p style="margin-top:25px; font-size:18px; line-height:1.7; opacity:0.85;">
-
-    Data Sunita is built for people who constantly struggle
-    between their rational mind and emotional impulses.
-
-    <br><br>
-
-    • You plan your day — but end up scrolling your phone  
-    • You want to complete tasks — but delay them  
-    • You promise discipline — but feelings win  
-    • You feel regret at night — but repeat the same cycle  
-
-    <br><br>
-
-    This is not laziness.
-
-    It is a battle between logic and impulse.
-
-    <br><br>
-
-    This platform exists to help your rational brain take control.
-
-  </p>
-<!-- 
-  <a class="btn" href="/ai_logs.html" style="margin-top:30px;">
-    Take Back Control
-  </a> -->
-
-  <!-- URGENT ROCKET LINK -->
-
-  <div class="urgent-container">
-    <a class="urgent-launch" href="https://data.sunita.space/urgent.html">
-      Look For Our Work
-    </a>
+  <div class="grid" style="margin-top:36px;">
+    <div class="card"><div class="card-icon">💻</div><h3>Laptop Telemetry</h3><p>Monitor app usage, active sessions, and focus time across your desktop environment.</p></div>
+    <div class="card"><div class="card-icon">📡</div><h3>Browser Extension</h3><p>Track which domains consume your attention and how long you actually spend on them.</p></div>
+    <div class="card"><div class="card-icon">⌚</div><h3>Fitband Integration</h3><p>Sync wearable health data — steps, heart rate, and sleep patterns — to your dashboard.</p></div>
+    <div class="card"><div class="card-icon">📊</div><h3>Unified Dashboard</h3><p>All your data flows into one beautiful control panel. No vendor lock-in, self-hosted.</p></div>
+    <div class="card"><div class="card-icon">🔒</div><h3>Private by Design</h3><p>Your data never leaves without your knowledge. No third-party ad networks. Ever.</p></div>
+    <div class="card"><div class="card-icon">🤖</div><h3>AI Insights</h3><p>Behavioural pattern analysis powered by your own data — not generic recommendations.</p></div>
   </div>
+</div>
 
+<!-- CTA -->
+<div class="container" style="padding-top:80px; padding-bottom:40px;">
+  <div class="urgent-wrap">
+    <div class="section-label" style="margin-bottom:20px;">Explore Our Work</div>
+    <a class="urgent-launch" href="https://data.sunita.space/urgent.html">🚀 Look For Our Work</a>
+    <p style="color:var(--muted); font-size:13px; margin-top:16px;">Latest builds, dashboards and experiments — all live.</p>
+  </div>
 </div>
 
 <!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">Data<span style="color:var(--accent2);">Sunita</span></div>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/download.html">Get App</a>
+    <a href="/about.html">My Story</a>
+    <a href="/support.html">Support</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="https://sunita.space" target="_blank">sunita.space ↗</a>
+  </div>
+  <p class="footer-copy">© 2026 Rachappa Biradar · Data Sunita Platform · Built with Express, PostgreSQL & Cloudflare</p>
+</footer>
 
-<div class="footer">
-
-  <p>
-    Data Sunita Platform • Built with Express, PostgreSQL & Cloudflare
-  </p>
-
-  <p style="margin-top:8px;">
-    © 2026 Rachappa Biradar • All Rights Reserved
-  </p>
-
-</div>
-
+<script>
+  const toggle = document.getElementById('navToggle');
+  const drawer = document.getElementById('navDrawer');
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    drawer.classList.toggle('open');
+  });
+  drawer.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      toggle.classList.remove('open');
+      drawer.classList.remove('open');
+    });
+  });
+</script>
 </body>
 </html>
