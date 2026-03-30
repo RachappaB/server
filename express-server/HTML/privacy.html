@@ -3,341 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Get the App | Usage Research – Data Sunita</title>
-<meta name="description" content="Usage Research is an experimental behavioral analytics application focused on understanding and reducing phone addiction through data-driven awareness.">
-<link rel="icon" href="./assets/favicon.ico">
+<title>Privacy Policy | Data Sunita</title>
+<meta name="description" content="Privacy Policy for Usage Research – Rachappa and Usage Tracker Extension under the Data Sunita platform. What we collect, why, and how we protect it.">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/assets/favicon.ico">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap">
+
 <link rel="stylesheet" href="/css/style.css">
-<style>
-/* ── DOWNLOAD CARD ── */
-.dl-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 40px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.dl-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  transition: opacity 0.3s;
-}
-
-.dl-card.android::before { background: linear-gradient(90deg, #00d4ff, #7c3aed); opacity: 1; }
-.dl-card.chrome::before  { background: linear-gradient(90deg, #ff6b35, #f4a227); opacity: 1; }
-
-.dl-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-
-.dl-platform {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.dl-platform.android { color: var(--accent); }
-.dl-platform.chrome  { color: var(--accent2); }
-
-.dl-card h2 {
-  font-size: 24px;
-  font-weight: 800;
-  margin-bottom: 12px;
-  letter-spacing: -0.5px;
-}
-
-.dl-card p {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 24px;
-}
-
-.dl-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 28px;
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: all 0.25s;
-  width: 100%;
-  justify-content: center;
-}
-
-.dl-btn.android {
-  background: var(--accent);
-  color: #000;
-}
-.dl-btn.android:hover {
-  background: #33ddff;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,212,255,0.35);
-}
-
-.dl-btn.chrome {
-  background: var(--accent2);
-  color: #000;
-}
-.dl-btn.chrome:hover {
-  background: #ff8c5a;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255,107,53,0.35);
-}
-
-.dl-note {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 14px;
-  text-align: center;
-  opacity: 0.7;
-  line-height: 1.6;
-}
-
-/* ── FEATURE PILLS ── */
-.pill-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* ── TERMINAL BLOCK ── */
-.terminal {
-  background: #020810;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px 24px;
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  color: #7a9bb5;
-  line-height: 1.8;
-  margin-top: 16px;
-}
-
-.terminal .prompt { color: var(--accent); }
-.terminal .comment { color: #2a4a5e; }
-
-/* ── RESEARCH BADGE ── */
-.research-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: rgba(244,162,39,0.08);
-  border: 1px solid rgba(244,162,39,0.25);
-  border-radius: 20px;
-  font-size: 12px;
-  color: var(--gold);
-  font-family: 'Space Mono', monospace;
-  letter-spacing: 0.5px;
-}
-</style>
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- ── NAVBAR ── -->
 <nav class="navbar">
   <a href="/" class="logo">Data<span>Sunita</span></a>
   <div class="nav-links">
     <a href="/">Home</a>
-    <a href="/download.html" class="active">Get App</a>
+    <a href="/download.html">Get App</a>
     <a href="/about.html">My Story</a>
     <a href="/support.html">Support</a>
-    <a href="/privacy.html">Privacy</a>
+    <a href="/privacy.html" class="active">Privacy</a>
   </div>
-  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
-<!-- MOBILE DRAWER -->
 <nav class="nav-drawer" id="navDrawer">
   <a href="/">🏠 Home</a>
-  <a href="/download.html" class="active">⬇ Get App</a>
+  <a href="/download.html">⬇ Get App</a>
   <a href="/about.html">👤 My Story</a>
   <a href="/support.html">🛟 Support</a>
-  <a href="/privacy.html">🔒 Privacy</a>
+  <a href="/privacy.html" class="active">🔒 Privacy</a>
 </nav>
 
-<!-- HERO -->
-<section class="hero" style="position:relative; overflow:hidden; padding-bottom:40px;">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-
-  <div style="position:relative; z-index:2;">
-    <div class="research-badge">⚗ Research-stage build · feedback welcome</div>
-    <h1 style="margin-top:20px;">
-      HEALME<br>
-      <span class="hl">– Rachappa</span>
-    </h1>
-    <p>
-      Understand why you reach for your phone.<br>
-      The goal is not restriction — it's <strong style="color:var(--text);">awareness</strong>.
-      Awareness builds control.
-    </p>
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="orb orb-a"></div>
+  <div class="inner">
+    <div class="hero-badge">🔒 Last updated: January 2026</div>
+    <h1>Privacy<br><span class="hl">Policy</span></h1>
+    <p>We believe your data belongs to you. Here's exactly what we collect, why, and how we protect it.</p>
   </div>
 </section>
 
-<!-- MISSION STRIP -->
-<div class="container" style="padding-top:0; padding-bottom:0;">
-  <div class="highlight-box" style="text-align:center; padding:28px 40px;">
-    <p style="font-size:16px; line-height:1.8; color:var(--muted); max-width:680px; margin:0 auto;">
-      This experimental app is part of the
-      <a href="/" style="color:var(--accent); text-decoration:none;">Data Sunita</a> mission —
-      observing screen habits, emotional triggers, and usage cycles that contribute to phone addiction
-      through <span style="color:var(--text);">data-driven behavioural awareness</span>.
-    </p>
-  </div>
-</div>
+<!-- ── CONTENT ── -->
+<div class="container" style="padding-top:20px; max-width:860px;">
 
-<!-- DOWNLOAD CARDS -->
-<div class="container" style="padding-top:60px;">
-  <div class="section-label">Available On</div>
-  <h2 class="section-title" style="margin-bottom:36px;">Download & Install</h2>
+  <!-- TL;DR -->
+  <div class="label">The Short Version</div>
+  <h2 class="title" style="margin-bottom:22px;">Privacy at a Glance</h2>
 
-  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap:24px;">
-
-    <!-- ANDROID -->
-    <div class="dl-card android">
-      <div class="dl-platform android">📱 Android App</div>
-      <h2>Android APK</h2>
-
-      <div class="pill-row">
-        <span class="pill">⚡ Background tracking</span>
-        <span class="pill">📊 Usage heatmaps</span>
-        <span class="pill">🔔 Impulse alerts</span>
-        <span class="pill">📶 Offline sync</span>
-      </div>
-
-      <p>
-        Tracks screen-on events, app sessions, and unlock patterns.
-        All data syncs to your personal Data Sunita dashboard.
-      </p>
-
-      <a class="dl-btn android" href="/base.apk" download>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M5 20h14v-2H5v2zm7-18L5.33 8H9v6h6V8h3.67L12 2z"/>
-        </svg>
-        Download APK
-      </a>
-
-      <p class="dl-note">
-        Enable "Install from unknown sources" in<br>
-        Android Settings → Security before installing.
-      </p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-bottom:56px;">
+    <div class="card" style="border-color:rgba(0,212,255,.2);">
+      <div style="font-size:26px; margin-bottom:10px;">✅</div>
+      <h3 style="font-size:14px; color:var(--accent);">We Collect</h3>
+      <p style="font-size:13px;">Domain names, active time, timestamps, email ID, device identifier.</p>
     </div>
-
-    <!-- CHROME -->
-    <div class="dl-card chrome">
-      <div class="dl-platform chrome">🌐 Browser Extension</div>
-      <h2>Chrome Extension</h2>
-
-      <div class="pill-row">
-        <span class="pill">🕐 Time per domain</span>
-        <span class="pill">📈 Daily reports</span>
-        <span class="pill">🚫 Distraction map</span>
-        <span class="pill">☁ Cloud sync</span>
-      </div>
-
-      <p>
-        Passively records domain visits and active time.
-        Works on Chrome, Brave, and all Chromium-based browsers.
-      </p>
-
-      <a class="dl-btn chrome"
-         href="https://chromewebstore.google.com/detail/usage-tracker/ikfnohghnoljemijhpoccpcbhpbjijen?hl=en"
-         target="_blank">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-        </svg>
-        Add to Chrome
-      </a>
-
-      <p class="dl-note">
-        Available on the Chrome Web Store.<br>
-        No account required to install.
-      </p>
+    <div class="card" style="border-color:rgba(255,107,53,.2);">
+      <div style="font-size:26px; margin-bottom:10px;">🚫</div>
+      <h3 style="font-size:14px; color:var(--accent2);">We Never Collect</h3>
+      <p style="font-size:13px;">Passwords, form inputs, messages, browsing content, or financial data.</p>
+    </div>
+    <div class="card" style="border-color:rgba(124,58,237,.2);">
+      <div style="font-size:26px; margin-bottom:10px;">🤝</div>
+      <h3 style="font-size:14px; color:#a78bfa;">We Never Share</h3>
+      <p style="font-size:13px;">Your data is never sold, rented, or shared with third-party advertisers.</p>
+    </div>
+    <div class="card" style="border-color:rgba(244,162,39,.2);">
+      <div style="font-size:26px; margin-bottom:10px;">🔑</div>
+      <h3 style="font-size:14px; color:var(--gold);">You're in Control</h3>
+      <p style="font-size:13px;">Stop collection anytime by uninstalling. Request full deletion via email.</p>
     </div>
   </div>
 
-  <!-- SETUP INSTRUCTIONS -->
   <div class="divider"></div>
 
-  <div class="two-col" style="gap:48px; align-items:start;">
+  <!-- FULL POLICY -->
+  <div class="prose">
+    <div class="label" style="margin-bottom:10px;">Full Policy</div>
 
-    <div>
-      <div class="section-label">Android Setup</div>
-      <h2 class="section-title" style="font-size:22px; margin-bottom:20px;">Installing the APK</h2>
-      <ol class="steps">
-        <li>Download the APK file using the button above.</li>
-        <li>Open <strong style="color:var(--text);">Settings → Security</strong> on your Android device.</li>
-        <li>Enable <strong style="color:var(--text);">"Install from unknown sources"</strong> or "Install unknown apps".</li>
-        <li>Open the downloaded APK file from your Downloads folder.</li>
-        <li>Tap <strong style="color:var(--text);">Install</strong> and wait for it to complete.</li>
-        <li>Launch the app, enter your registered email, and begin tracking.</li>
-      </ol>
+    <h2>Overview</h2>
+    <p>Usage Research – Rachappa and the Usage Tracker Extension are research and productivity-focused tools developed under the Data Sunita platform. This policy explains what data is collected, how it is used, and how it is protected.</p>
+
+    <h2>Information We Collect</h2>
+    <p>The application or extension may collect:</p>
+    <ul>
+      <li>Website domain names visited (e.g., example.com)</li>
+      <li>Active time spent on websites or apps</li>
+      <li>Usage timestamps</li>
+      <li>User-provided email address (used as a unique identifier)</li>
+      <li>Device identifier generated for research analysis</li>
+    </ul>
+
+    <div class="hbox" style="margin:18px 0;">
+      <p style="font-family:var(--font-mono); font-size:12px; color:var(--accent2); margin-bottom:10px;">// what we explicitly DO NOT collect</p>
+      <ul>
+        <li>Passwords or authentication credentials</li>
+        <li>Form inputs or keystrokes</li>
+        <li>Personal messages or communications</li>
+        <li>Full browsing content or page text</li>
+        <li>Financial or payment information</li>
+      </ul>
     </div>
 
-    <div>
-      <div class="section-label">What Gets Tracked</div>
-      <h2 class="section-title" style="font-size:22px; margin-bottom:16px;">Data Collected</h2>
+    <h2>How Information Is Used</h2>
+    <ul>
+      <li>Productivity research and behavioural pattern analysis</li>
+      <li>Usage statistics generation for your personal dashboard</li>
+      <li>Improving digital well-being insights and recommendations</li>
+    </ul>
 
-      <div class="terminal">
-        <span class="comment">// collected passively</span><br>
-        <span class="prompt">→</span> screen_on_events[ ]<br>
-        <span class="prompt">→</span> app_session_duration<br>
-        <span class="prompt">→</span> unlock_count_per_hour<br>
-        <span class="prompt">→</span> domain_visit_timestamps<br>
-        <span class="prompt">→</span> active_tab_time_ms<br>
-        <br>
-        <span class="comment">// never collected</span><br>
-        <span class="prompt" style="color:var(--accent2);">✕</span> passwords or credentials<br>
-        <span class="prompt" style="color:var(--accent2);">✕</span> page content or text<br>
-        <span class="prompt" style="color:var(--accent2);">✕</span> personal messages<br>
-      </div>
+    <h2>Data Storage</h2>
+    <p>Usage data is securely transmitted to the Data Sunita server and stored in an access-controlled database. Secure communication protocols (HTTPS) are used during all transmission. Local storage may be used temporarily to ensure background synchronisation reliability.</p>
 
-      <p style="font-size:13px; color:var(--muted); margin-top:14px;">
-        Full details in our <a href="/privacy.html" style="color:var(--accent);">Privacy Policy →</a>
-      </p>
-    </div>
+    <h2>Data Sharing</h2>
+    <p>Collected data is not sold, rented, or shared with third-party advertisers. Data is used strictly for internal research and analysis purposes within the Data Sunita platform.</p>
+
+    <h2>User Control</h2>
+    <p>You may stop data collection at any time by uninstalling the application or disabling the browser extension. You may request complete data deletion by contacting the project administrator at any time.</p>
+
+    <h2>Security</h2>
+    <p>We implement secure server configurations and access control policies to protect stored information from unauthorised access. All data is transmitted over encrypted connections.</p>
+
+    <h2>Policy Updates</h2>
+    <p>This privacy policy may be updated periodically. Continued use of the application indicates acceptance of the updated policy. We will update the "last updated" date at the top of this page with any changes.</p>
+
+    <h2>Contact</h2>
+    <p>For questions, concerns, or data deletion requests:</p>
   </div>
 
-  <!-- BOTTOM CTA -->
-  <div style="text-align:center; margin-top:70px;">
-    <div class="section-label">Questions?</div>
-    <h3 style="font-size:22px; margin-bottom:12px;">Need help getting set up?</h3>
-    <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">
-      This is a research build — bugs happen. Reach out and we'll fix it fast.
-    </p>
-    <div class="hero-actions">
-      <a class="btn" href="/support.html">🛟 Get Support</a>
-      <a class="btn-outline" href="/about.html">About the Project →</a>
+  <a href="mailto:support@sunita.space" class="email-link" style="margin-top:14px;">✉ support@sunita.space</a>
+
+  <div style="text-align:center; margin-top:56px;">
+    <div class="cta-group">
+      <a class="btn" href="/">← Back to Home</a>
+      <a class="btn-outline" href="/support.html">Get Support →</a>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- ── FOOTER ── -->
 <footer class="footer">
   <div class="footer-logo">Data<span style="color:var(--accent2);">Sunita</span></div>
   <div class="footer-links">
@@ -346,25 +154,26 @@
     <a href="/about.html">My Story</a>
     <a href="/support.html">Support</a>
     <a href="/privacy.html">Privacy</a>
-    <a href="https://sunita.space" target="_blank">sunita.space ↗</a>
+    <a href="https://sunita.space" target="_blank" rel="noopener">sunita.space ↗</a>
   </div>
-  <p class="footer-copy">© 2026 Rachappa Biradar · Data Sunita Platform · Built with Express, PostgreSQL & Cloudflare</p>
+  <p class="footer-copy">© 2026 Rachappa Biradar · Data Sunita Platform · Built with Express, PostgreSQL &amp; Cloudflare</p>
 </footer>
 
-
 <script>
-  const toggle = document.getElementById('navToggle');
-  const drawer = document.getElementById('navDrawer');
-  toggle.addEventListener('click', () => {
-    toggle.classList.toggle('open');
-    drawer.classList.toggle('open');
+(function(){
+  var t=document.getElementById('navToggle'),d=document.getElementById('navDrawer');
+  t.addEventListener('click',function(){
+    var o=d.classList.toggle('open');
+    t.classList.toggle('open');
+    t.setAttribute('aria-expanded',o);
   });
-  drawer.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => {
-      toggle.classList.remove('open');
-      drawer.classList.remove('open');
+  d.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){
+      d.classList.remove('open');t.classList.remove('open');
+      t.setAttribute('aria-expanded','false');
     });
   });
+})();
 </script>
 </body>
 </html>
