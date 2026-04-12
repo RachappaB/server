@@ -70,6 +70,8 @@ app.get("/privacy.html", (req, res) => {
 // ✅ API Routes for data collection
 app.use("/api/phone", require("./routes/phone"));
 app.use("/api/phonev2", require("./routes/phonev2"));
+app.use("/api/phonev4", require("./routes/phonev4"));
+
 app.use("/api/user", require("./routes/user"));
 app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
@@ -82,7 +84,6 @@ app.use("/api/combinedfilter",require("./routes/combinedfillterRoute"));
 //gemini working test route 
 app.use("/api/gemini",require("./routes/geminiroute"));
 app.use("/api/gps",require("./routes/gps"));  
-
 
 
 // // ✅ CRON JOB: AI Analysis every 15 minutes

@@ -16,6 +16,98 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="./assets/favicon.ico">
 <link rel="stylesheet" href="./css/style.css">
+
+<!-- Photo grid responsive styles -->
+<style>
+.reality-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 200px 200px;
+  gap: 14px;
+}
+.reality-photo {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.reality-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.reality-photo:hover img { transform: scale(1.04); }
+.reality-photo-tall {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+.reality-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5,10,14,.92) 0%, rgba(5,10,14,.25) 55%, transparent 100%);
+}
+.reality-photo-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px;
+}
+.reality-caption-tag {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-bottom: 7px;
+}
+.reality-caption-tag.cyan  { color: #00d4ff; background: rgba(0,212,255,.1);  border: 1px solid rgba(0,212,255,.25); }
+.reality-caption-tag.orange{ color: #ff6b35; background: rgba(255,107,53,.1); border: 1px solid rgba(255,107,53,.25); }
+.reality-caption-tag.purple{ color: #a78bfa; background: rgba(124,58,237,.1); border: 1px solid rgba(124,58,237,.25); }
+.reality-caption-tag.gold  { color: #f4a227; background: rgba(244,162,39,.1); border: 1px solid rgba(244,162,39,.25); }
+.reality-caption-p {
+  font-size: 13px;
+  color: #e8f4f8;
+  line-height: 1.45;
+  margin: 0;
+}
+.reality-pullquote {
+  text-align: center;
+  margin-top: 28px;
+  padding: 26px 28px;
+  background: rgba(0,212,255,.04);
+  border: 1px solid rgba(0,212,255,.12);
+  border-radius: 14px;
+}
+@media (max-width: 700px) {
+  .reality-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+  .reality-photo-tall {
+    grid-column: 1;
+    grid-row: auto;
+    height: 240px;
+  }
+  .reality-photo {
+    height: 200px;
+  }
+}
+@media (min-width: 701px) and (max-width: 900px) {
+  .reality-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+  }
+  .reality-photo-tall {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    height: 414px;
+  }
+  .reality-photo { height: 200px; }
+}
+</style>
 </head>
 <body>
 
@@ -125,6 +217,125 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════
+     WHY THIS EXISTS — Photo Reality Section
+     Inserted between How It Works & The Problem
+═══════════════════════════════════════════════ -->
+<div class="container" style="padding-top:0; padding-bottom:70px;">
+
+  <div style="text-align:center; max-width:680px; margin:0 auto 36px;">
+    <div class="section-label">Why This Platform Exists</div>
+    <h2 class="section-title">This Is What Phone Addiction<br>Actually Looks Like</h2>
+    <p class="section-desc" style="margin:0 auto; max-width:520px;">
+      It is not a willpower problem. Billion-dollar apps are engineered specifically to capture and hold your attention — whether you like it or not.
+    </p>
+  </div>
+
+  <div class="reality-grid">
+
+    <!-- Photo 1: large left — person on phone late at night -->
+    <div class="reality-photo reality-photo-tall">
+      <img
+        src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=700&q=78&auto=format&fit=crop"
+        alt="Person absorbed in phone screen late at night"
+        loading="lazy"
+        width="700" height="900"
+      >
+      <div class="reality-photo-overlay"></div>
+      <div class="reality-caption">
+        <span class="reality-caption-tag cyan">Late Night Scroll</span>
+        <p class="reality-caption-p">
+          You said five minutes. That was an hour ago. The feed never ends — and neither does the pull.
+        </p>
+      </div>
+    </div>
+
+    <!-- Photo 2: top middle — child on phone -->
+    <div class="reality-photo">
+      <img
+        src="https://images.unsplash.com/photo-1567581935884-3349723552ca?w=600&q=78&auto=format&fit=crop"
+        alt="Young child staring at a phone screen"
+        loading="lazy"
+        width="600" height="400"
+      >
+      <div class="reality-photo-overlay"></div>
+      <div class="reality-caption">
+        <span class="reality-caption-tag orange">Children &amp; Screens</span>
+        <p class="reality-caption-p">
+          Average first phone age: 10 years old. Screen time doubles within the first year.
+        </p>
+      </div>
+    </div>
+
+    <!-- Photo 3: top right — group on phones together -->
+    <div class="reality-photo">
+      <img
+        src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=78&auto=format&fit=crop"
+        alt="Group of young people all looking at phones at a table"
+        loading="lazy"
+        width="600" height="400"
+      >
+      <div class="reality-photo-overlay"></div>
+      <div class="reality-caption">
+        <span class="reality-caption-tag purple">Social Isolation</span>
+        <p class="reality-caption-p">
+          Together in person. Completely apart. Everyone at the table is somewhere else.
+        </p>
+      </div>
+    </div>
+
+    <!-- Photo 4: bottom middle — stressed / overwhelmed -->
+    <div class="reality-photo">
+      <img
+        src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=78&auto=format&fit=crop"
+        alt="Person looking exhausted and stressed"
+        loading="lazy"
+        width="600" height="400"
+      >
+      <div class="reality-photo-overlay"></div>
+      <div class="reality-caption">
+        <span class="reality-caption-tag gold">Mental Drain</span>
+        <p class="reality-caption-p">
+          100+ notifications a day. Your brain never gets to rest — even when you're not looking at it.
+        </p>
+      </div>
+    </div>
+
+    <!-- Photo 5: bottom right — data / tracking concept -->
+    <div class="reality-photo">
+      <img
+        src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=78&auto=format&fit=crop"
+        alt="Screen showing data and usage analytics"
+        loading="lazy"
+        width="600" height="400"
+      >
+      <div class="reality-photo-overlay"></div>
+      <div class="reality-caption">
+        <span class="reality-caption-tag cyan">The Fix: Awareness</span>
+        <p class="reality-caption-p">
+          Data Sunita shows you exactly where your time goes — so you can decide what to do next.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end .reality-grid -->
+
+  <!-- Pull-quote -->
+  <div class="reality-pullquote">
+    <p style="font-size:16px; font-weight:600; color:var(--text); margin-bottom:10px; line-height:1.65;">
+      The average person unlocks their phone
+      <span style="color:var(--accent);">96 times a day</span> —
+      once every 10 minutes — and most people have no idea.
+    </p>
+    <p style="font-size:13px; color:var(--muted); font-family:'Space Mono',monospace; margin:0;">
+      That is exactly what this platform was built to expose.
+      <a href="/download.html" style="color:var(--accent); text-decoration:none; margin-left:8px;">See your own numbers →</a>
+    </p>
+  </div>
+
+</div>
+<!-- ══════════ END WHY THIS EXISTS ══════════ -->
+
 <!-- PROBLEM STATEMENT -->
 <div class="container" style="padding-top:20px;">
   <div style="max-width:760px; margin:0 auto; text-align:center;">
@@ -183,7 +394,7 @@
     <a href="/privacy.html">Privacy</a>
     <a href="https://sunita.space" target="_blank">sunita.space ↗</a>
   </div>
-  <p class="footer-copy">© 2026 Rachappa Biradar · Data Sunita Platform · Built with Express, PostgreSQL & Cloudflare</p>
+  <p class="footer-copy">© 2026 Rachappa Biradar · Data Sunita Platform · Built with Express, PostgreSQL &amp; Cloudflare</p>
 </footer>
 
 <script>
