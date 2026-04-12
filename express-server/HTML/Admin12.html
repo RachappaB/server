@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PA Notify — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #060606;
+    --surface:   #0e0e0e;
+    --border:    #1c1c1c;
+    --border2:   #2a2a2a;
+    --text:      #e8e8e8;
+    --muted:     #555;
+    --dim:       #333;
+    --amber:     #f59e0b;
+    --amber-dim: #78350f;
+    --green:     #22c55e;
+    --green-dim: #14532d;
+    --red:       #ef4444;
+    --blue:      #3b82f6;
+    --blue-dim:  #1e3a5f;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-head: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    background: rgba(6,6,6,0.95);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--font-head);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--amber);
+  }
+  .logo span { color: var(--muted); font-weight: 400; }
+  .header-meta {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .api-key-input {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 7px 12px;
+    width: 240px;
+    border-radius: 4px;
+    transition: border-color .15s, color .15s;
+  }
+  .api-key-input:focus {
+    outline: none;
+    border-color: var(--amber);
+    color: var(--text);
+  }
+  .api-key-input::placeholder { color: var(--dim); }
+
+  /* ── Layout ── */
+  .main {
+    display: grid;
+    grid-template-columns: 260px 1fr 360px;
+    flex: 1;
+    min-height: 0;
+    height: calc(100vh - 57px);
+  }
+
+  /* ── Left nav ── */
+  nav {
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+  }
+  .nav-section {
+    padding: 0 16px 8px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-top: 16px;
+  }
+  .nav-section:first-child { margin-top: 0; }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-align: left;
+    width: 100%;
+    border-left: 2px solid transparent;
+    transition: all .12s;
+  }
+  .nav-btn:hover { color: var(--text); background: #111; }
+  .nav-btn.active {
+    color: var(--amber);
+    border-left-color: var(--amber);
+    background: #111;
+  }
+  .nav-btn .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-btn .type-badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--border);
+    color: var(--dim);
+  }
+  .nav-btn.active .type-badge { background: var(--amber-dim); color: var(--amber); }
+
+  /* ── Center: form panel ── */
+  .panel {
+    overflow-y: auto;
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .panel-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .panel-title {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .panel-desc {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .panel-rule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #0a0a0a;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .panel-rule .rule-icon { font-size: 14px; }
+
+  /* type-specific rule colours */
+  .rule-amber { border-color: var(--amber-dim); color: var(--amber); }
+  .rule-red   { border-color: #7f1d1d; color: var(--red); }
+  .rule-blue  { border-color: var(--blue-dim); color: var(--blue); }
+
+  /* ── Form elements ── */
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .field input,
+  .field textarea,
+  .field select {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 5px;
+    resize: none;
+    transition: border-color .15s;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--dim); }
+  .field select option { background: #111; }
+  .field textarea { line-height: 1.5; }
+
+  .char-count {
+    font-size: 10px;
+    color: var(--dim);
+    text-align: right;
+    margin-top: -4px;
+  }
+
+  .row { display: flex; gap: 16px; }
+  .row .field { flex: 1; }
+
+  /* ── Send button ── */
+  .send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 13px 28px;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .15s;
+    min-width: 160px;
+  }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .send-amber { background: var(--amber); color: #000; }
+  .send-amber:hover:not(:disabled) { background: #fbbf24; }
+
+  .send-green { background: var(--green); color: #000; }
+  .send-green:hover:not(:disabled) { background: #4ade80; }
+
+  .send-blue { background: var(--blue); color: #fff; }
+  .send-blue:hover:not(:disabled) { background: #60a5fa; }
+
+  .send-red { background: var(--red); color: #fff; }
+  .send-red:hover:not(:disabled) { background: #f87171; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading .spinner { display: block; }
+  .loading .btn-label { display: none; }
+
+  /* ── Right panel: log ── */
+  .log-panel {
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .log-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .log-header h3 {
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .clear-log {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .clear-log:hover { border-color: var(--border2); color: var(--muted); }
+  .log-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .log-entry {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    background: var(--surface);
+    animation: fadeIn .2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .log-entry.success { border-color: #14532d; }
+  .log-entry.error   { border-color: #7f1d1d; }
+  .log-entry.info    { border-color: var(--border2); }
+  .log-time { color: var(--dim); font-size: 10px; margin-bottom: 4px; }
+  .log-label { font-weight: 600; }
+  .log-label.ok  { color: var(--green); }
+  .log-label.err { color: var(--red); }
+  .log-label.info { color: var(--blue); }
+  .log-data { color: var(--muted); word-break: break-all; margin-top: 4px; font-size: 11px; }
+
+  /* ── Device list ── */
+  .device-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    background: var(--surface);
+  }
+  .device-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .1s;
+    border: 1px solid transparent;
+  }
+  .device-item:hover { background: #111; }
+  .device-item.selected { background: #0f1a0f; border-color: var(--green-dim); }
+  .device-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .device-id { color: var(--text); flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .device-time { color: var(--dim); font-size: 10px; flex-shrink: 0; }
+
+  /* ── Tabs for view sections ── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    gap: 0;
+  }
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12px;
+    border-bottom: 2px solid transparent;
+    transition: all .12s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: var(--font-mono);
+  }
+  .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+    z-index: 999;
+    max-width: 340px;
+  }
+  #toast.show { opacity: 1; }
+  #toast.ok  { background: #14532d; color: var(--green); border: 1px solid #166534; }
+  #toast.err { background: #7f1d1d; color: var(--red);   border: 1px solid #991b1b; }
+
+  /* ── View panel (questions/inputs list) ── */
+  .view-table { width: 100%; border-collapse: collapse; }
+  .view-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .view-table td {
+    padding: 9px 12px;
+    font-size: 11.5px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    vertical-align: top;
+  }
+  .view-table tr:hover td { background: #0a0a0a; }
+  .status-badge {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .status-pending  { background: var(--amber-dim);  color: var(--amber); }
+  .status-answered { background: var(--green-dim);  color: var(--green); }
+  .status-offline  { background: #1c1917;           color: #78716c; }
+
+  .hidden { display: none !important; }
+  .refresh-btn {
+    background: none; border: 1px solid var(--border2);
+    color: var(--muted); font-family: var(--font-mono);
+    font-size: 11px; padding: 5px 12px; border-radius: 3px;
+    cursor: pointer; transition: all .12s;
+  }
+  .refresh-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PA<span>.notify</span></div>
+  <div style="color:var(--dim);font-size:11px">Admin Control Panel</div>
+  <div class="header-meta">
+    <input
+      type="password"
+      class="api-key-input"
+      id="apiKey"
+      placeholder="x-api-key (admin secret)"
+      autocomplete="off"
+    >
+    <button class="refresh-btn" onclick="loadDevices()">⟳ Devices</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ── Left nav ── -->
+  <nav>
+    <div class="nav-section">Send</div>
+
+    <button class="nav-btn active" data-panel="broadcast" onclick="switchPanel(this)">
+      <span class="icon">📡</span>
+      Broadcast
+      <span class="type-badge">T1</span>
+    </button>
+    <button class="nav-btn" data-panel="simple" onclick="switchPanel(this)">
+      <span class="icon">🔔</span>
+      Simple
+      <span class="type-badge">T2</span>
+    </button>
+    <button class="nav-btn" data-panel="question" onclick="switchPanel(this)">
+      <span class="icon">⚡</span>
+      YES / NO Alarm
+      <span class="type-badge">T3</span>
+    </button>
+    <button class="nav-btn" data-panel="input" onclick="switchPanel(this)">
+      <span class="icon">✏️</span>
+      Text Input
+      <span class="type-badge">T4</span>
+    </button>
+
+    <div class="nav-section">View</div>
+    <button class="nav-btn" data-panel="viewQ" onclick="switchPanel(this)">
+      <span class="icon">📋</span>
+      Questions log
+    </button>
+    <button class="nav-btn" data-panel="viewI" onclick="switchPanel(this)">
+      <span class="icon">📝</span>
+      Inputs log
+    </button>
+  </nav>
+
+  <!-- ── Center panels ── -->
+  <div class="panel" id="panel-broadcast">
+    <div class="panel-header">
+      <div class="panel-title">📡 Broadcast — All Users</div>
+      <div class="panel-desc">Sends a plain notification to every device subscribed to the <code>usage-sync</code> FCM topic. No confirmation required.</div>
+    </div>
+    <div class="panel-rule">
+      <span class="rule-icon">ℹ️</span>
+      Delivered to all devices regardless of screen state. Standard swipeable notification.
+    </div>
+    <div class="field">
+      <label>Title (optional)</label>
+      <input type="text" id="bc-title" placeholder="ProductiveAgent" maxlength="80">
+    </div>
+    <div class="field">
+      <label>Message *</label>
+      <textarea id="bc-body" rows="4" placeholder="Your message to all users…" maxlength="500" oninput="updateCount(this,'bc-count')"></textarea>
+      <div class="char-count" id="bc-count">0 / 500</div>
+    </div>
+    <button class="send-btn send-amber" id="bc-btn" onclick="sendBroadcast()">
+      <div class="spinner"></div>
+      <span class="btn-label">SEND TO ALL</span>
+    </button>
+  </div>
+
+  <div class="panel hidden" id="panel-simple">
+    <div class="panel-header">
+      <div class="panel-title">🔔 Simple — One User</div>
+      <div class="panel-desc">Sends a plain tappable notification to a single device. Delivered whether screen is on or off.</div>
+    </div>
+    <div class="panel-rule">
+      <span class="rule-icon">ℹ️</span>
+      Standard notification — user can swipe it away. No forced interaction.
+    </div>
+    <div class="field">
+      <label>Device</label>
+      <select id="s-device"><option value="">— select device —</option></select>
+    </div>
+    <div class="field">
+      <label>Title (optional)</label>
+      <input type="text" id="s-title" placeholder="ProductiveAgent" maxlength="80">
+    </div>
+    <div class="field">
+      <label>Message *</label>
+      <textarea id="s-body" rows="4" placeholder="Notification text…" maxlength="500" oninput="updateCount(this,'s-count')"></textarea>
+      <div class="char-count" id="s-count">0 / 500</div>
+    </div>
+    <button class="send-btn send-amber" id="s-btn" onclick="sendSimple()">
+      <div class="spinner"></div>
+      <span class="btn-label">SEND</span>
+    </button>
+  </div>
+
+  <div class="panel hidden" id="panel-question">
+    <div class="panel-header">
+      <div class="panel-title">⚡ YES / NO Alarm</div>
+      <div class="panel-desc">Full-screen alarm notification with YES / NO buttons. User CANNOT ignore or dismiss it. If the device screen is off, the answer is automatically recorded as <strong style="color:var(--amber)">offline</strong> and a soft notification is shown instead.</div>
+    </div>
+    <div class="panel-rule rule-amber">
+      <span class="rule-icon">⚠️</span>
+      Screen ON → full-screen alarm, back button disabled, cannot swipe. Screen OFF → auto-answer "offline".
+    </div>
+    <div class="panel-rule rule-red">
+      <span class="rule-icon">⏱</span>
+      If no response within <strong id="q-timeout-label">45s</strong>, server automatically records "offline".
+    </div>
+    <div class="field">
+      <label>Device</label>
+      <select id="q-device"><option value="">— select device —</option></select>
+    </div>
+    <div class="field">
+      <label>Question / Message *</label>
+      <textarea id="q-msg" rows="4" placeholder="Did you hit your screen-time goal today?" maxlength="400" oninput="updateCount(this,'q-count')"></textarea>
+      <div class="char-count" id="q-count">0 / 400</div>
+    </div>
+    <div class="field">
+      <label>Server offline timeout (seconds)</label>
+      <input type="number" id="q-timeout" value="45" min="10" max="300" oninput="document.getElementById('q-timeout-label').textContent = this.value + 's'">
+    </div>
+    <button class="send-btn send-red" id="q-btn" onclick="sendQuestion()">
+      <div class="spinner"></div>
+      <span class="btn-label">SEND ALARM</span>
+    </button>
+  </div>
+
+  <div class="panel hidden" id="panel-input">
+    <div class="panel-header">
+      <div class="panel-title">✏️ Text Input Request</div>
+      <div class="panel-desc">Sends a persistent full-screen input request. The notification CANNOT be dismissed and re-arms itself every 30 minutes until the user submits their response.</div>
+    </div>
+    <div class="panel-rule rule-blue">
+      <span class="rule-icon">🔒</span>
+      Notification is ongoing (cannot swipe). WorkManager re-posts it every 30 min on OEM devices. Only clears after user submits.
+    </div>
+    <div class="field">
+      <label>Device</label>
+      <select id="i-device"><option value="">— select device —</option></select>
+    </div>
+    <div class="field">
+      <label>Question / Prompt *</label>
+      <textarea id="i-msg" rows="4" placeholder="What was your biggest distraction today?" maxlength="400" oninput="updateCount(this,'i-count')"></textarea>
+      <div class="char-count" id="i-count">0 / 400</div>
+    </div>
+    <div class="field">
+      <label>Input hint (placeholder text)</label>
+      <input type="text" id="i-hint" placeholder="Type your answer…" maxlength="100">
+    </div>
+    <button class="send-btn send-blue" id="i-btn" onclick="sendInput()">
+      <div class="spinner"></div>
+      <span class="btn-label">SEND INPUT REQUEST</span>
+    </button>
+  </div>
+
+  <!-- View: questions log -->
+  <div class="panel hidden" id="panel-viewQ">
+    <div class="panel-header" style="flex-direction:row;align-items:center;justify-content:space-between">
+      <div class="panel-title" style="font-size:18px">📋 Questions Log</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select id="vq-filter" style="background:var(--surface);border:1px solid var(--border2);color:var(--muted);font-family:var(--font-mono);font-size:12px;padding:6px 10px;border-radius:4px">
+          <option value="">All devices</option>
+        </select>
+        <button class="refresh-btn" onclick="loadQuestions()">⟳ Refresh</button>
+      </div>
+    </div>
+    <div id="vq-body" style="overflow-x:auto">
+      <div style="color:var(--dim);padding:24px 0;text-align:center">Click refresh to load</div>
+    </div>
+  </div>
+
+  <!-- View: inputs log -->
+  <div class="panel hidden" id="panel-viewI">
+    <div class="panel-header" style="flex-direction:row;align-items:center;justify-content:space-between">
+      <div class="panel-title" style="font-size:18px">📝 Inputs Log</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select id="vi-filter" style="background:var(--surface);border:1px solid var(--border2);color:var(--muted);font-family:var(--font-mono);font-size:12px;padding:6px 10px;border-radius:4px">
+          <option value="">All devices</option>
+        </select>
+        <button class="refresh-btn" onclick="loadInputs()">⟳ Refresh</button>
+      </div>
+    </div>
+    <div id="vi-body" style="overflow-x:auto">
+      <div style="color:var(--dim);padding:24px 0;text-align:center">Click refresh to load</div>
+    </div>
+  </div>
+
+</div><!-- .main -->
+
+<!-- ── Right log panel ── -->
+</div>
+
+<!-- Actually restructure to include log panel... -->
+<div id="toast"></div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const BASE = '';   // same origin; change to 'https://data.sunita.space' if hosted separately
+
+function apiKey() {
+  return document.getElementById('apiKey').value.trim();
+}
+
+// ── Panel switch ────────────────────────────────────────────────────────────
+function switchPanel(btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('panel-' + btn.dataset.panel).classList.remove('hidden');
+}
+
+// ── Char counter ────────────────────────────────────────────────────────────
+function updateCount(el, countId) {
+  document.getElementById(countId).textContent = `${el.value.length} / ${el.maxLength}`;
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Log entry ───────────────────────────────────────────────────────────────
+// (embedded as bottom bar since we restructured the layout)
+const logEntries = [];
+function addLog(label, ok, data) {
+  logEntries.unshift({ label, ok, data, time: new Date().toLocaleTimeString() });
+  // Just use toast for log feedback in this layout
+}
+
+// ── Loading state ───────────────────────────────────────────────────────────
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (loading) { btn.classList.add('loading'); btn.disabled = true; }
+  else          { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+// ── API call ─────────────────────────────────────────────────────────────────
+async function api(path, method, body) {
+  const key = apiKey();
+  if (!key) { toast('Enter your API key first', 'err'); return null; }
+  try {
+    const r = await fetch(BASE + path, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const json = await r.json();
+    return { status: r.status, json };
+  } catch (err) {
+    return { status: 0, json: { ok: false, error: err.message } };
+  }
+}
+
+// ── Load devices ─────────────────────────────────────────────────────────────
+let devices = [];
+async function loadDevices() {
+  const res = await api('/api/admin/notify/devices', 'GET');
+  if (!res || !res.json.ok) { toast('Failed to load devices', 'err'); return; }
+  devices = res.json.devices || [];
+
+  const selects = ['s-device', 'q-device', 'i-device', 'vq-filter', 'vi-filter'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    const isFilter = id.startsWith('v');
+    el.innerHTML = `<option value="">${isFilter ? 'All devices' : '— select device —'}</option>`;
+    devices.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value       = d.device_id;
+      opt.textContent = d.device_id.length > 30
+        ? d.device_id.slice(0, 28) + '…'
+        : d.device_id;
+      el.appendChild(opt);
+    });
+  });
+
+  toast(`${devices.length} device${devices.length !== 1 ? 's' : ''} loaded`, 'ok');
+}
+
+// ── TYPE 1: Broadcast ─────────────────────────────────────────────────────────
+async function sendBroadcast() {
+  const body = document.getElementById('bc-body').value.trim();
+  if (!body) { toast('Message is required', 'err'); return; }
+
+  setLoading('bc-btn', true);
+  const res = await api('/api/admin/notify/broadcast', 'POST', {
+    title: document.getElementById('bc-title').value.trim() || undefined,
+    body,
+  });
+  setLoading('bc-btn', false);
+
+  if (res?.json?.ok) {
+    toast(`✅ Broadcast sent to all users`, 'ok');
+    document.getElementById('bc-body').value = '';
+    document.getElementById('bc-count').textContent = '0 / 500';
+  } else {
+    toast(`❌ ${res?.json?.error || 'Send failed'}`, 'err');
+  }
+}
+
+// ── TYPE 2: Simple ────────────────────────────────────────────────────────────
+async function sendSimple() {
+  const device = document.getElementById('s-device').value;
+  const body   = document.getElementById('s-body').value.trim();
+  if (!device) { toast('Select a device', 'err'); return; }
+  if (!body)   { toast('Message is required', 'err'); return; }
+
+  setLoading('s-btn', true);
+  const res = await api('/api/admin/notify/simple', 'POST', {
+    device_id: device,
+    title: document.getElementById('s-title').value.trim() || undefined,
+    body,
+  });
+  setLoading('s-btn', false);
+
+  if (res?.json?.ok) {
+    toast(`✅ Notification sent to ${device.slice(0, 16)}…`, 'ok');
+    document.getElementById('s-body').value = '';
+  } else {
+    toast(`❌ ${res?.json?.error || 'Send failed'}`, 'err');
+  }
+}
+
+// ── TYPE 3: YES/NO alarm ──────────────────────────────────────────────────────
+async function sendQuestion() {
+  const device  = document.getElementById('q-device').value;
+  const msg     = document.getElementById('q-msg').value.trim();
+  const timeout = parseInt(document.getElementById('q-timeout').value) * 1000;
+
+  if (!device) { toast('Select a device', 'err'); return; }
+  if (!msg)    { toast('Question text is required', 'err'); return; }
+
+  setLoading('q-btn', true);
+  const res = await api('/api/admin/notify/question', 'POST', {
+    device_id: device,
+    message: msg,
+    offline_timeout_ms: timeout,
+  });
+  setLoading('q-btn', false);
+
+  if (res?.json?.ok) {
+    toast(`✅ Alarm sent — q_id: ${res.json.question_id?.slice(-8)}`, 'ok');
+    document.getElementById('q-msg').value = '';
+    document.getElementById('q-count').textContent = '0 / 400';
+  } else {
+    toast(`❌ ${res?.json?.error || 'Send failed'}`, 'err');
+  }
+}
+
+// ── TYPE 4: Text Input ────────────────────────────────────────────────────────
+async function sendInput() {
+  const device = document.getElementById('i-device').value;
+  const msg    = document.getElementById('i-msg').value.trim();
+  const hint   = document.getElementById('i-hint').value.trim();
+
+  if (!device) { toast('Select a device', 'err'); return; }
+  if (!msg)    { toast('Prompt text is required', 'err'); return; }
+
+  setLoading('i-btn', true);
+  const res = await api('/api/admin/notify/input', 'POST', {
+    device_id: device,
+    message: msg,
+    hint: hint || undefined,
+  });
+  setLoading('i-btn', false);
+
+  if (res?.json?.ok) {
+    toast(`✅ Input request sent — id: ${res.json.input_id?.slice(-8)}`, 'ok');
+    document.getElementById('i-msg').value = '';
+    document.getElementById('i-count').textContent = '0 / 400';
+  } else {
+    toast(`❌ ${res?.json?.error || 'Send failed'}`, 'err');
+  }
+}
+
+// ── View: questions log ───────────────────────────────────────────────────────
+async function loadQuestions() {
+  const filter = document.getElementById('vq-filter').value;
+  const qs     = filter ? `?device_id=${encodeURIComponent(filter)}&limit=100` : '?limit=100';
+  const res    = await api(`/api/admin/notify/questions${qs}`, 'GET');
+  const body   = document.getElementById('vq-body');
+
+  if (!res?.json?.ok) {
+    body.innerHTML = `<div style="color:var(--red);padding:20px">${res?.json?.error || 'Failed to load'}</div>`;
+    return;
+  }
+
+  const rows = res.json.data;
+  if (!rows.length) {
+    body.innerHTML = '<div style="color:var(--dim);padding:24px;text-align:center">No questions yet</div>';
+    return;
+  }
+
+  body.innerHTML = `
+    <table class="view-table">
+      <thead><tr>
+        <th>Question ID</th><th>Device</th><th>Message</th>
+        <th>Sent</th><th>Answer</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => `<tr>
+          <td style="color:var(--muted)">${r.question_id?.slice(-10)}</td>
+          <td style="color:var(--text)">${r.device_id?.slice(0, 18)}…</td>
+          <td style="max-width:180px;word-break:break-word">${escHtml(r.message)}</td>
+          <td>${fmt(r.sent_at)}</td>
+          <td style="color:${r.answer === 'yes' ? 'var(--green)' : r.answer === 'no' ? 'var(--red)' : 'var(--muted)'};font-weight:600">${r.answer || '—'}</td>
+          <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── View: inputs log ──────────────────────────────────────────────────────────
+async function loadInputs() {
+  const filter = document.getElementById('vi-filter').value;
+  const qs     = filter ? `?device_id=${encodeURIComponent(filter)}&limit=100` : '?limit=100';
+  const res    = await api(`/api/admin/notify/inputs${qs}`, 'GET');
+  const body   = document.getElementById('vi-body');
+
+  if (!res?.json?.ok) {
+    body.innerHTML = `<div style="color:var(--red);padding:20px">${res?.json?.error || 'Failed to load'}</div>`;
+    return;
+  }
+
+  const rows = res.json.data;
+  if (!rows.length) {
+    body.innerHTML = '<div style="color:var(--dim);padding:24px;text-align:center">No input requests yet</div>';
+    return;
+  }
+
+  body.innerHTML = `
+    <table class="view-table">
+      <thead><tr>
+        <th>Input ID</th><th>Device</th><th>Prompt</th>
+        <th>Sent</th><th>Response</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => `<tr>
+          <td style="color:var(--muted)">${r.input_id?.slice(-10)}</td>
+          <td style="color:var(--text)">${r.device_id?.slice(0, 18)}…</td>
+          <td style="max-width:160px;word-break:break-word">${escHtml(r.message)}</td>
+          <td>${fmt(r.sent_at)}</td>
+          <td style="max-width:160px;word-break:break-word;color:var(--green)">${r.response ? escHtml(r.response.slice(0, 80)) + (r.response.length > 80 ? '…' : '') : '—'}</td>
+          <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmt(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+// Restore API key from localStorage for convenience
+const savedKey = localStorage.getItem('pa_admin_key');
+if (savedKey) document.getElementById('apiKey').value = savedKey;
+document.getElementById('apiKey').addEventListener('change', e => {
+  localStorage.setItem('pa_admin_key', e.target.value);
+});
+
+// Auto-load devices if key is present
+if (savedKey) setTimeout(loadDevices, 300);
+</script>
+</body>
+</html>

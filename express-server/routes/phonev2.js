@@ -1,77 +1,46 @@
-const express = require("express");
-const router = express.Router();
+/**
+ * routes/phonev2.js  (updated — adds input/response endpoint)
+ *
+ * Diff from original:
+ *   + POST /api/phonev2/input/response  — InputActivity POSTs submitted text here
+ */
+
+const express      = require("express");
+const router       = express.Router();
 const asyncHandler = require("../utils/asyncHandler");
-const phoneController = require("../controllers/phone.v2.controller");
+const phoneCtrl    = require("../controllers/phone.v2.controller");
+const questionCtrl = require("../controllers/Question.controller");
 
 const { sendUploadNowToTopic } = require("../fcm");
 
-// ─── Upload ───────────────────────────────────────────────────────────────────
+// ─── Device registration ──────────────────────────────────────────────────────
+router.post("/device/register", asyncHandler(questionCtrl.registerDevice));
 
-router.post("/usage/day", asyncHandler(phoneController.uploadUsageDay));
+// ─── Question & input responses from Android ─────────────────────────────────
+router.post("/question/response", asyncHandler(questionCtrl.submitResponse));
+router.post("/input/response",    asyncHandler(questionCtrl.submitInputResponse));  // NEW
 
-// ✅ trigger upload now via FCM
+// ─── Usage upload ─────────────────────────────────────────────────────────────
+router.post("/usage/day", asyncHandler(phoneCtrl.uploadUsageDay));
+
 router.post("/upload-now", asyncHandler(async (req, res) => {
   const msgId = await sendUploadNowToTopic();
-  res.json({ ok: true, message: "✅ FCM Upload trigger sent", msgId });
+  res.json({ ok: true, message: "FCM upload trigger sent", msgId });
 }));
 
-// ─── Devices ──────────────────────────────────────────────────────────────────
+// ─── Device / usage read routes ───────────────────────────────────────────────
+router.get("/devices",    asyncHandler(phoneCtrl.getAllDevices));
+router.get("/usage/all",  asyncHandler(phoneCtrl.getAllUsage));
 
-router.get("/devices", asyncHandler(phoneController.getAllDevices));
+router.get("/usage/:device_id/unlock-report/daily", asyncHandler(phoneCtrl.getUnlockReportDaily));
+router.get("/usage/:device_id/unlock-report",       asyncHandler(phoneCtrl.getUnlockReport));
+router.get("/usage/:device_id",                     asyncHandler(phoneCtrl.getUsageByDeviceId));
+router.get("/usage/day/:device_id/:date",           asyncHandler(phoneCtrl.getUsageByDeviceAndDate));
 
-// ─── Static-segment routes FIRST (before /:device_id wildcards) ───────────────
-//
-// Express matches top-to-bottom. Any route with a fixed word after /usage/
-// (like /usage/all) MUST come before /usage/:device_id, otherwise the wildcard
-// swallows the request and the fixed route is never reached.
+router.get("/download/last24/:device_id",           asyncHandler(phoneCtrl.downloadLast24));
+router.get("/download/all/:device_id",              asyncHandler(phoneCtrl.downloadAllForDevice));
+router.get("/download/day/:device_id/:date",        asyncHandler(phoneCtrl.downloadUsageByDate));
 
-router.get("/usage/all", asyncHandler(phoneController.getAllUsage));
-
-// ─── Unlock / notification report routes ──────────────────────────────────────
-//
-// These also have fixed segments after /:device_id so they must come before the
-// plain /usage/:device_id catch-all for the same reason.
-//
-// Usage:
-//   GET /usage/:device_id/unlock-report              (all time)
-//   GET /usage/:device_id/unlock-report?days=7       (last 7 days)
-//   GET /usage/:device_id/unlock-report?days=15      (last 15 days)
-//   GET /usage/:device_id/unlock-report?from=2026-03-01&to=2026-03-15
-//
-//   GET /usage/:device_id/unlock-report/daily?days=7 (per-day breakdown)
-
-router.get(
-  "/usage/:device_id/unlock-report/daily",
-  asyncHandler(phoneController.getUnlockReportDaily)
-);
-
-router.get(
-  "/usage/:device_id/unlock-report",
-  asyncHandler(phoneController.getUnlockReport)
-);
-
-// ─── Generic device routes (wildcards — must come AFTER fixed-segment routes) ──
-
-router.get("/usage/:device_id", asyncHandler(phoneController.getUsageByDeviceId));
-
-// ─── Date-based routes ────────────────────────────────────────────────────────
-
-router.get(
-  "/usage/day/:device_id/:date",
-  asyncHandler(phoneController.getUsageByDeviceAndDate)
-);
-
-// ─── Download routes ──────────────────────────────────────────────────────────
-
-router.get("/download/last24/:device_id", asyncHandler(phoneController.downloadLast24));
-router.get("/download/all/:device_id",    asyncHandler(phoneController.downloadAllForDevice));
-router.get(
-  "/download/day/:device_id/:date",
-  asyncHandler(phoneController.downloadUsageByDate)
-);
-
-// ─── Legacy / kept for compatibility ─────────────────────────────────────────
-
-router.get("/usage/last24/:device_id", asyncHandler(phoneController.getLast24Hours));
+router.get("/usage/last24/:device_id",              asyncHandler(phoneCtrl.getLast24Hours));
 
 module.exports = router;

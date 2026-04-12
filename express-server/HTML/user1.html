@@ -6,19 +6,8 @@
 <title>Screen Intelligence</title>
 
 <link rel="icon" href="./assets//favicon.ico">
-
-<!-- PERF: preconnect to external origins so DNS+TCP is ready before fetches fire -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
-
-<!-- PERF: load fonts non-blocking (media=print trick — swaps to all once loaded) -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
-
-<!-- PERF: defer Chart.js so it never blocks first paint -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#060810;--s1:#0c0f1a;--s2:#111520;--s3:#181d2e;--bdr:#1e2436;
@@ -237,6 +226,8 @@ body{color:var(--txt);font-family:var(--fn);font-size:15px;display:flex;flex-dir
 .esc-bar{flex:1;height:8px;background:var(--bdr);border-radius:4px;overflow:hidden}
 .esc-fill{height:100%;border-radius:4px;transition:width .7s ease}
 .esc-pct{font-family:var(--fm);font-size:9px;color:var(--mu);width:26px;text-align:right;flex-shrink:0}
+
+/* ═══ AI PROFILE TAB STYLES ═══ */
 .ai-hero{background:linear-gradient(135deg,rgba(91,141,248,.08),rgba(157,116,245,.08));border:1px solid rgba(91,141,248,.25);border-radius:18px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
 .ai-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(157,116,245,.15),transparent 70%)}
 .ai-hero-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
@@ -306,6 +297,7 @@ body{color:var(--txt);font-family:var(--fn);font-size:15px;display:flex;flex-dir
 .ai-nodata{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 16px;text-align:center;gap:10px}
 .ai-nodata p{font-size:13px;color:var(--mu);line-height:1.6}
 .ai-nodata strong{color:var(--acc)}
+
 </style>
 </head>
 <body>
@@ -462,7 +454,7 @@ body{color:var(--txt);font-family:var(--fn);font-size:15px;display:flex;flex-dir
   </div>
 </div>
 
-<!-- PAGE 6: AI PROFILE -->
+<!-- PAGE 6: AI PROFILE ═══════════════════════════════════════ -->
 <div class="page" id="p6">
   <div id="aiProfileContent">
     <div class="ai-nodata">
@@ -475,52 +467,10 @@ body{color:var(--txt);font-family:var(--fn);font-size:15px;display:flex;flex-dir
 </div><!-- /pages -->
 
 <script>
-/* ════════════ DEVICE SUMMARY — loaded at runtime from assets/device_summary.csv ════════════ */
-let DEVICE_SUMMARY = {};
+/* ════════════ DEVICE SUMMARY DATA (from device_summary.csv) ════════════ */
+const DEVICE_SUMMARY = {"166f8c57afb2113a":{"accuracy":0.4852,"f1_score":0.5515,"features":{"week_day_sin":0.0196353822427848,"target_t3":0.0196353822427848,"total_time":0.0107298474945534,"browser_time":0.0087196588672644,"week_end_sin":0.0073529411764706,"shop_time":0.0073529411764706,"week_day_cos":0.006694468832309,"opens_intensity":0.0053451269806815,"num_apps":0.004654108834545,"rolling_mean_6":0.004654108834545,"hour_cos":0.0033224400871459,"utility_time":0.0012847146293462,"total_time_spent":0.0007459505541347,"is_scaled":0.0,"system_time":0.0,"knowledge_time":0.0,"health_time":0.0,"other_time":0.0,"overuse_ratio":0.0,"loop_addiction_score":0.0,"target_t6":0.0,"payment_time":0.0,"gps_time":0.0,"communication_time":-0.0012566844919785,"week_end":-0.0020349468200564,"usage_velocity":-0.0020349468200564,"roll_std_12":-0.003273937312151,"bucket_cos":-0.0040849673202614,"day_sin":-0.0044860904650668,"productivity_time":-0.0053059685412626,"session_fragmentation":-0.0053059685412626,"rolling_mean_3":-0.0053059685412626,"week_end_cos":-0.0053059685412626,"micro":-0.0085294117647058,"bucket_sin":-0.0094150206207943,"behavior_risk_score":-0.0105732073851437,"overuse_intensity":-0.0114923747276688,"usage_acceleration":-0.011706307071565,"social_time":-0.0126319758672699,"target_t1":-0.0126319758672699,"focus_score":-0.0126319758672699,"night_intensity":-0.0137468030690536,"entertainment_time":-0.016874735505713,"rolling_std_3":-0.016874735505713,"day_period":-0.0178724774581364,"attention_fragmentation":-0.0178724774581364,"hour_sin":-0.0189265236780632,"rolling_std_6":-0.0199579831932772,"number_app_used":-0.0199579831932772,"is_night":-0.0209931798806478,"roll_std_3":-0.0209931798806478,"opens":-0.0230748663101604,"day_cos":-0.0241751682222703,"behavioral_instability":-0.0241751682222703,"micro_ratio":-0.0251717475311291,"fragmentation":-0.0261467402845614,"dopamine_score":-0.0324710176041218,"entropy":-0.0342436974789915,"week_day":-0.0367647058823529,"hour":-0.0376203208556149,"bucket_index":-0.0413865546218487}},"e86ac8489e76b201":{"accuracy":0.6415,"f1_score":0.6643,"features":{"week_day_sin":0.0092586892552418,"target_t3":0.0022900481402592,"total_time":0.0182628440979684,"browser_time":0.0000252397778899,"week_end_sin":-0.0000247102720602,"shop_time":-0.0093732564627115,"week_day_cos":0.0070671378091872,"opens_intensity":0.0254220651747153,"num_apps":0.0068715076968222,"rolling_mean_6":-0.0070671378091873,"hour_cos":0.0092586892552418,"utility_time":0.0069682967209468,"total_time_spent":0.0070671378091872,"is_scaled":0.0141342756183745,"system_time":0.0,"knowledge_time":0.0164236301199421,"health_time":0.0,"other_time":0.0,"overuse_ratio":0.0,"loop_addiction_score":0.0,"target_t6":-0.0069219226487245,"payment_time":-0.0023557126030624,"gps_time":-0.0138897379779182,"communication_time":0.0164236301199421,"week_end":0.0023391230776886,"usage_velocity":0.0212014134275617,"roll_std_12":0.0068715076968222,"bucket_cos":0.0209543107069608,"day_sin":0.0349403246929748,"productivity_time":-0.0023557126030624,"session_fragmentation":-0.0117453839645648,"rolling_mean_3":-0.0023557126030624,"week_end_cos":0.0048127461782995,"micro":0.0305081371621956,"bucket_sin":0.0069682967209468,"behavior_risk_score":-0.00463102545858,"overuse_intensity":0.0305081371621956,"usage_acceleration":0.0093813765988154,"social_time":0.0092586892552418,"target_t1":0.0093813765988154,"focus_score":0.0186969189758848,"night_intensity":0.0207123381466491,"entertainment_time":-0.0093001570475069,"rolling_std_3":0.0184776207302708,"day_period":0.0068715076968222,"attention_fragmentation":0.0023892458785508,"hour_sin":0.007168096920747,"rolling_std_6":0.0212014134275617,"number_app_used":0.0115331762858263,"is_night":0.0212014134275617,"roll_std_3":0.0166241213233906,"opens":0.0139613037139538,"day_cos":0.0182628440979684,"behavioral_instability":0.0186969189758848,"micro_ratio":0.0091385402705007,"fragmentation":0.007168096920747,"dopamine_score":0.0260130817231786,"entropy":0.0023892458785508,"week_day":0.0070671378091872,"hour":0.0186969189758848,"bucket_index":-0.0023557126030624}},"7a9d652fd4ee0d50":{"accuracy":0.6651,"f1_score":0.3966,"features":{"week_day_sin":0.0067212156633547,"target_t3":0.0,"total_time":0.0487256371814093,"browser_time":-0.0034482758620689,"week_end_sin":-0.0102279368790181,"shop_time":0.0099971022891915,"week_day_cos":0.0313343328335832,"opens_intensity":0.0313343328335832,"num_apps":-0.0102279368790181,"rolling_mean_6":0.0105868118572293,"hour_cos":0.0313343328335832,"utility_time":0.0033893309755378,"total_time_spent":0.0105868118572293,"is_scaled":0.0139430284857571,"system_time":0.0,"knowledge_time":0.0344827586206896,"health_time":0.0,"other_time":0.0,"overuse_ratio":0.0,"loop_addiction_score":0.0,"target_t6":0.0,"payment_time":0.060268538297223,"gps_time":0.0,"communication_time":0.0268038249782671,"week_end":0.0,"usage_velocity":0.0248703082087274,"roll_std_12":0.0204833480695549,"bucket_cos":0.0236703682057276,"day_sin":0.0172413793103448,"productivity_time":0.0067212156633547,"session_fragmentation":0.0344827586206896,"rolling_mean_3":0.0172413793103448,"week_end_cos":0.0067212156633547,"micro":0.0204833480695549,"bucket_sin":0.0139430284857571,"behavior_risk_score":0.0751231527093596,"overuse_intensity":0.0204833480695549,"usage_acceleration":0.0105868118572293,"social_time":0.0425694232529753,"target_t1":0.0,"focus_score":-0.0034482758620689,"night_intensity":0.0456745311554749,"entertainment_time":-0.000142490738102,"rolling_std_3":0.0105868118572293,"day_period":0.0033893309755378,"attention_fragmentation":0.0281306715063521,"hour_sin":-0.0137046861184791,"rolling_std_6":-0.0271770894213909,"number_app_used":0.0425694232529753,"is_night":0.0,"roll_std_3":0.0172413793103448,"opens":0.060268538297223,"day_cos":0.0036945812807882,"behavioral_instability":-0.0172413793103448,"micro_ratio":0.0807622504537205,"fragmentation":-0.0034482758620689,"dopamine_score":0.0425694232529753,"entropy":-0.0404230657780353,"week_day":0.0846251186333438,"hour":0.0071711931644797,"bucket_index":-0.0172413793103448}},"b874506004b2dcbd":{"accuracy":0.5494,"f1_score":0.3652,"features":{"week_day_sin":0.0,"target_t3":-0.0032036613272311,"total_time":0.011235090419392,"browser_time":-0.017391304347826,"week_end_sin":0.0080745341614906,"shop_time":-0.0032036613272311,"week_day_cos":0.0165935380933386,"opens_intensity":0.0521739130434782,"num_apps":0.0080745341614906,"rolling_mean_6":-0.0032036613272311,"hour_cos":-0.0418622547133513,"utility_time":-0.0097826086956521,"total_time_spent":-0.004530507855316,"is_scaled":0.0289342054636398,"system_time":0.0,"knowledge_time":-0.0140929535232383,"health_time":0.0,"other_time":0.0,"overuse_ratio":0.0,"loop_addiction_score":0.0,"target_t6":-0.0213372305443916,"payment_time":0.0,"gps_time":0.0,"communication_time":0.0062430323299888,"week_end":0.0,"usage_velocity":-0.0064640246248557,"roll_std_12":0.0318840579710145,"bucket_cos":-0.0097826086956521,"day_sin":-0.0032036613272311,"productivity_time":0.0,"session_fragmentation":0.0031484257871064,"rolling_mean_3":0.0228750489620054,"week_end_cos":-0.0064640246248557,"micro":0.0228750489620054,"bucket_sin":-0.0032036613272311,"behavior_risk_score":-0.0076639646278555,"overuse_intensity":0.011235090419392,"usage_acceleration":-0.0097826086956521,"social_time":-0.0140929535232383,"target_t1":-0.0108509847640282,"focus_score":-0.0241631396691034,"night_intensity":-0.0108509847640282,"entertainment_time":0.011235090419392,"rolling_std_3":0.0080745341614906,"day_period":0.0015810276679841,"attention_fragmentation":0.0318840579710145,"hour_sin":-0.0064640246248557,"rolling_std_6":-0.0140929535232383,"number_app_used":-0.0207475209763539,"is_night":-0.0207475209763539,"roll_std_3":0.0408930669800234,"opens":0.0143401983218917,"day_cos":-0.0032036613272311,"behavioral_instability":0.0048570309439874,"micro_ratio":-0.0241631396691034,"fragmentation":-0.0032036613272311,"dopamine_score":-0.0032036613272311,"entropy":0.0080745341614906,"week_day":-0.0241631396691034,"hour":0.0376311844077961,"bucket_index":0.0437888198757763}},"f626c043618fffe6":{"accuracy":0.6078,"f1_score":0.375,"features":{"week_day_sin":-0.0331632653061225,"target_t3":-0.005,"total_time":-0.0012376237623762,"browser_time":0.0,"week_end_sin":0.0038659793814433,"shop_time":0.0,"week_day_cos":-0.0039473684210526,"opens_intensity":-0.0408415841584158,"num_apps":-0.0039473684210526,"rolling_mean_6":0.0185643564356436,"hour_cos":-0.0492424242424242,"utility_time":0.0076530612244898,"total_time_spent":0.0280612244897959,"is_scaled":0.0038659793814433,"system_time":0.0,"knowledge_time":0.0,"health_time":-0.0039473684210526,"other_time":0.0,"overuse_ratio":0.0,"loop_addiction_score":0.0,"target_t6":-0.0373711340206185,"payment_time":0.0,"gps_time":0.0170526315789474,"communication_time":-0.0167525773195876,"week_end":0.0,"usage_velocity":-0.0331632653061225,"roll_std_12":-0.0480769230769231,"bucket_cos":-0.0759803921568628,"day_sin":-0.0127551020408163,"productivity_time":0.0,"session_fragmentation":-0.0290404040404040,"rolling_mean_3":-0.0606435643564356,"week_end_cos":0.0,"micro":0.0076530612244898,"bucket_sin":0.0185643564356436,"behavior_risk_score":-0.005,"overuse_intensity":-0.0088383838383838,"usage_acceleration":-0.0290404040404040,"social_time":0.0416666666666667,"target_t1":-0.045,"focus_score":-0.065,"night_intensity":-0.0492424242424242,"entertainment_time":-0.0127551020408163,"rolling_std_3":0.0208333333333333,"day_period":0.0076530612244898,"attention_fragmentation":0.0208333333333333,"hour_sin":0.0130952380952381,"rolling_std_6":-0.0579896907216495,"number_app_used":-0.0012376237623762,"is_night":-0.0535714285714286,"roll_std_3":-0.0167525773195876,"opens":0.0208333333333333,"day_cos":-0.025,"behavioral_instability":-0.0492424242424242,"micro_ratio":-0.0290404040404040,"fragmentation":-0.0331632653061225,"dopamine_score":-0.045,"entropy":-0.0331632653061225,"week_day":-0.0039473684210526,"hour":0.0038659793814433,"bucket_index":0.0113636363636364}}};
 
-const SKIP_COLS = new Set([
-  'device_id','total_days','total_rows','missing_buckets_before',
-  'total_expected_buckets','final_total_buckets','client_version',
-  'notifications','unlocks','accuracy','f1_score'
-]);
-
-async function loadDeviceSummaryCSV() {
-  try {
-    const resp = await fetch('./assets/device_summary.csv');
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const text = await resp.text();
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) return;
-    const headers = lines[0].split(',').map(h => h.trim());
-    const result = {};
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      const cols = line.split(',');
-      const did = (cols[0] || '').trim();
-      if (!did) continue;
-      const row = {};
-      headers.forEach((h, idx) => { row[h] = cols[idx] !== undefined ? cols[idx].trim() : '0'; });
-      const features = {};
-      headers.forEach(h => {
-        if (SKIP_COLS.has(h)) return;
-        const v = parseFloat(row[h]);
-        if (!isNaN(v)) features[h] = v;
-      });
-      result[did] = {
-        accuracy : parseFloat(row['accuracy'])  || 0,
-        f1_score : parseFloat(row['f1_score'])  || 0,
-        features
-      };
-    }
-    DEVICE_SUMMARY = result;
-    console.log('[AI Profile] CSV loaded —', Object.keys(result).length, 'devices');
-  } catch(e) {
-    console.error('[AI Profile] Failed to load device_summary.csv:', e);
-  }
-}
-
-/* ════════════ FEATURE LABELS ════════════ */
+/* ════════════ FEATURE LABELS (human-readable) ════════════ */
 const FEAT_LABELS = {
   total_time:'Total Screen Time',total_time_spent:'Screen Time (cap)',
   opens_intensity:'Opens Intensity',opens:'Total Opens',num_apps:'Apps Used',
@@ -550,6 +500,16 @@ const FEAT_LABELS = {
   system_time:'System',other_time:'Other',
 };
 
+/* ════════════ FEATURE GROUPS for habit DNA ════════════ */
+const FEAT_GROUPS = {
+  addictive:['dopamine_score','micro_ratio','opens_intensity','session_fragmentation','fragmentation','loop_addiction_score'],
+  temporal:['usage_velocity','usage_acceleration','behavioral_instability','roll_std_3','roll_std_12'],
+  nightuse:['night_intensity','is_night'],
+  content:['entertainment_time','social_time','browser_time','productivity_time','knowledge_time'],
+  pattern:['week_day','week_day_sin','hour','hour_sin','day_period'],
+  volume:['total_time','opens','num_apps','overuse_intensity','overuse_ratio'],
+};
+
 /* ════════════ APP CATEGORY MAP ════════════ */
 const APP_CAT={"advanced.scientific.calculator.calc991.plus":"productivity","ai.perplexity.app.android":"productivity","all.documentreader.filereader.office.viewer":"productivity","anddea.youtube.music":"entertainment","android":"system","app.blinkit.onboarding":"shop","app.netmirror.netmirrornew":"entertainment","app.revanced.android.youtube":"entertainment","authenticator.two.factor.authentication.otp":"utility","badh.busyness.app":"productivity","cn.wps.moffice_eng":"knowledge","cn.wps.xiaomi.abroad.lite":"system","com.Dominos":"shop","com.activision.callofduty.shooter":"entertainment","com.adobe.lrmobile":"productivity","com.adobe.reader":"productivity","com.adobe.scan.android":"productivity","com.alokmandavgane.hinducalendar":"productivity","com.amazon.avod.thirdpartyclient":"shop","com.android.bips":"system","com.android.camera":"entertainment","com.android.chrome":"browser","com.android.contacts":"communication","com.android.credentialmanager":"system","com.android.deskclock":"system","com.android.dialer":"communication","com.android.htmlviewer":"system","com.android.incallui":"communication","com.android.intentresolver":"system","com.android.keychain":"utility","com.android.launcher":"system","com.android.launcher3":"system","com.android.mms":"system","com.android.mtp":"system","com.android.phone":"communication","com.android.printspooler":"system","com.android.providers.downloads.ui":"system","com.android.server.telecom":"communication","com.android.settings":"system","com.android.settings.intelligence":"system","com.android.soundpicker":"system","com.android.soundrecorder":"productivity","com.android.stk":"system","com.android.stk2":"system","com.android.systemui":"system","com.android.thememanager":"utility","com.android.updater":"system","com.android.vending":"system","com.android.vpndialogs":"system","com.anthropic.claude":"knowledge","com.app.cricketapp":"entertainment","com.apple.android.music":"entertainment","com.application.zomato":"shop","com.application.zomato.district":"shop","com.arlosoft.macrodroid":"knowledge","com.astrotalk":"utility","com.aum.nammametro":"gps","com.azure.authenticator":"utility","com.balancehero.truebalance":"payment","com.bbk.SuperPowerSave":"system","com.bbk.updater":"system","com.bharathi.shreerama":"entertainment","com.bigbasket.mobileapp":"shop","com.blinkslabs.blinkist.android":"productivity","com.bmtc.bmtcavls":"gps","com.boAt.hearables":"entertainment","com.branch_international.branch.branch_demo_android":"payment","com.brave.browser":"browser","com.bt.bms":"entertainment","com.buyhatke.assistant":"shop","com.camerasideas.instashot":"productivity","com.careerwill.careerwillapp":"knowledge","com.cashkaro":"shop","com.chess":"entertainment","com.compass.digital.direction.qiblafinder.prayertimes":"utility","com.confirmtkt.lite":"gps","com.cricheroes.cricheroes.alpha":"entertainment","com.crrepa.band.dafit":"health","com.cv.docscanner":"productivity","com.dbtkarnataka":"utility","com.dddev.gallery.album.photo.editor":"utility","com.delphicoder.flud":"utility","com.desoline.android.pdfreader.lite":"productivity","com.dev47apps.droidcam":"productivity","com.digilocker.android":"productivity","com.discord":"communication","com.dogerescue.drawpuzzle.save":"entertainment","com.domobile.applock.ind":"utility","com.done.faasos":"utility","com.dreamplug.androidapp":"payment","com.dts.freefiremax":"entertainment","com.dubox.drive":"utility","com.duokan.phone.remotecontroller":"utility","com.duolingo":"productivity","com.dywx.larkplayer":"entertainment","com.ea.gp.fifamobile":"entertainment","com.eterno":"utility","com.example.edgedetector":"utility","com.example.gpsupdate":"gps","com.example.gpsuploader":"gps","com.example.productiveagent5":"system","com.example.productiveagent52":"system","com.example.usagepredictor":"system","com.facebook.appmanager":"social","com.facebook.katana":"social","com.facebook.stella":"social","com.fast.free.unblock.secure.vpn":"utility","com.fastbanking":"payment","com.fatakpay":"payment","com.fedmobile":"payment","com.fingersoft.hillclimb":"entertainment","com.finshell.fin":"payment","com.firebolttpro.watch":"utility","com.flipkart.android":"shop","com.fluffyfairygames.idleminertycoon":"entertainment","com.gallery.player":"entertainment","com.ge.capital.konysbiapp":"payment","com.github.android":"knowledge","com.google.android.GoogleCamera":"utility","com.google.android.accessibility.switchaccess":"system","com.google.android.apps.adm":"utility","com.google.android.apps.authenticator2":"other","com.google.android.apps.bard":"knowledge","com.google.android.apps.chromecast.app":"browser","com.google.android.apps.classroom":"productivity","com.google.android.apps.docs":"knowledge","com.google.android.apps.docs.editors.docs":"productivity","com.google.android.apps.docs.editors.sheets":"productivity","com.google.android.apps.fitness":"health","com.google.android.apps.googleassistant":"productivity","com.google.android.apps.maps":"knowledge","com.google.android.apps.messaging":"social","com.google.android.apps.nbu.files":"utility","com.google.android.apps.nbu.paisa.user":"utility","com.google.android.apps.nexuslauncher":"system","com.google.android.apps.photos":"entertainment","com.google.android.apps.photosgo":"entertainment","com.google.android.apps.restore":"system","com.google.android.apps.safetyhub":"utility","com.google.android.apps.subscriptions.red":"entertainment","com.google.android.apps.tachyon":"communication","com.google.android.apps.translate":"productivity","com.google.android.apps.wellbeing":"health","com.google.android.apps.youtube.music":"entertainment","com.google.android.calculator":"utility","com.google.android.calendar":"utility","com.google.android.captiveportallogin":"browser","com.google.android.cellbroadcastreceiver":"system","com.google.android.contacts":"communication","com.google.android.deskclock":"utility","com.google.android.dialer":"communication","com.google.android.documentsui":"knowledge","com.google.android.gm":"system","com.google.android.gms":"system","com.google.android.googlequicksearchbox":"browser","com.google.android.googlesdksetup":"system","com.google.android.healthconnect.controller":"health","com.google.android.inputmethod.latin":"system","com.google.android.keep":"utility","com.google.android.markup":"utility","com.google.android.packageinstaller":"system","com.google.android.permissioncontroller":"system","com.google.android.photopicker":"entertainment","com.google.android.projection.gearhead":"gps","com.google.android.providers.media.module":"system","com.google.android.settings.intelligence":"system","com.google.android.tts":"utility","com.google.android.videos":"entertainment","com.google.android.youtube":"entertainment","com.google.ar.lens":"utility","com.grofers.customerapp":"shop","com.grofers.customerapp.lit":"shop","com.hdfcbank.android.now":"payment","com.heytap.browser":"browser","com.heytap.pictorial":"system","com.hirist.jobseeker":"utility","com.hmdglobal.app.camera":"entertainment","com.hmdglobal.app.fmradio":"entertainment","com.honeygain.make.money":"payment","com.ideopay.user":"payment","com.idle.chop":"entertainment","com.indiabix":"utility","com.indus.appstore":"system","com.infrasoft.uboi":"payment","com.inmobi.weather":"system","com.instagram":"social","com.instagram.android":"social","com.instagram.barcelona":"social","com.jio.myjio":"payment","com.jio.web":"browser","com.jpl.jiomart":"shop","com.justvend":"shop","com.kannada.keyboard.for.android":"utility","com.kiloo.subwaysurf":"entertainment","com.king.candycrushsaga":"entertainment","com.kreditbee.android":"payment","com.ksrtc.awatar.new":"gps","com.lenskart.app":"shop","com.linkedin.android":"social","com.llamalab.automate":"system","com.ludo.king":"entertainment","com.machinelearningforsmallbusiness.leetcodepython":"productivity","com.magicpin.local":"shop","com.manash.purplle":"shop","com.meesho.supply":"shop","com.mi.android.globalFileexplorer":"utility","com.mi.android.globallauncher":"system","com.mi.android.globalminusscreen":"system","com.mi.appfinder":"shop","com.mi.globalminusscreen":"system","com.microsoft.appmanager":"utility","com.microsoft.copilot":"productivity","com.microsoft.emmx":"browser","com.microsoft.office.excel":"productivity","com.microsoft.office.officehubrow":"productivity","com.microsoft.office.outlook":"communication","com.microsoft.office.powerpoint":"productivity","com.microsoft.skydrive":"utility","com.microsoft.teams":"communication","com.microsoft.xboxone.smartglass":"entertainment","com.milink.service":"system","com.miui.android.fashiongallery":"browser","com.miui.aod":"system","com.miui.bugreport":"system","com.miui.calculator":"productivity","com.miui.cleaner":"utility","com.miui.cloudservice":"system","com.miui.compass":"gps","com.miui.fm":"entertainment","com.miui.gallery":"entertainment","com.miui.global.packageinstaller":"system","com.miui.home":"system","com.miui.mediaeditor":"entertainment","com.miui.mediaviewer":"entertainment","com.miui.miservice":"system","com.miui.mishare.connectivity":"utility","com.miui.misound":"system","com.miui.notes":"productivity","com.miui.notification":"system","com.miui.player":"entertainment","com.miui.screenrecorder":"entertainment","com.miui.screenshot":"utility","com.miui.securityadd":"system","com.miui.securitycenter":"system","com.miui.securitycore":"system","com.miui.thirdappassistant":"system","com.miui.weather2":"utility","com.motorola.actions":"system","com.motorola.batterycare":"utility","com.motorola.camera5":"utility","com.motorola.coresettingsext":"utility","com.motorola.dolby.dolbyui":"utility","com.motorola.genie":"utility","com.motorola.help":"other","com.motorola.journal":"productivity","com.motorola.launcher3":"system","com.motorola.motosecurecore":"system","com.motorola.msimsettings":"system","com.motorola.mykey":"utility","com.motorola.personalize":"utility","com.motorola.screenshoteditor":"utility","com.motorola.securevault":"system","com.motorola.securityhub":"system","com.motorola.timeweatherwidget":"system","com.motorola.uxcore":"system","com.mpokket.app":"payment","com.mxtech.videoplayer.ad":"entertainment","com.myairtelapp":"utility","com.myntra.android":"shop","com.nekki.shadowfight":"entertainment","com.nemo.vidmate":"entertainment","com.net.pvr":"entertainment","com.netflix.mediaclient":"entertainment","com.newleaf.app.android.victor":"payment","com.nextbillion.groww":"payment","com.nomonkeys.ballblast":"entertainment","com.ojassoft.astrosage":"knowledge","com.olacabs.customer":"gps","com.olx.southasia":"shop","com.oneplus.deskclock":"utility","com.oneplus.gallery":"utility","com.openai.chatgpt":"knowledge","com.oplus.camera":"utility","com.oplus.encryption":"system","com.oplus.phonemanager":"utility","com.oplus.safecenter":"system","com.oplus.screenshot":"utility","com.oplus.wirelesssettings":"system","com.oppo.quicksearchbox":"utility","com.osp.app.signin":"system","com.ovelin.guitartuna":"knowledge","com.pas.webcam":"utility","com.paypal.android.p2pmobile":"payment","com.pdfeditor.pdfeditorandriod":"productivity","com.phonepe.app":"payment","com.plato.android":"entertainment","com.playgendary.bowmasters":"entertainment","com.playit.videoplayer":"entertainment","com.pubg.imobile":"entertainment","com.rapido.passenger":"gps","com.rcflightsim.cvplane2":"entertainment","com.realvnc.viewer.android":"system","com.reddit.frontpage":"entertainment","com.redlinegames.attackhole":"entertainment","com.revanced.net.revancedmanager":"utility","com.ril.ajio":"shop","com.rsupport.rs.activity.rsupport.aas2":"utility","com.run.tower.defense":"entertainment","com.samsung.android.app.contacts":"communication","com.samsung.android.app.dressroom":"system","com.samsung.android.app.notes":"productivity","com.samsung.android.app.routines":"system","com.samsung.android.app.sharelive":"communication","com.samsung.android.app.smartcapture":"system","com.samsung.android.app.soundpicker":"system","com.samsung.android.app.telephonyui":"system","com.samsung.android.app.tips":"system","com.samsung.android.bixby.agent":"system","com.samsung.android.calendar":"utility","com.samsung.android.dialer":"utility","com.samsung.android.dynamiclock":"utility","com.samsung.android.emergency":"system","com.samsung.android.forest":"health","com.samsung.android.honeyboard":"system","com.samsung.android.incallui":"communication","com.samsung.android.lool":"utility","com.samsung.android.messaging":"communication","com.samsung.android.oneconnect":"system","com.samsung.android.privacydashboard":"system","com.samsung.android.samsungpassautofill":"system","com.samsung.android.scloud":"system","com.samsung.android.secsoundpicker":"system","com.samsung.android.smartmirroring":"utility","com.samsung.android.smartsuggestions":"utility","com.samsung.android.spaymini":"payment","com.samsung.android.stickercenter":"system","com.samsung.android.themestore":"system","com.samsung.android.video":"entertainment","com.samsung.app.newtrim":"entertainment","com.samsung.crane":"system","com.samsung.ecomm.global.in":"shop","com.samsung.knox.securefolder":"utility","com.sbi.lotusintouch":"payment","com.sec.android.app.camera":"utility","com.sec.android.app.clockpackage":"utility","com.sec.android.app.launcher":"system","com.sec.android.app.myfiles":"utility","com.sec.android.app.popupcalculator":"utility","com.sec.android.app.samsungapps":"shop","com.sec.android.app.sbrowser":"browser","com.sec.android.app.soundalive":"system","com.sec.android.daemonapp":"utility","com.sec.android.gallery3d":"entertainment","com.sec.android.mimage.photoretouching":"entertainment","com.server.auditor.ssh.client":"knowledge","com.shopping.limeroad":"shop","com.si.heynote":"productivity","com.smallcase.android":"payment","com.snapchat.android":"social","com.spotify.music":"entertainment","com.tailscale.ipn":"productivity","com.tallteam.citychase":"entertainment","com.termux":"knowledge","com.tiffit.user":"shop","com.tmstore.robu.in":"shop","com.truecaller":"communication","com.trustedapp.pdfreaderpdfviewer":"productivity","com.tvscs.tvscreditapp":"payment","com.twitter.android":"entertainment","com.ubercab":"gps","com.vblast.flipaclip":"entertainment","com.video.fun.app":"entertainment","com.vincentb.MobControl":"entertainment","com.vivo.appstore":"shop","com.vivo.assistantfunction":"system","com.vivo.browser":"browser","com.vivo.calculator":"utility","com.vivo.gallery":"entertainment","com.vivo.globalsearch":"browser","com.vivo.imanager":"utility","com.vivo.magazine":"shop","com.vivo.notes":"productivity","com.vivo.screenagent":"system","com.vivo.share":"utility","com.vivo.smartshot":"system","com.vivo.stepcount":"health","com.vivo.systemuiplugin":"system","com.vivo.weather":"utility","com.whatsapp":"social","com.whatsapp.w4b":"social","com.whereismytrain.android":"gps","com.whizdm.moneyview.loans":"payment","com.wssyncmldm":"system","com.xiaomi.account":"system","com.xiaomi.aiasst.vision":"utility","com.xiaomi.aicr":"system","com.xiaomi.bluetooth":"utility","com.xiaomi.calendar":"productivity","com.xiaomi.discover":"entertainment","com.xiaomi.glgm":"system","com.xiaomi.midrop":"utility","com.xiaomi.mipicks":"shop","com.xiaomi.scanner":"utility","com.xiaomi.wearable":"health","com.yozo.vivo.office":"productivity","com.zeptoconsumerapp":"shop","com.zip.unzip.zipextractor.raropener.zipfile":"utility","cris.org.in.prs.ima":"gps","eu.kanade.tachiyomi.j2k":"entertainment","free.programming.programming":"productivity","free.vpn.unblock.proxy.turbovpn":"utility","imagetopdf.pdfconverter.jpgtopdf.pdfeditor":"productivity","in.amazon.mShop.android.shopping":"shop","in.burgerking.android":"shop","in.cricketexchange.app.cricketexchange":"entertainment","in.gov.uidai.mAadhaarPlus":"productivity","in.hanafintech":"payment","in.irisbyyes.app":"payment","in.juspay.nammayatri":"payment","in.org.npci.upiapp":"payment","in.pricehistory.app":"shop","in.rebase.app":"social","in.startv.hotstar":"entertainment","in.swiggy.android":"shop","in.swiggy.android.instamart":"shop","in.thirdwavecoffee.android":"shop","indwin.c3.shareapp":"utility","instagram.video.downloader.story.saver.ig":"social","intelligems.torrdroid":"entertainment","io.voodoo.dune":"entertainment","io.voodoo.paper2":"entertainment","jp.co.shueisha.mangaplus":"entertainment","jp.or.nhk.nhkworld.tv":"entertainment","live.friend.dostt":"social","miui.systemui.plugin":"system","money.jupiter":"payment","money.super.payments":"payment","naukriApp.appModules.login":"productivity","net.one97.paytm":"payment","net.oneplus.weather":"utility","net.openvpn.openvpn":"utility","org.chromium.webapk.a603b9191b7a7c4d7_v2":"browser","org.cris.aikyam":"gps","org.fdroid.fdroid":"system","org.kde.kdeconnect_tp":"utility","org.mozilla.firefox":"browser","org.sadhguru.miracleofmind":"health","org.telegram.messenger":"social","pdf.pdfreader.viewer.editor.free":"productivity","pes.pesu":"knowledge","placementapp.com":"productivity","python.programming.coding.python3.development":"productivity","ru.ok.android":"social","ryey.easer.beta":"system","sortpuz.water.sort.puzzle.game":"entertainment","tv.accedo.airtel.wynk":"entertainment","us.zoom.videomeetings":"communication"};
 
@@ -570,27 +530,16 @@ let dayChartInst=null,catFilterActive='all';
 let bucketMatrix={},dayP75={};
 const HEAVY_ABS=150;
 
-/* ════════ PERF: lazy render flags for heavy tabs ════════ */
-let patternsRendered=false;
-let aiRendered=false;
-
 function classifyHeavy(bi,dt){const bm=bucketMatrix[dt];if(!bm)return false;const s=bm[bi].secs;if(s<=HEAVY_ABS)return false;return s>=(dayP75[dt]??HEAVY_ABS);}
 function computeDayP75(dt){const bm=bucketMatrix[dt];if(!bm)return HEAVY_ABS;const v=bm.map(b=>b.secs).filter(s=>s>0).sort((a,b)=>a-b);if(!v.length)return HEAVY_ABS;return v[Math.min(Math.floor(v.length*.75),v.length-1)];}
 
 /* ════════ BOOT ════════ */
 document.getElementById('devLabel').textContent=DEVICE?'Device: '+DEVICE:'No device_id in URL';
-
-(async function boot(){
-  document.getElementById('loadTxt').textContent='Loading AI model data…';
-  await loadDeviceSummaryCSV();
-
-  if(!DEVICE){
-    document.getElementById('loader').innerHTML='<div style="padding:36px;text-align:center;color:var(--mu)"><div style="font-size:40px;margin-bottom:12px">📵</div><div style="font-size:14px;font-weight:600">No device linked.<br><span style="font-size:12px;font-weight:400">Add ?device_id=YOUR_ID to the URL</span></div></div>';
-    /* AI profile will lazy-load when user taps tab 6 */
-  } else {
-    loadData();
-  }
-})();
+if(!DEVICE){
+  document.getElementById('loader').innerHTML='<div style="padding:36px;text-align:center;color:var(--mu)"><div style="font-size:40px;margin-bottom:12px">📵</div><div style="font-size:14px;font-weight:600">No device linked.<br><span style="font-size:12px;font-weight:400">Add ?device_id=YOUR_ID to the URL</span></div></div>';
+  // still render AI profile for demo
+  setTimeout(()=>renderAIProfile(),400);
+}else{loadData()}
 
 async function loadData(){
   const loader=document.getElementById('loader');
@@ -601,20 +550,17 @@ async function loadData(){
     const j=await r.json();
     if(!j.ok||!j.data||!j.data.length){
       loader.innerHTML='<div style="padding:36px;text-align:center;color:var(--mu);font-size:13px">No data found for this device.</div>';
+      renderAIProfile();
       return;
     }
     document.getElementById('loadTxt').textContent='Crunching numbers…';
     process(j.data);
   }catch(e){
     loader.innerHTML=`<div style="padding:36px;text-align:center"><div style="font-size:28px;margin-bottom:10px">⚠️</div><div style="color:var(--red);font-size:13px;font-weight:600">Failed to load</div><div style="color:var(--mu);font-size:11px;margin-top:6px">${e.message}</div></div>`;
+    renderAIProfile();
   }
 }
-
-function doReload(){
-  patternsRendered=false;
-  aiRendered=false;
-  (async()=>{await loadDeviceSummaryCSV();loadData();})();
-}
+function doReload(){loadData()}
 
 /* ════════ DATA PROCESSING ════════ */
 function process(data){
@@ -647,23 +593,14 @@ function process(data){
   Object.keys(bucketMatrix).forEach(dt=>{dayP75[dt]=computeDayP75(dt);});
   allDays=Object.keys(dayMap).filter(d=>dayMap[d].total>0).sort();
   curDate=allDays[allDays.length-1]||'';
-
-  /* Render the 5 fast tabs immediately */
   renderOverview();
   renderAppsPage();
   setDay(curDate,false);
-
-  /* Hide loader as soon as overview is painted */
   const loader=document.getElementById('loader');
   loader.classList.add('out');
   setTimeout(()=>{loader.style.display='none'},450);
-
-  /* Trends + Insights are chart-heavy — defer until after paint */
   setTimeout(()=>{renderTrends();renderInsightsPage();},100);
-
-  /* PERF: Addiction (tab 5) and AI Profile (tab 6) are the heaviest renders.
-     They are now lazy: rendered only when the user first taps those tabs.
-     This saves ~40–60ms of synchronous JS on every page load. */
+  setTimeout(()=>{renderPatterns();renderAIProfile();},200);
 }
 
 /* ════════ HELPERS ════════ */
@@ -673,7 +610,7 @@ function animFills(el,d=180){setTimeout(()=>el.querySelectorAll('[data-w]').forE
 function pad2(n){return String(n).padStart(2,'0')}
 
 /* ════════════════════════════════════════════════════════
-   AI PROFILE TAB
+   AI PROFILE TAB — CORE RENDER
 ════════════════════════════════════════════════════════ */
 function renderAIProfile(){
   const container = document.getElementById('aiProfileContent');
@@ -688,8 +625,8 @@ function renderAIProfile(){
         <p style="margin-top:6px">Model not yet trained for <code style="font-family:var(--fm);font-size:10px;color:var(--yel)">${DEVICE||'unknown'}</code>. Run the Jupyter pipeline first.</p>
       </div>
       <div class="card">
-        <div class="card-title">📋 Trained Devices (from CSV)</div>
-        ${known.length?known.map(d=>{const dd=DEVICE_SUMMARY[d];const f1col=dd.f1_score>=0.6?'var(--grn)':dd.f1_score>=0.45?'var(--yel)':'var(--red)';return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)"><div style="font-family:var(--fm);font-size:10px;color:var(--mu);flex:1;overflow:hidden;text-overflow:ellipsis">${d}</div><div style="font-family:var(--fm);font-size:11px;font-weight:700;color:${f1col}">F1 ${(dd.f1_score*100).toFixed(0)}%</div><a href="?device_id=${d}" style="font-size:10px;color:var(--acc);text-decoration:none;background:rgba(91,141,248,.1);padding:3px 8px;border-radius:6px">View</a></div>`;}).join(''):'<div style="color:var(--mu);font-size:12px;padding:12px 0">No devices loaded — check assets/device_summary.csv is accessible.</div>'}
+        <div class="card-title">📋 Trained Devices</div>
+        ${known.map(d=>{const dd=DEVICE_SUMMARY[d];const f1col=dd.f1_score>=0.6?'var(--grn)':dd.f1_score>=0.45?'var(--yel)':'var(--red)';return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)"><div style="font-family:var(--fm);font-size:10px;color:var(--mu);flex:1;overflow:hidden;text-overflow:ellipsis">${d}</div><div style="font-family:var(--fm);font-size:11px;font-weight:700;color:${f1col}">F1 ${(dd.f1_score*100).toFixed(0)}%</div><a href="?device_id=${d}" style="font-size:10px;color:var(--acc);text-decoration:none;background:rgba(91,141,248,.1);padding:3px 8px;border-radius:6px">View</a></div>`;}).join('')}
       </div>`;
     return;
   }
@@ -700,15 +637,24 @@ function renderAIProfile(){
   const positive = sorted.filter(([,v])=>v>0);
   const negative = sorted.filter(([,v])=>v<0);
   const maxAbs = Math.max(...sorted.map(([,v])=>Math.abs(v)),0.001);
-  const f = features;
+  const f = features; // shorthand
 
+  /* ── helpers ── */
   function fv(k){return f[k]||0;}
+  function pct(v,scale){return Math.min(100,Math.max(0,Math.round(((v/scale)+0.5)*100)));}
   function bar(v,mx){return Math.min(100,Math.round(Math.abs(v)/mx*100));}
+  function rank(v,lo,hi){// 0-100 normalised within [lo,hi]
+    return Math.min(100,Math.max(0,Math.round((v-lo)/(hi-lo)*100)));
+  }
 
+  /* ══════════════════════════════════════════════════
+     1. MODEL PERFORMANCE METRICS
+  ══════════════════════════════════════════════════ */
   const accPct = Math.round(accuracy*100);
   const f1Pct  = Math.round(f1_score*100);
   const accCol = accuracy>=0.65?'var(--grn)':accuracy>=0.5?'var(--yel)':'var(--red)';
   const f1Col  = f1_score>=0.65?'var(--grn)':f1_score>=0.45?'var(--yel)':'var(--red)';
+  // Precision/recall proxies from F1 and accuracy
   const precProxy = Math.round(Math.min(100,(f1_score*2*accuracy/(accuracy+f1_score||1))*100));
   const recProxy  = Math.round(Math.min(100,(2*f1_score*f1_score/Math.max(f1_score,accuracy))*100));
 
@@ -719,176 +665,526 @@ function renderAIProfile(){
   }
   const mq = modelQuality(f1_score);
 
+  /* ══════════════════════════════════════════════════
+     2. HABIT DNA — 8 axes computed from feature importance
+  ══════════════════════════════════════════════════ */
+  function groupImp(keys){
+    const vals = keys.map(k=>fv(k)).filter(v=>v!==0);
+    if(!vals.length)return 0;
+    return vals.reduce((a,b)=>a+b,0)/vals.length;
+  }
   const dna = [
-    {lb:'Dopamine Loop',ic:'🎰',c:'#f16b6b',keys:['dopamine_score','micro_ratio','opens_intensity','session_fragmentation','fragmentation','loop_addiction_score'],desc:'Compulsive micro-opens & rapid re-engagement drive your usage'},
-    {lb:'Night Risk',ic:'🌙',c:'#9d74f5',keys:['night_intensity','is_night'],desc:'Late-night phone use reliably predicts your heavy sessions'},
-    {lb:'Usage Surge',ic:'📈',c:'#f07d3e',keys:['usage_velocity','usage_acceleration','behavioral_instability','roll_std_3'],desc:'Sudden spikes in usage rate are an early-warning signal for you'},
-    {lb:'Social Pull',ic:'💬',c:'#5b8df8',keys:['social_time','entertainment_time','browser_time'],desc:'Passive content consumption drives your heavy-use episodes'},
-    {lb:'Time Dependency',ic:'⏰',c:'#f5b942',keys:['hour','hour_sin','hour_cos','day_period','bucket_index'],desc:'Specific hours of day are strongly linked to heavy usage for you'},
-    {lb:'Day-of-Week',ic:'📅',c:'#60a5fa',keys:['week_day','week_day_sin','week_day_cos','week_end'],desc:'Certain days of the week are high-risk days for your patterns'},
-    {lb:'Volume Effect',ic:'📊',c:'#3dd68c',keys:['total_time','total_time_spent','overuse_intensity','overuse_ratio'],desc:'Raw screen time volume is a direct predictor for you'},
-    {lb:'Attention Frag.',ic:'🧩',c:'#f0abfc',keys:['attention_fragmentation','behavioral_instability','entropy','num_apps'],desc:'Fragmented attention across many apps signals loss-of-control sessions'},
+    {id:'dopamine', lb:'Dopamine Loop',     ic:'🎰', c:'#f16b6b',
+     keys:['dopamine_score','micro_ratio','opens_intensity','fragmentation','session_fragmentation'],
+     desc:'Compulsive micro-opens & rapid re-engagement drive your usage'},
+    {id:'night',    lb:'Night Risk',        ic:'🌙', c:'#9d74f5',
+     keys:['night_intensity','is_night'],
+     desc:'Late-night phone use reliably predicts your heavy sessions'},
+    {id:'surge',    lb:'Usage Surge',       ic:'📈', c:'#f07d3e',
+     keys:['usage_velocity','usage_acceleration','behavioral_instability','roll_std_3'],
+     desc:'Sudden spikes in usage rate are an early-warning signal for you'},
+    {id:'social',   lb:'Social Pull',       ic:'💬', c:'#5b8df8',
+     keys:['social_time','entertainment_time','browser_time'],
+     desc:'Passive content consumption drives your heavy-use episodes'},
+    {id:'time',     lb:'Time Dependency',   ic:'⏰', c:'#f5b942',
+     keys:['hour','hour_sin','hour_cos','day_period','bucket_index'],
+     desc:'Specific hours of day are strongly linked to heavy usage for you'},
+    {id:'weekday',  lb:'Day-of-Week',       ic:'📅', c:'#60a5fa',
+     keys:['week_day','week_day_sin','week_day_cos','week_end'],
+     desc:'Certain days of the week are high-risk days for your patterns'},
+    {id:'volume',   lb:'Volume Effect',     ic:'📊', c:'#3dd68c',
+     keys:['total_time','total_time_spent','overuse_intensity','overuse_ratio'],
+     desc:'Raw screen time volume is a direct predictor for you'},
+    {id:'attention',lb:'Attention Frag.',   ic:'🧩', c:'#f0abfc',
+     keys:['attention_fragmentation','behavioral_instability','entropy','num_apps'],
+     desc:'Fragmented attention across many apps signals loss-of-control sessions'},
   ];
+  // Score each axis: positive = risk driver, negative = protective, normalise to 0-100
   dna.forEach(d=>{
-    const vals=d.keys.map(k=>fv(k)).filter(v=>v!==0);
-    d.raw=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
-    d.score=Math.min(100,Math.max(0,Math.round((d.raw/0.06+0.5)*100)));
-    d.isRisk=d.raw>0.005;d.isProtect=d.raw<-0.005;
+    const raw = groupImp(d.keys);
+    d.raw = raw;
+    // Map: max observed ~0.08, min ~-0.07 → 0-100 with 50=neutral
+    d.score = Math.min(100,Math.max(0,Math.round((raw/0.06+0.5)*100)));
+    d.isRisk = raw > 0.005;
+    d.isProtect = raw < -0.005;
   });
 
-  const allDevices=Object.keys(DEVICE_SUMMARY);
-  const riskKeys=['dopamine_score','social_time','entertainment_time','night_intensity','opens_intensity','behavioral_instability','overuse_intensity','session_fragmentation'];
-  function deviceRiskScore(did){const fts=DEVICE_SUMMARY[did].features;return riskKeys.reduce((s,k)=>s+Math.max(0,fts[k]||0),0);}
-  const riskScores=allDevices.map(did=>({did,score:deviceRiskScore(did),f1:DEVICE_SUMMARY[did].f1_score}));
+  /* ══════════════════════════════════════════════════
+     3. CROSS-DEVICE COMPARISON (all 5 devices)
+  ══════════════════════════════════════════════════ */
+  const allDevices = Object.keys(DEVICE_SUMMARY);
+  // Compute composite risk score per device: sum of positive importances for addictive features
+  const riskKeys = ['dopamine_score','social_time','entertainment_time','night_intensity','opens_intensity','behavioral_instability','overuse_intensity','session_fragmentation'];
+  function deviceRiskScore(did){
+    const fts = DEVICE_SUMMARY[did].features;
+    return riskKeys.reduce((s,k)=>s+Math.max(0,fts[k]||0),0);
+  }
+  const riskScores = allDevices.map(did=>({did, score:deviceRiskScore(did), f1:DEVICE_SUMMARY[did].f1_score}));
   riskScores.sort((a,b)=>b.score-a.score);
-  const myRank=riskScores.findIndex(r=>r.did===DEVICE)+1;
-  const maxRisk=Math.max(...riskScores.map(r=>r.score),0.001);
-  const myRiskScore=deviceRiskScore(DEVICE);
-  const myRiskPct=Math.round(myRiskScore/maxRisk*100);
+  const myRank = riskScores.findIndex(r=>r.did===DEVICE)+1;
+  const maxRisk = Math.max(...riskScores.map(r=>r.score),0.001);
+  const myRiskScore = deviceRiskScore(DEVICE);
+  const myRiskPct = Math.round(myRiskScore/maxRisk*100);
 
-  const catContribs=[
-    {lb:'Addictive Signals',c:'#f16b6b',keys:['dopamine_score','micro_ratio','opens_intensity','session_fragmentation','fragmentation','opens','micro','attention_fragmentation']},
-    {lb:'Temporal / Trend',c:'#f07d3e',keys:['usage_velocity','usage_acceleration','behavioral_instability','roll_std_3','roll_std_12','rolling_mean_3','rolling_mean_6','rolling_std_3','rolling_std_6']},
-    {lb:'Time of Day',c:'#9d74f5',keys:['hour','hour_sin','hour_cos','is_night','night_intensity','day_period','day_sin','day_cos','bucket_index','bucket_sin','bucket_cos']},
-    {lb:'App Categories',c:'#5b8df8',keys:['entertainment_time','social_time','browser_time','productivity_time','knowledge_time','communication_time','payment_time','shop_time','utility_time']},
-    {lb:'Day of Week',c:'#3dd68c',keys:['week_day','week_day_sin','week_day_cos','week_end','week_end_sin','week_end_cos']},
-    {lb:'Volume / Overuse',c:'#f5b942',keys:['total_time','total_time_spent','opens','num_apps','number_app_used','overuse_intensity','overuse_ratio','is_scaled']},
+  /* ══════════════════════════════════════════════════
+     4. FEATURE CATEGORY CONTRIBUTIONS (for pie-like breakdown)
+  ══════════════════════════════════════════════════ */
+  const catContribs = [
+    {lb:'Addictive Signals', c:'#f16b6b',
+     keys:['dopamine_score','micro_ratio','opens_intensity','session_fragmentation','fragmentation','opens','micro','attention_fragmentation']},
+    {lb:'Temporal / Trend',  c:'#f07d3e',
+     keys:['usage_velocity','usage_acceleration','behavioral_instability','roll_std_3','roll_std_12','rolling_mean_3','rolling_mean_6','rolling_std_3','rolling_std_6']},
+    {lb:'Time of Day',       c:'#9d74f5',
+     keys:['hour','hour_sin','hour_cos','is_night','night_intensity','day_period','day_sin','day_cos','bucket_index','bucket_sin','bucket_cos']},
+    {lb:'App Categories',    c:'#5b8df8',
+     keys:['entertainment_time','social_time','browser_time','productivity_time','knowledge_time','communication_time','payment_time','shop_time','utility_time']},
+    {lb:'Day of Week',       c:'#3dd68c',
+     keys:['week_day','week_day_sin','week_day_cos','week_end','week_end_sin','week_end_cos']},
+    {lb:'Volume / Overuse',  c:'#f5b942',
+     keys:['total_time','total_time_spent','opens','num_apps','number_app_used','overuse_intensity','overuse_ratio','is_scaled']},
   ];
-  catContribs.forEach(c=>{c.pos=c.keys.reduce((s,k)=>s+Math.max(0,fv(k)),0);c.neg=c.keys.reduce((s,k)=>s+Math.min(0,fv(k)),0);});
-  const totalPos=catContribs.reduce((s,c)=>s+c.pos,0)||1;
-  catContribs.forEach(c=>{c.pct=Math.round(c.pos/totalPos*100);});
+  catContribs.forEach(c=>{
+    c.pos = c.keys.reduce((s,k)=>s+Math.max(0,fv(k)),0);
+    c.neg = c.keys.reduce((s,k)=>s+Math.min(0,fv(k)),0);
+  });
+  const totalPos = catContribs.reduce((s,c)=>s+c.pos,0)||1;
+  catContribs.forEach(c=>{c.pct = Math.round(c.pos/totalPos*100);});
 
-  const signals=[];
-  const dopImp=fv('dopamine_score')+fv('micro_ratio')+fv('opens_intensity');
-  if(dopImp>0.04)signals.push({ic:'🎰',title:'Strong Dopamine Loop',badge:'high',body:`Your model gives its highest weight to dopamine-loop signals. Combined importance: <strong>+${(dopImp*100).toFixed(1)}%</strong>. Your heavy usage is primarily <strong>impulse-driven</strong> — quick taps, short sessions that keep restarting.`});
-  else if(dopImp<-0.03)signals.push({ic:'✋',title:'No Compulsive Loop Detected',badge:'low',body:'Dopamine-loop signals have negative importance — your heavy usage is <strong>not</strong> caused by compulsive checking. You are more likely a binge user than a chronic checker.'});
-  const nightImp=fv('night_intensity')+fv('is_night');
-  if(nightImp>0.02)signals.push({ic:'🌙',title:'Night Hours Are Danger Hours',badge:'high',body:`Night-time usage importance: <strong>+${(nightImp*100).toFixed(1)}%</strong>. When you pick up your phone after 9PM you are significantly more likely to enter a heavy session.`});
-  else if(nightImp<-0.015)signals.push({ic:'☀️',title:"Night Usage Isn't Your Problem",badge:'low',body:'Night-time signals have negative importance — your heavy usage does <strong>not</strong> cluster at night. Focus on daytime boundaries.'});
-  const surgeImp=fv('usage_velocity')+fv('behavioral_instability')+fv('usage_acceleration');
-  if(surgeImp>0.04)signals.push({ic:'📈',title:'Usage Spikes Predict Binges',badge:'high',body:`Velocity and instability signals score <strong>+${(surgeImp*100).toFixed(1)}%</strong>. Once usage accelerates the model already predicts a binge forming.`});
-  const socialImp=fv('social_time')+fv('entertainment_time');
-  if(socialImp>0.03)signals.push({ic:'📱',title:'Social & Entertainment Drive Overuse',badge:'high',body:`Combined importance: <strong>+${(socialImp*100).toFixed(1)}%</strong>. These are your <strong>gateway apps</strong> — not just time-wasters but session-extenders.`});
-  else if(socialImp<-0.01)signals.push({ic:'✅',title:"Social Apps Aren't Your Main Problem",badge:'low',body:'Social and entertainment time have low or negative importance. Your heavy usage is driven by something else.'});
-  const prodImp=fv('productivity_time')+fv('knowledge_time');
-  if(prodImp<-0.015)signals.push({ic:'🎯',title:'Productive Use Is Genuinely Protective',badge:'low',body:`Productivity apps have negative importance (${(prodImp*100).toFixed(1)}%) — time on them <strong>reduces</strong> your heavy-use probability.`});
-  if(!signals.length)signals.push({ic:'⚖️',title:'Balanced Profile',badge:'none',body:'No single dominant driver. Your heavy usage is contextual — track more days to isolate the pattern.'});
+  /* ══════════════════════════════════════════════════
+     5. PERSONALISED BEHAVIOUR SIGNALS
+  ══════════════════════════════════════════════════ */
+  const signals = [];
+  // Dopamine loop
+  const dopImp = fv('dopamine_score')+fv('micro_ratio')+fv('opens_intensity');
+  if(dopImp>0.04) signals.push({ic:'🎰',title:'Strong Dopamine Loop',badge:'high',
+    body:`Your model gives its highest weight to dopamine-loop signals. Dopamine score, micro-ratio and opens-intensity together score <strong>+${(dopImp*100).toFixed(1)}%</strong> importance. Your heavy usage is primarily <strong>impulse-driven</strong> — quick taps, short sessions that keep restarting. The fix is friction, not willpower.`});
+  else if(dopImp<-0.03) signals.push({ic:'✋',title:'No Compulsive Loop Detected',badge:'low',
+    body:`Dopamine-loop signals have negative importance — your heavy usage is <strong>not</strong> caused by compulsive checking. You're more likely a binge user (long sustained sessions) than a chronic checker. Different intervention needed.`});
 
-  const dayRisk=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>{
-    const wend=(i>=5)?1:0;
-    const base=40;
-    const wdContrib=Math.abs(fv('week_day'))*300;
-    const weSig=fv('week_end')>0?(wend?20:-5):(wend?-5:10);
-    const score=Math.min(95,Math.max(15,Math.round(base+wdContrib+weSig)));
+  // Night risk
+  const nightImp = fv('night_intensity')+fv('is_night');
+  if(nightImp>0.02) signals.push({ic:'🌙',title:'Night Hours Are Danger Hours',badge:'high',
+    body:`Night-time usage importance: <strong>+${(nightImp*100).toFixed(1)}%</strong>. When you pick up your phone after 9PM, you are significantly more likely to enter a heavy session. Your model uses this as a reliable early-warning signal. Hard cutoff at 10PM would reduce your risk score the most.`});
+  else if(nightImp<-0.015) signals.push({ic:'☀️',title:'Night Usage Isn\'t Your Problem',badge:'low',
+    body:`Night-time signals have negative importance for you — your heavy usage actually <strong>doesn\'t cluster at night</strong>. Your risk windows are during the day, likely mid-morning or afternoon. Focus on daytime boundaries rather than a night cutoff.`});
+
+  // Temporal surge
+  const surgeImp = fv('usage_velocity')+fv('behavioral_instability')+fv('usage_acceleration');
+  if(surgeImp>0.04) signals.push({ic:'📈',title:'Usage Spikes Predict Binges',badge:'high',
+    body:`Velocity and instability signals score <strong>+${(surgeImp*100).toFixed(1)}%</strong> combined. Once you start using your phone at an accelerating rate, the model can already predict a heavy session forming. The first 15 minutes of a binge is <strong>detectable and interruptible</strong> — put your phone down the moment you notice the acceleration.`});
+
+  // Social/entertainment
+  const socialImp = fv('social_time')+fv('entertainment_time');
+  if(socialImp>0.03) signals.push({ic:'📱',title:'Social & Entertainment Drive Overuse',badge:'high',
+    body:`Combined social + entertainment importance: <strong>+${(socialImp*100).toFixed(1)}%</strong>. When you switch from any other activity to social or entertainment apps, your model reads it as a risk escalation. These are your <strong>gateway apps</strong> — not just time-wasters but session-extenders.`});
+  else if(socialImp<-0.01) signals.push({ic:'✅',title:'Social Apps Aren\'t Your Main Problem',badge:'low',
+    body:`Social and entertainment time have low or negative importance for you. Your heavy usage is driven by something else — look at your top positive signals. Social media may be a symptom, not the cause.`});
+
+  // Productivity paradox
+  const prodImp = fv('productivity_time')+fv('knowledge_time');
+  if(prodImp>0.02) signals.push({ic:'⚠️',title:'Productive Time Leads to More Time',badge:'med',
+    body:`Productive app time has <strong>positive</strong> importance: <strong>+${(prodImp*100).toFixed(1)}%</strong>. This is unusual — it means you tend to use your phone heavily <strong>even while being productive</strong>, or productive sessions reliably bleed into longer overall sessions. Your phone habits don't separate well into "good" and "bad" usage.`});
+  else if(prodImp<-0.015) signals.push({ic:'🎯',title:'Productive Use Is Genuinely Protective',badge:'low',
+    body:`Productivity and knowledge apps have negative importance — time on them <strong>reduces</strong> your heavy-use probability. When you switch to productive apps, you are less likely to binge. This is a real circuit-breaker for you. Use it deliberately.`});
+
+  // Payment/shopping signal
+  const payImp = fv('payment_time')+fv('shop_time');
+  if(payImp>0.04) signals.push({ic:'💳',title:'Shopping Sessions Trigger Binges',badge:'med',
+    body:`Payment/shop app time scores <strong>+${(payImp*100).toFixed(1)}%</strong> — surprisingly strong. Opening delivery, shopping or payment apps reliably precedes extended phone sessions for you. A food order or purchase is a session trigger: you open one app, then stay for an hour.`});
+
+  // Week day dependency
+  const wdImp = Math.abs(fv('week_day'))+Math.abs(fv('week_day_sin'));
+  if(wdImp>0.05) signals.push({ic:'📅',title:'High Day-of-Week Dependency',badge:'med',
+    body:`Day-of-week importance: <strong>${(wdImp*100).toFixed(1)}%</strong> combined. Your model has identified specific high-risk days. This suggests your phone use is <strong>structurally linked</strong> to your weekly routine — certain days (likely weekends or specific work days) consistently produce heavier sessions.`});
+
+  // Attention fragmentation
+  const fragImp = fv('attention_fragmentation')+fv('fragmentation');
+  if(fragImp>0.03) signals.push({ic:'🧩',title:'Scattered Attention = Higher Risk',badge:'med',
+    body:`Attention fragmentation importance: <strong>+${(fragImp*100).toFixed(1)}%</strong>. When you hop across many apps rapidly, your model reads it as a loss-of-control signal. Fragmented sessions — where you keep switching apps every few minutes — reliably escalate into heavy usage for you.`});
+
+  // Entropy signal
+  const entropyImp = fv('entropy');
+  if(entropyImp<-0.03) signals.push({ic:'🎯',title:'Entropy Protects You (Focused = Safe)',badge:'low',
+    body:`Entropy (spread of usage across app categories) has negative importance: <strong>${(entropyImp*100).toFixed(1)}%</strong>. When you\'re focused on one category of app, you\'re actually <strong>less likely</strong> to binge. Focused sessions are your healthiest sessions. Scattered browsing is your risk pattern.`});
+  else if(entropyImp>0.02) signals.push({ic:'🔀',title:'High Variety = High Risk',badge:'med',
+    body:`Entropy has positive importance: <strong>+${(entropyImp*100).toFixed(1)}%</strong>. Diverse app usage (jumping across entertainment, social, tools) predicts heavy sessions for you. Multi-app binge sessions are your most common pattern.`});
+
+  if(!signals.length) signals.push({ic:'⚖️',title:'Balanced Profile',badge:'none',
+    body:'No single dominant driver. Your heavy usage is contextual — driven by a mix of factors rather than one repeating habit. Track more days to isolate the pattern.'});
+
+  /* ══════════════════════════════════════════════════
+     6. DAILY RISK CALENDAR (simulated from feature importance)
+     Uses week_day importance + temporal signals to estimate
+     which days/hours are highest risk
+  ══════════════════════════════════════════════════ */
+  const dayRisk = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>{
+    // Use week_day importance magnitude + weekend flag as proxy
+    const wend = (i>=5)?1:0;
+    const base = 40;
+    const wdContrib = Math.abs(fv('week_day'))*300;
+    const weSig = fv('week_end')>0?(wend?20:-5):(wend?-5:10);
+    const nightSig = fv('night_intensity')>0?8:0;
+    const score = Math.min(95,Math.max(15,Math.round(base + wdContrib + weSig + nightSig + (Math.random()*0-0))));
     return{d,score,wend};
   });
-  const maxDR=Math.max(...dayRisk.map(d=>d.score)),minDR=Math.min(...dayRisk.map(d=>d.score));
-  dayRisk.forEach(d=>{d.norm=Math.round((d.score-minDR)/(maxDR-minDR||1)*85+10);d.col=d.norm>75?'#f16b6b':d.norm>55?'#f5b942':'#3dd68c';});
+  const maxDayRisk = Math.max(...dayRisk.map(d=>d.score));
+  const minDayRisk = Math.min(...dayRisk.map(d=>d.score));
+  // Normalise for display
+  dayRisk.forEach(d=>{
+    d.norm = Math.round((d.score-minDayRisk)/(maxDayRisk-minDayRisk||1)*85+10);
+    d.col = d.norm>75?'#f16b6b':d.norm>55?'#f5b942':'#3dd68c';
+  });
 
-  const HOUR_RISK=Array.from({length:24},(_,h)=>{
-    const isNight=h>=22||h<6,isAfternoon=h>=13&&h<=17,isEvening=h>=18&&h<=21;
-    let base=30;
-    if(isNight)base+=Math.max(0,fv('night_intensity'))*400+(fv('is_night')>0?25:5);
-    if(isAfternoon)base+=Math.abs(fv('day_period'))*200;
-    if(isEvening)base+=Math.abs(fv('hour'))*300;
-    base+=Math.abs(fv('behavioral_instability'))*200*(isAfternoon||isEvening?1.5:1);
-    const score=Math.min(95,Math.max(10,Math.round(base)));
+  /* ══════════════════════════════════════════════════
+     7. HOUR RISK HEATMAP (from hour + day_period importances)
+  ══════════════════════════════════════════════════ */
+  const HOUR_RISK = Array.from({length:24},(_,h)=>{
+    const isNight = h>=22||h<6;
+    const isAfternoon = h>=13&&h<=17;
+    const isEvening = h>=18&&h<=21;
+    let base = 30;
+    if(isNight)   base += Math.max(0,fv('night_intensity'))*400 + (fv('is_night')>0?25:5);
+    if(isAfternoon) base += Math.abs(fv('day_period'))*200;
+    if(isEvening)   base += Math.abs(fv('hour'))*300;
+    base += Math.abs(fv('behavioral_instability'))*200*(isAfternoon||isEvening?1.5:1);
+    const score = Math.min(95,Math.max(10,Math.round(base)));
     return{h,score};
   });
-  const maxHR=Math.max(...HOUR_RISK.map(x=>x.score));
-  HOUR_RISK.forEach(x=>{x.norm=Math.round(x.score/maxHR*100);x.col=x.norm>75?'rgba(241,107,107,.9)':x.norm>50?'rgba(245,185,66,.8)':x.norm>30?'rgba(91,141,248,.6)':'rgba(30,36,54,.8)';});
+  const maxHR = Math.max(...HOUR_RISK.map(x=>x.score));
+  HOUR_RISK.forEach(x=>{
+    x.norm = Math.round(x.score/maxHR*100);
+    x.col = x.norm>75?'rgba(241,107,107,.9)':x.norm>50?'rgba(245,185,66,.8)':x.norm>30?'rgba(91,141,248,.6)':'rgba(30,36,54,.8)';
+  });
 
-  const levers=[];
-  if(dopImp>0.02)levers.push({pri:1,ic:'📵',col:'#f16b6b',action:'Delete or bury your top dopamine app',why:`Dopamine loop is your #1 driver (+${(dopImp*100).toFixed(1)}%). Moving it 3 swipes deep cuts opens by 50–70%.`,impact:'High',tag:'Immediate'});
-  if(nightImp>0.015)levers.push({pri:2,ic:'🌙',col:'#9d74f5',action:'Phone off at 10PM — no exceptions',why:`Night intensity scores +${(nightImp*100).toFixed(1)}%. One hard cutoff reduces weekly heavy-use sessions by ~20–30%.`,impact:'High',tag:'Tonight'});
-  if(surgeImp>0.03)levers.push({pri:3,ic:'📈',col:'#f07d3e',action:'Set a 15-min usage alarm',why:`Surge pattern detected (+${(surgeImp*100).toFixed(1)}%). An alarm at 15 min interrupts the acceleration phase.`,impact:'Medium',tag:'Behavioural'});
-  if(prodImp<-0.01)levers.push({pri:4,ic:'✅',col:'#3dd68c',action:'Start sessions with a productive app',why:`Productive time is protective (${(prodImp*100).toFixed(1)}%). Opening a useful app first anchors the session.`,impact:'Low',tag:'Positive habit'});
-  if(levers.length<3)levers.push({pri:5,ic:'📊',col:'var(--acc)',action:'Track 14 more days for sharper recommendations',why:'More data = more specific lever identification.',impact:'–',tag:'Data'});
+  /* ══════════════════════════════════════════════════
+     8. IMPROVEMENT LEVERS (what to act on first)
+  ══════════════════════════════════════════════════ */
+  const levers = [];
+  if(dopImp>0.02) levers.push({pri:1,ic:'📵',col:'#f16b6b',
+    action:'Delete or bury your top dopamine app',
+    why:`Dopamine loop is your #1 driver (+${(dopImp*100).toFixed(1)}%). Moving it 3 swipes deep cuts opens by 50–70% with zero willpower.`,
+    impact:'High',tag:'Immediate'});
+  if(nightImp>0.015) levers.push({pri:2,ic:'🌙',col:'#9d74f5',
+    action:'Phone off at 10PM — no exceptions',
+    why:`Night intensity scores +${(nightImp*100).toFixed(1)}%. One night cutoff reduces your weekly heavy-use sessions by an estimated 20–30%.`,
+    impact:'High',tag:'Tonight'});
+  if(surgeImp>0.03) levers.push({pri:3,ic:'📈',col:'#f07d3e',
+    action:'Set a 15-min usage alarm',
+    why:`Your model detects surge patterns (+${(surgeImp*100).toFixed(1)}%). A simple alarm at 15 min interrupts the acceleration phase before it becomes a binge.`,
+    impact:'Medium',tag:'Behavioural'});
+  if(wdImp>0.04) levers.push({pri:4,ic:'📅',col:'#60a5fa',
+    action:'Plan your high-risk days in advance',
+    why:`Day-of-week importance is ${(wdImp*100).toFixed(1)}%. Schedule phone-free blocks on your 2 highest-risk days. Reduce unstructured time.`,
+    impact:'Medium',tag:'Planning'});
+  if(payImp>0.03) levers.push({pri:5,ic:'💳',col:'#f5b942',
+    action:'Batch all ordering/shopping to one session',
+    why:`Payment apps trigger extended sessions (+${(payImp*100).toFixed(1)}%). Do all ordering in one designated slot instead of throughout the day.`,
+    impact:'Medium',tag:'Structural'});
+  if(fragImp>0.02) levers.push({pri:6,ic:'🧩',col:'#f0abfc',
+    action:'Use one app per session — no app-hopping',
+    why:`Attention fragmentation scores +${(fragImp*100).toFixed(1)}%). Decide which app before you pick up the phone. Close it before opening another.`,
+    impact:'Medium',tag:'Focus'});
+  // Add productivity lever if it's protective
+  if(prodImp<-0.01) levers.push({pri:7,ic:'✅',col:'#3dd68c',
+    action:'Start sessions with a productive app',
+    why:`Productive time is protective (${(prodImp*100).toFixed(1)}%). Opening a useful app first anchors your session in intentional use and reduces drift into passive consumption.`,
+    impact:'Low',tag:'Positive habit'});
+  if(levers.length<3) levers.push({pri:8,ic:'📊',col:'var(--acc)',
+    action:'Track 14 more days for sharper recommendations',
+    why:'More data = more specific lever identification. Your model is still learning your patterns.',
+    impact:'–',tag:'Data'});
 
-  let html=`
+  /* ══════════════════════════════════════════════════
+     9. RENDER
+  ══════════════════════════════════════════════════ */
+  let html = `
+
+  <!-- ─── MODEL PERFORMANCE ─── -->
   <div class="ai-hero">
     <div class="ai-hero-top">
       <div class="ai-brain-ico">🧬</div>
       <div class="ai-hero-info">
         <div class="ai-hero-title">Your Personal AI Model</div>
-        <div class="ai-hero-sub">TensorFlow neural network trained <em>only on your data</em> · 9-bucket sequence input · predicts heavy usage 15 min ahead · <strong style="color:var(--grn)">data loaded from CSV</strong></div>
+        <div class="ai-hero-sub">TensorFlow neural network trained <em>only on your data</em> · 9-bucket sequence input · predicts heavy usage 15 min ahead</div>
       </div>
     </div>
     <div class="ai-model-grid">
-      <div class="ai-metric-box"><div class="ai-metric-val" style="color:${accCol}">${accPct}%</div><div class="ai-metric-lbl">Accuracy</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:${accCol}" data-w="${accPct}"></div></div></div>
-      <div class="ai-metric-box"><div class="ai-metric-val" style="color:${f1Col}">${f1Pct}%</div><div class="ai-metric-lbl">F1 Score</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:${f1Col}" data-w="${f1Pct}"></div></div></div>
-      <div class="ai-metric-box"><div class="ai-metric-val" style="color:var(--acc)">${precProxy}%</div><div class="ai-metric-lbl">Precision~</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:var(--acc)" data-w="${precProxy}"></div></div></div>
-      <div class="ai-metric-box"><div class="ai-metric-val" style="color:var(--acc2)">${recProxy}%</div><div class="ai-metric-lbl">Recall~</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:var(--acc2)" data-w="${recProxy}"></div></div></div>
+      <div class="ai-metric-box">
+        <div class="ai-metric-val" style="color:${accCol}">${accPct}%</div>
+        <div class="ai-metric-lbl">Accuracy</div>
+        <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:${accCol}" data-w="${accPct}"></div></div>
+      </div>
+      <div class="ai-metric-box">
+        <div class="ai-metric-val" style="color:${f1Col}">${f1Pct}%</div>
+        <div class="ai-metric-lbl">F1 Score</div>
+        <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:${f1Col}" data-w="${f1Pct}"></div></div>
+      </div>
+      <div class="ai-metric-box">
+        <div class="ai-metric-val" style="color:var(--acc)">${precProxy}%</div>
+        <div class="ai-metric-lbl">Precision~</div>
+        <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:var(--acc)" data-w="${precProxy}"></div></div>
+      </div>
+      <div class="ai-metric-box">
+        <div class="ai-metric-val" style="color:var(--acc2)">${recProxy}%</div>
+        <div class="ai-metric-lbl">Recall~</div>
+        <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:0%;background:var(--acc2)" data-w="${recProxy}"></div></div>
+      </div>
     </div>
   </div>
+
+  <!-- confidence banner -->
   <div class="signal-card" style="margin-bottom:10px;border-color:rgba(${mq.badge==='low'?'61,214,140':mq.badge==='med'?'245,185,66':'241,107,107'},.3)">
-    <div class="signal-header"><div class="signal-ico">🎯</div><div class="signal-title">Model Confidence: ${mq.label}</div><div class="signal-badge ${mq.badge}">${mq.badge==='low'?'Good':mq.badge==='med'?'Learning':'Needs Data'}</div></div>
+    <div class="signal-header">
+      <div class="signal-ico">🎯</div>
+      <div class="signal-title">Model Confidence: ${mq.label}</div>
+      <div class="signal-badge ${mq.badge}">${mq.badge==='low'?'Good':mq.badge==='med'?'Learning':'Needs Data'}</div>
+    </div>
     <div class="signal-body">${mq.msg}</div>
   </div>
+
+  <!-- ─── CROSS-DEVICE RANK ─── -->
   <div class="card">
     <div class="card-title">🏆 Your Rank vs Other Devices</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Composite addiction-risk score across all ${allDevices.length} trained devices loaded from CSV</div>
-    ${riskScores.map((r,i)=>{const isMine=r.did===DEVICE;const w=Math.round(r.score/maxRisk*100);const col=i===0?'#f16b6b':i===1?'#f07d3e':i===2?'#f5b942':'#3dd68c';return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)"><div style="font-family:var(--fm);font-size:10px;color:${isMine?'var(--acc)':'var(--mu2)'};width:14px">${i+1}</div><div style="font-size:10px;font-weight:${isMine?'700':'500'};color:${isMine?'var(--acc)':'var(--mu)'};width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isMine?'▶ YOU':r.did.slice(0,14)}</div><div style="flex:1;height:7px;background:var(--bdr);border-radius:4px;overflow:hidden"><div style="height:100%;width:0%;border-radius:4px;background:${col};transition:width .8s ease" data-w="${w}"></div></div><div style="font-family:var(--fm);font-size:10px;font-weight:700;color:${col};width:28px;text-align:right">${w}</div><div style="font-family:var(--fm);font-size:9px;color:var(--mu);width:32px;text-align:right">F1 ${Math.round(r.f1*100)}%</div></div>`;}).join('')}
-    <div style="margin-top:8px;background:rgba(91,141,248,.06);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--mu)">Your risk rank: <strong style="color:var(--acc)">#${myRank} of ${allDevices.length}</strong> · Risk score: <strong style="color:var(--acc)">${myRiskPct}/100</strong>${myRank===1?' · ⚠️ <strong style="color:var(--red)">Highest risk profile</strong>':myRank===allDevices.length?' · ✅ <strong style="color:var(--grn)">Lowest risk profile</strong>':''}</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Composite addiction-risk score across all ${allDevices.length} trained devices — based on sum of positive feature importances for addictive signals</div>
+    ${riskScores.map((r,i)=>{
+      const isMine = r.did===DEVICE;
+      const w = Math.round(r.score/maxRisk*100);
+      const col = i===0?'#f16b6b':i===1?'#f07d3e':i===2?'#f5b942':'#3dd68c';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)">
+        <div style="font-family:var(--fm);font-size:10px;color:${isMine?'var(--acc)':'var(--mu2)'};width:14px">${i+1}</div>
+        <div style="font-size:10px;font-weight:${isMine?'700':'500'};color:${isMine?'var(--acc)':'var(--mu)'};width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isMine?'▶ YOU':r.did.slice(0,14)}</div>
+        <div style="flex:1;height:7px;background:var(--bdr);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:0%;border-radius:4px;background:${col};transition:width .8s ease" data-w="${w}"></div>
+        </div>
+        <div style="font-family:var(--fm);font-size:10px;font-weight:700;color:${col};width:28px;text-align:right">${w}</div>
+        <div style="font-family:var(--fm);font-size:9px;color:var(--mu);width:32px;text-align:right">F1 ${Math.round(r.f1*100)}%</div>
+      </div>`;
+    }).join('')}
+    <div style="margin-top:8px;background:rgba(91,141,248,.06);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--mu)">
+      Your risk rank: <strong style="color:var(--acc)">#${myRank} of ${allDevices.length}</strong> · Risk score: <strong style="color:var(--acc)">${myRiskPct}/100</strong>
+      ${myRank===1?' · ⚠️ <strong style="color:var(--red)">Highest addiction-risk profile in this dataset</strong>':myRank===allDevices.length?' · ✅ <strong style="color:var(--grn)">Lowest risk profile in this dataset</strong>':''}
+    </div>
   </div>
+
+  <!-- ─── HABIT DNA (8 axes) ─── -->
   <div class="card">
     <div class="card-title">🧬 Habit DNA · 8 Axes</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:12px">Derived from permutation importance — above 50 = risk driver · below 50 = protective</div>
-    ${dna.map(d=>{const col=d.isRisk?d.c:d.isProtect?'var(--grn)':'var(--mu)';const badge=d.isRisk?`<span style="font-size:8px;color:${d.c};font-weight:700;margin-left:4px">RISK</span>`:d.isProtect?`<span style="font-size:8px;color:var(--grn);font-weight:700;margin-left:4px">SHIELD</span>`:'';return`<div class="risk-gauge"><div class="rg-label">${d.ic} ${d.lb}${badge}</div><div class="rg-track"><div class="rg-fill" style="width:0%;background:${col}" data-w="${d.score}"></div></div><div class="rg-val" style="color:${col}">${d.score}</div></div><div style="font-size:9px;color:var(--mu2);margin:-5px 0 8px 0;padding-left:2px">${d.desc}</div>`;}).join('')}
+    <div style="font-size:10px;color:var(--mu);margin-bottom:12px">Derived from permutation importance — each axis shows how much that force drives <em>your</em> heavy usage specifically. 50 = neutral · above 50 = risk driver · below 50 = protective</div>
+    ${dna.map(d=>{
+      const col = d.isRisk?d.c:d.isProtect?'var(--grn)':'var(--mu)';
+      const badge = d.isRisk?`<span style="font-size:8px;color:${d.c};font-weight:700;margin-left:4px">RISK</span>`:
+                   d.isProtect?`<span style="font-size:8px;color:var(--grn);font-weight:700;margin-left:4px">SHIELD</span>`:'';
+      return `<div class="risk-gauge">
+        <div class="rg-label">${d.ic} ${d.lb}${badge}</div>
+        <div class="rg-track"><div class="rg-fill" style="width:0%;background:${col}" data-w="${d.score}"></div></div>
+        <div class="rg-val" style="color:${col}">${d.score}</div>
+      </div>
+      <div style="font-size:9px;color:var(--mu2);margin:-5px 0 8px 0;padding-left:2px">${d.desc}</div>`;
+    }).join('')}
   </div>
+
+  <!-- ─── TOP POSITIVE FEATURES ─── -->
   <div class="card">
     <div class="card-title">🔥 What Predicts Your Heavy Usage</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Permutation importance — higher = model depends on it more</div>
-    ${positive.slice(0,10).map(([name,val],i)=>{const pct2=bar(val,maxAbs);const lb=FEAT_LABELS[name]||name;const cols2=['#f16b6b','#f16b6b','#f07d3e','#f07d3e','#f5b942','#f5b942','#5b8df8','#5b8df8','#9d74f5','#9d74f5'];const c=cols2[i]||'#5b8df8';return`<div class="fi-row"><div class="fi-rank">${i+1}</div><div class="fi-name">${lb}</div><div class="fi-bars"><div class="fi-bar-pos" style="width:0%;background:${c};height:6px;border-radius:3px;transition:width .8s ease" data-w="${pct2}"></div></div><div class="fi-score" style="color:${c}">+${(val*100).toFixed(2)}%</div></div>`;}).join('')}
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Permutation importance — how much F1 drops when each feature is shuffled. Higher = model depends on it more to detect your heavy sessions.</div>
+    ${positive.slice(0,10).map(([name,val],i)=>{
+      const pct2 = bar(val,maxAbs);
+      const lb = FEAT_LABELS[name]||name;
+      const cols2 = ['#f16b6b','#f16b6b','#f07d3e','#f07d3e','#f5b942','#f5b942','#5b8df8','#5b8df8','#9d74f5','#9d74f5'];
+      const c = cols2[i]||'#5b8df8';
+      return `<div class="fi-row">
+        <div class="fi-rank">${i+1}</div>
+        <div class="fi-name">${lb}</div>
+        <div class="fi-bars"><div class="fi-bar-pos" style="width:0%;background:${c};height:6px;border-radius:3px;transition:width .8s ease" data-w="${pct2}"></div></div>
+        <div class="fi-score" style="color:${c}">+${(val*100).toFixed(2)}%</div>
+      </div>`;
+    }).join('')}
   </div>
+
+  <!-- ─── CATEGORY CONTRIBUTION BREAKDOWN ─── -->
   <div class="card">
     <div class="card-title">⚡ What Category Drives Your Risk</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Share of total positive importance by feature category</div>
-    ${catContribs.map(c=>`<div class="pred-meter"><div class="pred-label">${c.lb}</div><div class="pred-bar-wrap"><div class="pred-bar-fill" style="width:0%;background:${c.c}" data-w="${c.pct}"></div></div><div class="pred-pct" style="color:${c.c}">${c.pct}%</div></div>`).join('')}
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Share of total positive importance by feature category — shows which type of signal your model relies on most</div>
+    ${catContribs.map(c=>`
+      <div class="pred-meter">
+        <div class="pred-label">${c.lb}</div>
+        <div class="pred-bar-wrap"><div class="pred-bar-fill" style="width:0%;background:${c.c}" data-w="${c.pct}"></div></div>
+        <div class="pred-pct" style="color:${c.c}">${c.pct}%</div>
+      </div>`).join('')}
   </div>
+
+  <!-- ─── PROTECTIVE FEATURES ─── -->
   <div class="card">
     <div class="card-title">🛡️ Your Natural Circuit-Breakers</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Negative-importance features — when active, model predicts lighter usage</div>
-    ${negative.slice(0,8).map(([name,val],i)=>{const pct2=bar(val,maxAbs);const lb=FEAT_LABELS[name]||name;return`<div class="fi-row"><div class="fi-rank">${i+1}</div><div class="fi-name">${lb}</div><div class="fi-bars"><div class="fi-bar-neg" style="width:0%;background:var(--grn);height:6px;border-radius:3px;transition:width .8s ease;opacity:.8" data-w="${pct2}"></div></div><div class="fi-score" style="color:var(--grn)">${(val*100).toFixed(2)}%</div></div>`;}).join('')}
-    ${negative[0]?`<div style="margin-top:8px;background:rgba(61,214,140,.05);border:1px solid rgba(61,214,140,.2);border-radius:8px;padding:9px;font-size:11px;color:var(--mu);line-height:1.6"><strong style="color:var(--grn)">Top circuit-breaker:</strong> <strong style="color:var(--txt)">${FEAT_LABELS[negative[0][0]]||negative[0][0]}</strong> — when this pattern is present, your heavy-use risk drops.</div>`:''}
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Negative-importance features — when the model finds these active, it predicts lighter usage. These patterns protect you.</div>
+    ${negative.slice(0,8).map(([name,val],i)=>{
+      const pct2 = bar(val,maxAbs);
+      const lb = FEAT_LABELS[name]||name;
+      return `<div class="fi-row">
+        <div class="fi-rank">${i+1}</div>
+        <div class="fi-name">${lb}</div>
+        <div class="fi-bars"><div class="fi-bar-neg" style="width:0%;background:var(--grn);height:6px;border-radius:3px;transition:width .8s ease;opacity:.8" data-w="${pct2}"></div></div>
+        <div class="fi-score" style="color:var(--grn)">${(val*100).toFixed(2)}%</div>
+      </div>`;
+    }).join('')}
+    ${negative[0]?`<div style="margin-top:8px;background:rgba(61,214,140,.05);border:1px solid rgba(61,214,140,.2);border-radius:8px;padding:9px;font-size:11px;color:var(--mu);line-height:1.6">
+      <strong style="color:var(--grn)">Top circuit-breaker:</strong> <strong style="color:var(--txt)">${FEAT_LABELS[negative[0][0]]||negative[0][0]}</strong> — when this pattern is present, your heavy-use risk drops. Lean into it deliberately.
+    </div>`:''}
   </div>
+
+  <!-- ─── BEHAVIOUR SIGNALS ─── -->
   <div class="card">
     <div class="card-title">🔍 Personalised Behaviour Signals</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Conclusions drawn specifically from your trained model's feature importances</div>
-    ${signals.map(({ic,title,badge,body})=>`<div class="signal-card"><div class="signal-header"><div class="signal-ico">${ic}</div><div class="signal-title">${title}</div><div class="signal-badge ${badge}">${badge==='high'?'Strong Risk':badge==='med'?'Notable':badge==='low'?'Protective':'Balanced'}</div></div><div class="signal-body">${body}</div></div>`).join('')}
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Conclusions drawn specifically from your trained model's feature importances — not generic advice</div>
+    ${signals.map(({ic,title,badge,body})=>`
+      <div class="signal-card">
+        <div class="signal-header">
+          <div class="signal-ico">${ic}</div>
+          <div class="signal-title">${title}</div>
+          <div class="signal-badge ${badge}">${badge==='high'?'Strong Risk':badge==='med'?'Notable':badge==='low'?'Protective':'Balanced'}</div>
+        </div>
+        <div class="signal-body">${body}</div>
+      </div>`).join('')}
   </div>
+
+  <!-- ─── HOUR RISK HEATMAP ─── -->
   <div class="card">
     <div class="card-title">🕐 Hour-of-Day Risk Map</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:8px">Estimated risk per hour based on your model's time-of-day feature importances</div>
-    <div style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-bottom:4px">${HOUR_RISK.map(({h,norm,col})=>`<div style="height:28px;border-radius:3px;background:${col}" title="${h}:00 — risk ${norm}%"></div>`).join('')}</div>
-    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mu);font-family:var(--fm);margin-bottom:8px"><span>12AM</span><span>6AM</span><span>12PM</span><span>6PM</span><span>11PM</span></div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:8px">Estimated risk level per hour based on your model's time-of-day feature importances</div>
+    <div style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-bottom:4px">
+      ${HOUR_RISK.map(({h,norm,col})=>`<div style="height:28px;border-radius:3px;background:${col};cursor:default" title="${h}:00 — risk ${norm}%"></div>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mu);font-family:var(--fm);margin-bottom:8px">
+      <span>12AM</span><span>6AM</span><span>12PM</span><span>6PM</span><span>11PM</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${[['#f16b6b','High risk'],['#f5b942','Medium'],['rgba(91,141,248,.6)','Lower'],['rgba(30,36,54,.8)','Minimal']].map(([c,l])=>`
+        <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--mu)">
+          <div style="width:10px;height:10px;border-radius:2px;background:${c}"></div>${l}
+        </div>`).join('')}
+    </div>
   </div>
+
+  <!-- ─── WEEKLY RISK PATTERN ─── -->
   <div class="card">
     <div class="card-title">📅 Weekly Risk Pattern</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Estimated relative risk by day of week</div>
-    <div style="display:flex;gap:4px;align-items:flex-end;height:50px;margin-bottom:6px">${dayRisk.map(d=>`<div style="flex:1;border-radius:3px 3px 0 0;background:${d.col};height:${d.norm}%;min-height:4px" title="${d.d}: risk ${d.norm}%"></div>`).join('')}</div>
-    <div style="display:flex;gap:4px">${dayRisk.map(d=>`<div style="flex:1;text-align:center;font-size:9px;font-weight:${d.wend?700:400};color:${d.norm>65?d.col:'var(--mu)'}">${d.d}</div>`).join('')}</div>
-    <div style="margin-top:8px;font-size:10px;color:var(--mu)">Highest risk: <strong style="color:${dayRisk.reduce((a,b)=>a.norm>b.norm?a:b).col}">${dayRisk.reduce((a,b)=>a.norm>b.norm?a:b).d}</strong> · Safest: <strong style="color:var(--grn)">${dayRisk.reduce((a,b)=>a.norm<b.norm?a:b).d}</strong></div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Estimated relative risk by day of week — derived from week_day and weekend feature importances</div>
+    <div style="display:flex;gap:4px;align-items:flex-end;height:50px;margin-bottom:6px">
+      ${dayRisk.map(d=>`<div style="flex:1;border-radius:3px 3px 0 0;background:${d.col};height:${d.norm}%;transition:height .8s ease;min-height:4px" title="${d.d}: relative risk ${d.norm}%"></div>`).join('')}
+    </div>
+    <div style="display:flex;gap:4px">
+      ${dayRisk.map(d=>`<div style="flex:1;text-align:center;font-size:9px;font-weight:${d.wend?700:400};color:${d.norm>65?d.col:'var(--mu)'}">${d.d}</div>`).join('')}
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:var(--mu)">
+      Highest risk: <strong style="color:${dayRisk.reduce((a,b)=>a.norm>b.norm?a:b).col}">${dayRisk.reduce((a,b)=>a.norm>b.norm?a:b).d}</strong> · 
+      Safest: <strong style="color:var(--grn)">${dayRisk.reduce((a,b)=>a.norm<b.norm?a:b).d}</strong>
+    </div>
   </div>
+
+  <!-- ─── CROSS-DEVICE FEATURE COMPARISON ─── -->
+  <div class="card">
+    <div class="card-title">📊 Your Top Signals vs All Devices</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Compare how much each key feature matters for you vs the average across all trained devices</div>
+    ${['dopamine_score','opens_intensity','night_intensity','behavioral_instability','social_time','total_time','entertainment_time','usage_velocity'].map(k=>{
+      const myVal = Math.abs(fv(k));
+      const allVals = allDevices.map(d=>Math.abs(DEVICE_SUMMARY[d].features[k]||0));
+      const avgVal = allVals.reduce((a,b)=>a+b,0)/allVals.length;
+      const mx2 = Math.max(...allVals,0.001);
+      const myPct2 = Math.round(myVal/mx2*100);
+      const avgPct2 = Math.round(avgVal/mx2*100);
+      const isHigher = myVal>avgVal;
+      const lb2 = FEAT_LABELS[k]||k;
+      return `<div class="ai-compare-row">
+        <div class="ai-cmp-label">${lb2}</div>
+        <div class="ai-cmp-bars">
+          <div class="ai-cmp-bar"><div class="ai-cmp-fill" style="width:0%;background:var(--acc)" data-w="${myPct2}"></div></div>
+          <div class="ai-cmp-bar"><div class="ai-cmp-fill" style="width:0%;background:var(--bdr);opacity:.8" data-w="${avgPct2}"></div></div>
+          <div class="ai-cmp-vals">
+            <span style="color:var(--acc)">You: ${myPct2}%</span>
+            <span>${isHigher?'⬆ above avg':'⬇ below avg'}</span>
+            <span>Avg: ${avgPct2}%</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mu)"><div style="width:10px;height:4px;border-radius:2px;background:var(--acc)"></div>You</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mu)"><div style="width:10px;height:4px;border-radius:2px;background:var(--bdr)"></div>All-device average</div>
+    </div>
+  </div>
+
+  <!-- ─── ACTIONABLE LEVERS ─── -->
   <div class="card" style="border-color:rgba(157,116,245,.3)">
     <div class="card-title" style="color:var(--acc2)">🎯 AI-Recommended Actions</div>
-    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Ranked by signal strength — highest-impact changes first</div>
-    ${levers.slice(0,6).map(({ic,col,action,why,impact,tag},i)=>`<div class="tip-row"><div class="tip-num" style="background:${col}22;color:${col}">${i+1}</div><div class="tip-body"><div class="tip-title">${ic} ${action}</div><div class="tip-sub">${why}</div><div style="display:flex;gap:4px;margin-top:5px"><span class="tip-tag">${tag}</span><span class="tip-tag" style="color:${impact==='High'?'var(--red)':impact==='Medium'?'var(--yel)':'var(--grn)'}">${impact} impact</span></div></div></div>`).join('')}
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Ranked by the strength of the underlying feature importance signal — highest-impact changes first</div>
+    ${levers.slice(0,6).map(({ic,col,action,why,impact,tag},i)=>`
+      <div class="tip-row">
+        <div class="tip-num" style="background:${col}22;color:${col}">${i+1}</div>
+        <div class="tip-body">
+          <div class="tip-title">${ic} ${action}</div>
+          <div class="tip-sub">${why}</div>
+          <div style="display:flex;gap:4px;margin-top:5px">
+            <span class="tip-tag">${tag}</span>
+            <span class="tip-tag" style="color:${impact==='High'?'var(--red)':impact==='Medium'?'var(--yel)':'var(--grn)'}">${impact} impact</span>
+          </div>
+        </div>
+      </div>`).join('')}
   </div>
+
+  <!-- ─── ZERO-IMPORTANCE (SAFE TO DROP) ─── -->
+  <div class="card">
+    <div class="card-title">❄️ Features Your Model Ignores</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:8px">Zero or near-zero importance — safe to remove from the Android on-device model to save battery and compute</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+      ${feats.filter(([,v])=>Math.abs(v)<0.0005).map(([name])=>`
+        <div style="background:var(--s3);border-radius:5px;padding:3px 8px;font-size:9px;color:var(--mu2)">${FEAT_LABELS[name]||name}</div>`).join('')}
+    </div>
+  </div>
+
+  <!-- ─── ANDROID DEPLOYMENT GUIDE ─── -->
   <div class="card" style="border-color:rgba(91,141,248,.25)">
-    <div class="card-title" style="color:var(--acc)">ℹ️ About This Model</div>
+    <div class="card-title" style="color:var(--acc)">📱 On-Device Model Guide</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:10px">Which features MUST be computed on your Android phone to maintain model performance — sorted by importance</div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:var(--grn);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✅ MUST compute (top signals)</div>
+      ${positive.slice(0,6).map(([name,val])=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(30,36,54,.5)">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--grn);flex-shrink:0"></div>
+          <div style="font-size:11px;font-weight:600;flex:1">${FEAT_LABELS[name]||name}</div>
+          <div style="font-family:var(--fm);font-size:9px;color:var(--grn)">+${(val*100).toFixed(2)}%</div>
+        </div>`).join('')}
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">❌ CAN DROP (zero importance)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${feats.filter(([,v])=>Math.abs(v)<0.001).slice(0,10).map(([name])=>`
+          <div style="background:var(--mu2);border-radius:4px;padding:2px 7px;font-size:9px;color:var(--mu)">${FEAT_LABELS[name]||name}</div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MODEL TECH CARD ─── -->
+  <div class="card" style="border-color:rgba(157,116,245,.2)">
+    <div class="card-title" style="color:var(--acc2)">ℹ️ About This Model</div>
     <div style="font-size:11px;color:var(--mu);line-height:1.8">
       <div><strong style="color:var(--txt)">Architecture:</strong> TensorFlow Dense NN · 128 → 64 → 1 sigmoid</div>
       <div><strong style="color:var(--txt)">Input:</strong> 9 sequential 15-min buckets × 61 features → predict next bucket</div>
+      <div><strong style="color:var(--txt)">Split:</strong> 80/20 time-ordered · class-weight balanced (heavy-use minority)</div>
       <div><strong style="color:var(--txt)">Importances:</strong> Permutation importance · shuffle each feature → Δ F1 = score</div>
-      <div><strong style="color:var(--txt)">Data source:</strong> <code style="font-family:var(--fm);font-size:10px;color:var(--yel)">assets/device_summary.csv</code> — fetched live on page load</div>
-      <div style="margin-top:6px;padding:8px;background:rgba(157,116,245,.06);border-radius:7px;font-size:10px"><strong style="color:var(--acc2)">Note:</strong> Precision~/Recall~ are estimated from accuracy and F1. Exact values require evaluation with fixed threshold on held-out data.</div>
+      <div><strong style="color:var(--txt)">Export:</strong> .tflite · ${positive.slice(0,5).map(([n])=>FEAT_LABELS[n]||n).join(', ')} are the key signals to keep on-device</div>
+      <div style="margin-top:6px;padding:8px;background:rgba(157,116,245,.06);border-radius:7px;font-size:10px">
+        <strong style="color:var(--acc2)">Note:</strong> Precision~/Recall~ are estimated from accuracy and F1. Exact values require running evaluation with fixed threshold on held-out data.
+      </div>
     </div>
-  </div>`;
+  </div>
+  `;
 
-  container.innerHTML=html;
-  setTimeout(()=>{container.querySelectorAll('[data-w]').forEach(el=>{el.style.width=el.dataset.w+'%';});},150);
+  container.innerHTML = html;
+  setTimeout(()=>{
+    container.querySelectorAll('[data-w]').forEach(el=>{el.style.width=el.dataset.w+'%';});
+  }, 150);
 }
+
 
 /* ════════ OVERVIEW ════════ */
 function renderOverview(){
@@ -910,12 +1206,16 @@ function renderOverview(){
   document.getElementById('scoreDesc').textContent=desc;
   let wd='–',ws=0;
   allDays.forEach(d=>{if(dayMap[d].total>ws){ws=dayMap[d].total;wd=d}});
-  document.getElementById('s0').textContent=fhm(avgD);document.getElementById('s0b').textContent=n+' days tracked';
+  document.getElementById('s0').textContent=fhm(avgD);
+  document.getElementById('s0b').textContent=n+' days tracked';
   document.getElementById('s1').textContent=fhm(avgN);
-  document.getElementById('s2').textContent=Math.round(avgO)||'–';document.getElementById('s2b').textContent='est. per day';
+  document.getElementById('s2').textContent=Math.round(avgO)||'–';
+  document.getElementById('s2b').textContent='est. per day';
   document.getElementById('s3').textContent=focP+'%';
-  document.getElementById('s4').textContent=n;document.getElementById('s4b').textContent=(allDays[0]||'').slice(5)+' → '+(allDays[n-1]||'').slice(5);
-  document.getElementById('s5').textContent=fhm(ws);document.getElementById('s5b').textContent=wd.slice(5)||'–';
+  document.getElementById('s4').textContent=n;
+  document.getElementById('s4b').textContent=(allDays[0]||'').slice(5)+' → '+(allDays[n-1]||'').slice(5);
+  document.getElementById('s5').textContent=fhm(ws);
+  document.getElementById('s5b').textContent=wd.slice(5)||'–';
   const ml=document.getElementById('meterList');ml.innerHTML='';
   const sm=Object.entries(G.cat).filter(([c])=>c!=='system').sort((a,b)=>b[1]-a[1]).slice(0,7);
   const mx=sm[0]?.[1]||1;
@@ -1024,13 +1324,14 @@ function renderInsightsPage(){
   const maxDay=Object.entries(dayMap).sort((a,b)=>b[1].total-a[1].total)[0];
   [{ic:'🏆',t:'Best low-screen streak',s:'Consecutive days under 2 hours',v:best+'d'},{ic:'📊',t:'Total tracked',s:'All days combined',v:fhm(G.total)},{ic:'🌙',t:'Avg night usage',s:'10PM – 6AM per day',v:fhm(avgN)},{ic:'🔥',t:'Worst day',s:maxDay?.[0]||'–',v:fhm(maxDay?.[1]?.total||0)},{ic:'📱',t:'Most used app',s:topApp?fname(topApp[0]):'–',v:topApp?fhm(topApp[1].s/n)+'/d':'–'},{ic:'🎯',t:'Focus score',s:'Productive + knowledge %',v:focP+'%'}].forEach(({ic,t,s,v})=>{const r=document.createElement('div');r.className='streak-row';r.innerHTML=`<div class="streak-ico">${ic}</div><div class="streak-info"><div class="streak-title">${t}</div><div class="streak-sub">${s}</div></div><div class="streak-val">${v}</div>`;sl.appendChild(r);});
   const ins=[];
-  if(addP>0.35)ins.push({type:'warn',ic:'🎬',tx:`<strong>${Math.round(addP*100)}%</strong> of your screen time — ${fhm(addS/n)}/day — goes to entertainment & social.`});
-  if(nightP>0.12)ins.push({type:'warn',ic:'🌙',tx:`<strong>${Math.round(nightP*100)}%</strong> of usage is between 10PM–6AM. Late screens delay melatonin by up to 3 hours.`});
-  if(avgO>120)ins.push({type:'warn',ic:'🔔',tx:`You pick up your phone <strong>~${Math.round(avgO)} times/day</strong> — once every <strong>${Math.round(16*60/avgO)} minutes</strong> while awake.`});
-  if(focP>=20)ins.push({type:'good',ic:'✅',tx:`<strong>${focP}%</strong> of your screen time is productive or educational. Above average — keep it up.`});
-  if(avgD/3600>5)ins.push({type:'warn',ic:'⚠️',tx:`Averaging <strong>${(avgD/3600).toFixed(1)} hrs/day</strong>. Research links 4+ hrs/day with reduced attention span and higher anxiety.`});
+  if(addP>0.35)ins.push({type:'warn',ic:'🎬',tx:`<strong>${Math.round(addP*100)}%</strong> of your screen time — ${fhm(addS/n)}/day — goes to entertainment & social. That's <strong>${Math.round(addS/3600/7)} hours wasted per week.</strong>`});
+  if(nightP>0.12)ins.push({type:'warn',ic:'🌙',tx:`<strong>${Math.round(nightP*100)}%</strong> of usage is between 10PM–6AM. Late screens delay melatonin by up to 3 hours — you're probably not sleeping as well as you could.`});
+  if(avgO>120)ins.push({type:'warn',ic:'🔔',tx:`You pick up your phone <strong>~${Math.round(avgO)} times/day</strong> — once every <strong>${Math.round(16*60/avgO)} minutes</strong> while awake. That's compulsive checking.`});
+  if(focP>=20)ins.push({type:'good',ic:'✅',tx:`<strong>${focP}%</strong> of your screen time is productive or educational. That's above average — keep it up.`});
+  if(avgD/3600>5)ins.push({type:'warn',ic:'⚠️',tx:`You're averaging <strong>${(avgD/3600).toFixed(1)} hrs/day</strong>. Research links 4+ hrs/day with reduced attention span, poorer sleep, and higher anxiety.`});
   const topAdd=Object.entries(G.app).filter(([,d])=>d.cat==='entertainment'||d.cat==='social').sort((a,b)=>b[1].s-a[1].s)[0];
   if(topAdd)ins.push({type:'info',ic:'📵',tx:`Your biggest drain is <strong>${fname(topAdd[0])}</strong> at <strong>${fhm(topAdd[1].s/n)}/day</strong>. Use Digital Wellbeing to cap it at 30 min.`});
+  if(focP<5&&n>3)ins.push({type:'warn',ic:'📚',tx:`Almost no time on learning apps. 15 min/day compounds to <strong>91 hours/year</strong> of skill.`});
   if(!ins.length)ins.push({type:'good',ic:'📊',tx:'Keep tracking — more days = sharper insights.'});
   const il=document.getElementById('insightList');il.innerHTML='';
   ins.forEach(({type,ic,tx})=>{const d=document.createElement('div');d.className=`insight ${type}`;d.innerHTML=`<div class="insight-ic">${ic}</div><div class="insight-tx">${tx}</div>`;il.appendChild(d);});
@@ -1136,12 +1437,12 @@ function renderPatterns(){
 }
 function renderProfile(avgDaily,avgNight,avgOpens,escapeRatio,prodRatio,avgWeekday,avgWeekend,n){
   let pType='',pDesc='',pColor='';
-  if(escapeRatio>0.60&&avgNight/3600>1){pType='😰 The Night Escapist';pColor='var(--red)';pDesc=`You escape into your phone — especially at night. ${Math.round(escapeRatio*100)}% of your screen time is entertainment, social, or browsing. Averaging ${fhm(avgNight)}/day after 8PM.`;}
-  else if(escapeRatio>0.55){pType='🎬 The Passive Consumer';pColor='var(--orn)';pDesc=`${Math.round(escapeRatio*100)}% of your time is passive consumption. Averaging ${fhm(avgDaily)}/day.`;}
-  else if(prodRatio>0.35){pType='✅ The Intentional User';pColor='var(--grn)';pDesc=`${Math.round(prodRatio*100)}% of your screen time is productive or educational — well above average.`;}
-  else if(avgOpens>80&&avgDaily/3600<3){pType='🔔 The Compulsive Checker';pColor='var(--yel)';pDesc=`You pick up your phone ~${Math.round(avgOpens)} times/day but sessions are short. Anxiety-driven checking fragments your focus.`;}
-  else if(avgWeekend>avgWeekday*1.5){pType='📅 The Weekend Binger';pColor='var(--acc2)';pDesc=`Weekdays: ${fhm(avgWeekday)}/day. Weekends spike to ${fhm(avgWeekend)}/day. Unstructured time exposes your default.`;}
-  else{pType='📱 The Moderate User';pColor='var(--acc)';pDesc=`Your usage is relatively balanced at ${fhm(avgDaily)}/day.`;}
+  if(escapeRatio>0.60&&avgNight/3600>1){pType='😰 The Night Escapist';pColor='var(--red)';pDesc=`You escape into your phone — especially at night. ${Math.round(escapeRatio*100)}% of your screen time is entertainment, social, or browsing. You're averaging ${fhm(avgNight)}/day after 8PM. The phone isn't entertaining you — it's numbing something.`;}
+  else if(escapeRatio>0.55){pType='🎬 The Passive Consumer';pColor='var(--orn)';pDesc=`${Math.round(escapeRatio*100)}% of your time is passive consumption — entertainment, social, browsing — with little to show for it. You're averaging ${fhm(avgDaily)}/day. The dopamine keeps you coming back but you never feel satisfied.`;}
+  else if(prodRatio>0.35){pType='✅ The Intentional User';pColor='var(--grn)';pDesc=`${Math.round(prodRatio*100)}% of your screen time is productive or educational — well above average. You use your phone with more intention than most. The challenge is protecting this habit when stress or boredom hits.`;}
+  else if(avgOpens>80&&avgDaily/3600<3){pType='🔔 The Compulsive Checker';pColor='var(--yel)';pDesc=`You pick up your phone ~${Math.round(avgOpens)} times/day but sessions are short. This is anxiety-driven checking — the urge is stronger than the need. Even brief sessions fragment your focus and keep you in a low-level reactive state all day.`;}
+  else if(avgWeekend>avgWeekday*1.5){pType='📅 The Weekend Binger';pColor='var(--acc2)';pDesc=`Weekdays you manage well (${fhm(avgWeekday)}/day) but weekends spike to ${fhm(avgWeekend)}/day. Unstructured time exposes your default: the phone fills the gap. You need a weekend phone strategy.`;}
+  else{pType='📱 The Moderate User';pColor='var(--acc)';pDesc=`Your usage is relatively balanced at ${fhm(avgDaily)}/day. You're not in crisis, but small habit shifts in your morning routine and night cutoff would make a real difference.`;}
   const pt=document.getElementById('profileType');pt.textContent=pType;pt.style.color=pColor;
   document.getElementById('profileDesc').textContent=pDesc;
   const ps=document.getElementById('profileStats');ps.innerHTML='';
@@ -1153,7 +1454,7 @@ function renderAddictionCost(topEscape,topProdApp,n,hourData){
   const perDay=(ed.s/n/3600).toFixed(1),perWeek=Math.round(ed.s/n/3600*7),perYear=Math.round(ed.s/n/3600*365);
   let peakH=0,peakSecs=0;hourData.forEach((hd,h)=>{if((hd.appSecs[ep]||0)>peakSecs){peakSecs=hd.appSecs[ep]||0;peakH=h;}});
   const ratio=topProdApp?(ed.s/topProdApp[1].s).toFixed(1):null;
-  el.innerHTML=`<div class="cost-card"><div class="cost-app">${cf.ic} ${fname(ep)}</div><div class="cost-body">You spend <strong>${perDay} hours every day</strong> on ${fname(ep)}.<br>That's <strong>${perWeek} hours this week</strong>, <strong>${perYear} hours this year</strong>.<br>Peak usage around <strong>${pad2(peakH)}:00</strong>.${ratio?` You spend <strong>${ratio}× more</strong> time here than your top productive app.`:''}</div><div class="cost-stat-row"><div class="cost-stat"><div class="cv">${perDay}h</div><div class="cl">Per Day</div></div><div class="cost-stat"><div class="cv">${perWeek}h</div><div class="cl">This Week</div></div><div class="cost-stat"><div class="cv">${perYear}h</div><div class="cl">Per Year</div></div></div></div>`;
+  el.innerHTML=`<div class="cost-card"><div class="cost-app">${cf.ic} ${fname(ep)}</div><div class="cost-body">You spend <strong>${perDay} hours every day</strong> on ${fname(ep)}.<br>That's <strong>${perWeek} hours this week</strong>, <strong>${perYear} hours this year</strong>.<br>Your peak usage is around <strong>${pad2(peakH)}:00–${pad2(peakH+2)}:00</strong>.${ratio?` You spend <strong>${ratio}× more</strong> time on this than on your top productive app.`:''}</div><div class="cost-stat-row"><div class="cost-stat"><div class="cv">${perDay}h</div><div class="cl">Per Day</div></div><div class="cost-stat"><div class="cv">${perWeek}h</div><div class="cl">This Week</div></div><div class="cost-stat"><div class="cv">${perYear}h</div><div class="cl">Per Year</div></div></div></div>`;
 }
 function renderRoutineBar(hourAvgSecs,hourDomState,maxHourSecs){
   const rw=document.getElementById('routineBar');let html='<div class="routine-wrap"><div class="routine-cols">';
@@ -1190,54 +1491,45 @@ function renderSleepSignal(avgFirstH,avgFirstM,avgFirstMin,avgNight,pmDays,n,tot
   const ss=document.getElementById('sleepSignal');const nightPct=G.total>0?totalNightSecs/G.total:0;
   ss.innerHTML=`<div class="sleep-grid"><div class="sleep-cell"><div class="sc-ic">🌅</div><div class="sc-val">${pad2(avgFirstH)}:${pad2(avgFirstM)}</div><div class="sc-lbl">First Use Avg</div></div><div class="sleep-cell"><div class="sc-ic">🌙</div><div class="sc-val">${fhm(avgNight)}</div><div class="sc-lbl">Avg Night Use</div></div><div class="sleep-cell"><div class="sc-ic">📅</div><div class="sc-val">${pmDays}/${n}</div><div class="sc-lbl">Post-Midnight Days</div></div><div class="sleep-cell"><div class="sc-ic">💤</div><div class="sc-val">${Math.round(nightPct*100)}%</div><div class="sc-lbl">Night Share</div></div></div>`;
   const warnings=[];
-  if(avgFirstMin<30)warnings.push(`You pick up your phone at <strong>${pad2(avgFirstH)}:${pad2(avgFirstM)}</strong> — within ${Math.round(avgFirstMin)} minutes of waking.`);
-  if(avgNight/3600>0.8)warnings.push(`<strong>${fhm(avgNight)}/night</strong> on screens. Blue light suppresses melatonin for 2–3 hours.`);
-  if(pmDays/n>0.25)warnings.push(`You use your phone past midnight on <strong>${Math.round(pmDays/n*100)}%</strong> of days.`);
+  if(avgFirstMin<30)warnings.push(`You pick up your phone at <strong>${pad2(avgFirstH)}:${pad2(avgFirstM)}</strong> — within ${Math.round(avgFirstMin)} minutes of waking. Your brain's decision-making cortex needs 30 min to activate. Starting with your phone means your first thoughts are other people's agendas.`);
+  if(avgNight/3600>0.8)warnings.push(`<strong>${fhm(avgNight)}/night</strong> on screens. Blue light suppresses melatonin for 2–3 hours. You may be sleeping less deeply than you think.`);
+  if(pmDays/n>0.25)warnings.push(`You use your phone past midnight on <strong>${Math.round(pmDays/n*100)}%</strong> of days. This is a strong predictor of next-day fatigue and heavier afternoon usage.`);
   if(warnings.length){ss.innerHTML+=warnings.map(w=>`<div class="sleep-warn"><strong>⚠️</strong> ${w}</div>`).join('');}
-  else{ss.innerHTML+='<div class="sleep-warn" style="background:rgba(61,214,140,.08);border-color:rgba(61,214,140,.25)"><strong style="color:var(--grn)">✅</strong> Your sleep boundaries look healthy.</div>';}
+  else{ss.innerHTML+='<div class="sleep-warn" style="background:rgba(61,214,140,.08);border-color:rgba(61,214,140,.25)"><strong style="color:var(--grn)">✅</strong> Your sleep boundaries look healthy. Keep protecting your mornings.</div>';}
 }
 function renderWeekPattern(avgWeekday,avgWeekend,wdDays,weDays){
   const wp=document.getElementById('weekPattern');const diff=avgWeekend-avgWeekday;const diffPct=avgWeekday>0?Math.round(Math.abs(diff)/avgWeekday*100):0;
-  wp.innerHTML=`<div class="week-compare"><div class="wc-cell"><div class="wc-label">Weekdays</div><div class="wc-val" style="color:var(--acc)">${fhm(avgWeekday)}</div><div class="wc-sub">${wdDays.length} days tracked</div></div><div class="wc-cell"><div class="wc-label">Weekends</div><div class="wc-val" style="color:${diff>0?'var(--red)':'var(--grn)'}">${fhm(avgWeekend)}</div><div class="wc-sub">${weDays.length} days tracked</div></div></div><div class="week-insight">${diff>600?`Weekends are <strong>${diffPct}% heavier</strong> (+${fhm(diff)}/day). Plan at least one phone-free activity.`:diff<-600?`You use your phone <strong>${diffPct}% less</strong> on weekends — apply what works on weekdays too.`:`<strong>Consistent through the week</strong> — no major weekend spike.`}</div>`;
+  wp.innerHTML=`<div class="week-compare"><div class="wc-cell"><div class="wc-label">Weekdays</div><div class="wc-val" style="color:var(--acc)">${fhm(avgWeekday)}</div><div class="wc-sub">${wdDays.length} days tracked</div></div><div class="wc-cell"><div class="wc-label">Weekends</div><div class="wc-val" style="color:${diff>0?'var(--red)':'var(--grn)'}">${fhm(avgWeekend)}</div><div class="wc-sub">${weDays.length} days tracked</div></div></div><div class="week-insight">${diff>600?`Weekends are <strong>${diffPct}% heavier</strong> than weekdays (+${fhm(diff)}/day). Unstructured time reveals your default setting. Plan at least one weekend activity that competes with your phone.`:diff<-600?`You actually use your phone <strong>${diffPct}% less</strong> on weekends. Take what works on weekends and apply it to weekdays.`:`Your usage is <strong>consistent through the week</strong> — no major weekend spike.`}</div>`;
 }
 function renderBestWorst(bestDay,worstDay,dayTotals){
   const bw=document.getElementById('bestWorstDays');const bd=dayTotals[bestDay]||{total:0,escape:0,prod:0,night:0};const wd=dayTotals[worstDay]||{total:0,escape:0,prod:0,night:0};const bwMax=Math.max(bd.total,wd.total,1);
   bw.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px;font-size:11px;font-weight:700;text-align:center"><span style="color:var(--grn)">✅ Best (${bestDay.slice(5)})</span><span style="color:var(--red)">🔥 Worst (${worstDay.slice(5)})</span></div>`+[{l:'Screen Time',bv:bd.total,wv:wd.total},{l:'Escape Apps',bv:bd.escape,wv:wd.escape},{l:'Productive',bv:bd.prod,wv:wd.prod},{l:'Night Use',bv:bd.night,wv:wd.night}].map(({l,bv,wv})=>`<div class="bw-row"><div class="bw-label">${l}</div><div class="bw-bars"><div class="bw-bar-r"><div class="bw-fill-b" style="width:${(bv/bwMax*100).toFixed(1)}%"></div></div><div class="bw-bar-r"><div class="bw-fill-w" style="width:${(wv/bwMax*100).toFixed(1)}%"></div></div><div class="bw-vals"><span style="color:var(--grn)">${fhm(bv)}</span><span style="color:var(--red)">${fhm(wv)}</span></div></div></div>`).join('');
+  if(bd.prod>wd.prod){bw.innerHTML+=`<div class="insight good" style="margin-top:8px"><div class="insight-ic">💡</div><div class="insight-tx">On your best day you spent <strong>${fhm(bd.prod)}</strong> productively vs <strong>${fhm(wd.prod)}</strong> on your worst. That's the gap to close.</div></div>`;}
 }
 function renderProgress(avgFirst,avgLast,firstWeek,lastWeek,trending){
   const pt=document.getElementById('progressTrend');const arrow=trending==='better'?'📉':trending==='worse'?'📈':'➡️';const col=trending==='better'?'var(--grn)':trending==='worse'?'var(--red)':'var(--mu)';
-  const msg=trending==='better'?`You're using your phone <strong>${Math.round((avgFirst-avgLast)/avgFirst*100)}% less</strong> than when you started. Real progress.`:trending==='worse'?`Recent week (${fhm(avgLast)}/day) is heavier than first week (${fhm(avgFirst)}/day). Usage is creeping up.`:`Usage has stayed roughly the same week over week.`;
+  const msg=trending==='better'?`You're using your phone <strong>${Math.round((avgFirst-avgLast)/avgFirst*100)}% less</strong> than when you started. Real progress — keep going.`:trending==='worse'?`Your recent week (${fhm(avgLast)}/day) is heavier than your first week (${fhm(avgFirst)}/day). Usage is creeping up.`:`Your usage has stayed roughly the same week over week. Consistent but not improving.`;
   pt.innerHTML=`<div class="prog-wrap"><div class="prog-half"><div class="prog-label">First Week</div><div class="prog-val" style="color:var(--mu)">${fhm(avgFirst)}</div><div class="prog-sub">${firstWeek.length}d avg</div></div><div class="prog-arrow">${arrow}</div><div class="prog-half"><div class="prog-label">Last Week</div><div class="prog-val" style="color:${col}">${fhm(avgLast)}</div><div class="prog-sub">${lastWeek.length}d avg</div></div></div><div class="insight ${trending==='better'?'good':trending==='worse'?'warn':'info'}" style="margin-top:0"><div class="insight-ic">${arrow}</div><div class="insight-tx">${msg}</div></div>`;
 }
 function renderPersonalPlan(topEscape,avgFirstMin,avgFirstH,avgFirstM,hourScore,avgNight,pmDays,n,totalEscape,totalProd,liftMap,appData,avgOpens){
   const pp=document.getElementById('personalPlan');pp.innerHTML='';const plans=[];
-  if(topEscape){const[ep,ed]=topEscape;const liftScore=liftMap[ep]||1;plans.push({col:'#f16b6b',ic:'📵',title:`Remove ${fname(ep)} from your home screen`,sub:`Your biggest time drain at <strong>${fhm(topEscape[1].s/(allDays.length||1))}/day</strong>. Moving it 3 swipes deep reduces opens by 50–70%.${liftScore>1.5?` Lift score: ${liftScore.toFixed(1)}× — strongly associated with your heaviest usage.`:''}`,tag:'Highest impact'});}
-  if(avgFirstMin<45){plans.push({col:'#f07d3e',ic:'🌅',title:`Don't touch your phone for 30 min after waking`,sub:`You pick up your phone at <strong>${pad2(avgFirstH)}:${pad2(avgFirstM)}</strong>. Starting with your phone means starting in reaction mode.`,tag:'Morning routine'});}
-  if(hourScore.length){const{h}=hourScore[0];plans.push({col:'#f5b942',ic:'⏰',title:`Block your ${pad2(h)}:00 danger window`,sub:`Your highest-risk hour. Put your phone face-down or in another room for just that one hour.`,tag:'Danger hour'});}
-  if(avgNight/3600>0.5||pmDays/n>0.2){plans.push({col:'#9d74f5',ic:'🌙',title:`Set a hard 10PM cutoff`,sub:`You average <strong>${fhm(avgNight)}</strong> of night phone use. Charge your phone in a different room tonight.`,tag:'Sleep protection'});}
-  if(avgOpens>80){plans.push({col:'#3dd68c',ic:'🔔',title:`Turn off all non-essential notifications`,sub:`You're opening your phone <strong>~${Math.round(avgOpens)} times/day</strong>. Disable everything except calls and messages.`,tag:'Focus recovery'});}
+  if(topEscape){const[ep,ed]=topEscape;const liftScore=liftMap[ep]||1;plans.push({col:'#f16b6b',ic:'📵',title:`Remove ${fname(ep)} from your home screen`,sub:`Your biggest time drain at <strong>${fhm(topEscape[1].s/(allDays.length||1))}/day</strong>. Moving it 3 swipes deep reduces opens by 50–70% without any willpower. Friction is enough.${liftScore>1.5?` Lift score: ${liftScore.toFixed(1)}× — it's strongly associated with your heaviest usage.`:''}`,tag:'Highest impact'});}
+  if(avgFirstMin<45){plans.push({col:'#f07d3e',ic:'🌅',title:`Don't touch your phone for 30 min after waking`,sub:`You pick up your phone at <strong>${pad2(avgFirstH)}:${pad2(avgFirstM)}</strong>. Your prefrontal cortex — responsible for focus and decisions — takes 30 min to fully engage after sleep. Starting with your phone means starting in reaction mode.`,tag:'Morning routine'});}
+  if(hourScore.length){const{h}=hourScore[0];const topAppAtH=Object.entries(hourScore[0]&&{...allDays.reduce((acc,dt)=>{const bm=bucketMatrix[dt];if(!bm)return acc;Object.entries(bm[h*4]?.apps||{}).filter(([p])=>!isSys(p)).forEach(([p,s])=>{acc[p]=(acc[p]||0)+s;});return acc;},{})}).sort((a,b)=>b[1]-a[1])[0];plans.push({col:'#f5b942',ic:'⏰',title:`Block your ${pad2(h)}:00 danger window`,sub:`Your highest-risk hour of the day${topAppAtH?` — mainly <strong>${fname(topAppAtH[0])}</strong>`:''  }. Put your phone face-down or in another room for just that one hour. Even a single blocked hour per day reduces total daily usage by ~20%.`,tag:'Danger hour'});}
+  if(avgNight/3600>0.5||pmDays/n>0.2){const nightEscApp=Object.entries(appData).filter(([p,d])=>{return(d.cat==='entertainment'||d.cat==='social')&&d.s>60;}).sort((a,b)=>b[1].s-a[1].s)[0];plans.push({col:'#9d74f5',ic:'🌙',title:`Set a hard 10PM cutoff — no ${nightEscApp?fname(nightEscApp[0]):'screen time'}`,sub:`You average <strong>${fhm(avgNight)}</strong> of night phone use. Melatonin release starts around 10PM — screens delay this by up to 3 hours. Charge your phone in a different room tonight.`,tag:'Sleep protection'});}
+  if(avgOpens>80){plans.push({col:'#3dd68c',ic:'🔔',title:`Turn off all non-essential notifications`,sub:`You're opening your phone <strong>~${Math.round(avgOpens)} times/day</strong>. Most opens are triggered by notifications, not real need. Disable everything except calls and messages. Each open costs ~23 minutes of deep focus to recover from.`,tag:'Focus recovery'});}
   const prodGap=totalEscape-totalProd;
-  if(prodGap>0){plans.push({col:'#3dd68c',ic:'📚',title:`Replace 15 min of scrolling with deliberate learning`,sub:`${fhm(totalEscape/(allDays.length||1))}/day escaping vs ${fhm(totalProd/(allDays.length||1))}/day learning. 15 min/day = 91 hours of skill per year.`,tag:'Positive habit'});}
-  if(plans.length<3){plans.push({col:'var(--acc)',ic:'📊',title:'Keep tracking for 7 more days',sub:'The more data you provide, the more specific your plan becomes.',tag:'Data needed'});}
+  if(prodGap>0){const prodApp=Object.entries(appData).filter(([,d])=>d.cat==='productivity'||d.cat==='knowledge').sort((a,b)=>b[1].s-a[1].s)[0];plans.push({col:'#3dd68c',ic:'📚',title:`Replace 15 min of scrolling with deliberate learning`,sub:`You spend <strong>${fhm(totalEscape/(allDays.length||1))}/day</strong> escaping vs <strong>${fhm(totalProd/(allDays.length||1))}/day</strong> learning${prodApp?` (your top: ${fname(prodApp[0])})`:''  }. 15 min/day = 91 hours of compounding skill per year.`,tag:'Positive habit'});}
+  if(plans.length<3){plans.push({col:'var(--acc)',ic:'📊',title:'Keep tracking for 7 more days',sub:'The more data you provide, the more specific your plan becomes. Come back after a full week for a complete personalised breakdown.',tag:'Data needed'});}
   plans.slice(0,5).forEach(({col,ic,title,sub,tag},i)=>{const el=document.createElement('div');el.className='plan-item';el.innerHTML=`<div class="plan-num" style="background:${col}22;color:${col}">${i+1}</div><div class="plan-body"><div class="plan-title">${ic} ${title}</div><div class="plan-sub">${sub}</div><div class="plan-tag">${tag}</div></div>`;pp.appendChild(el);});
 }
 
-/* ════════ TAB SWITCH — with lazy render for tabs 5 & 6 ════════ */
+/* ════════ TAB SWITCH ════════ */
 const TABS=document.querySelectorAll('.tab');
 const PAGES_EL=document.querySelectorAll('.page');
 function switchTab(i){
   TABS.forEach((t,j)=>t.classList.toggle('active',j===i));
   PAGES_EL.forEach((p,j)=>p.classList.toggle('active',j===i));
-
-  /* PERF: render heavy tabs on first visit only */
-  if(i===5&&!patternsRendered&&allDays.length>0){
-    patternsRendered=true;
-    renderPatterns();
-  }
-  if(i===6&&!aiRendered){
-    aiRendered=true;
-    renderAIProfile();
-  }
 }
 </script>
 </body>

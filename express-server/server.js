@@ -15,6 +15,10 @@ const { runAutomatedAnalysis1 } = require("./workers/processBuckets");
 // ✅ Trust reverse proxy headers
 app.set("trust proxy", true);
 
+
+
+
+
 app.use(cors({
   origin: [
     "https://sunita.space",
@@ -34,13 +38,20 @@ app.use("/api/mpu-ai/data",
 
 app.use(morgan(":date[iso] :method :url :status :response-time ms"));
 
-
+const compression = require("compression");
+app.use(compression()); // ← add this line
 
 app.use(express.json({ limit: "10mb" }));
 
 
 
-app.use(express.static(path.join(__dirname, "HTML")));
+// app.use(express.static(path.join(__dirname, "HTML")));
+// Replace your existing express.static line with:
+app.use(express.static(path.join(__dirname, "HTML"), {
+  maxAge: "1h",        // browsers cache CSS/JS/images for 1 hour
+  etag: true,
+  lastModified: true,
+}));
 
 // ✅ Health check
 app.get("/health", async (req, res) => {
@@ -75,8 +86,9 @@ app.use("/api/phonev4", require("./routes/phonev4"));
 app.use("/api/user", require("./routes/user"));
 app.use("/api/laptop", require("./routes/laptop"));
 app.use("/api/extension", require("./routes/extension"));
-app.use("/api/thoughts",require("./routes/thoughts"));
 app.use("/api/fitband", require("./routes/fitband"));
+app.use("/api/admin", require("./routes/admin"));
+
 // data  getting routes
 app.use("/api/combined", require("./routes/combinedRoute"));
 app.use("/api/combinedfilter",require("./routes/combinedfillterRoute"));
