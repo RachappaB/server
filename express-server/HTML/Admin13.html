@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Notification Command Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b0d0f;--ink1:#111316;--ink2:#181a1d;--ink3:#1f2226;--ink4:#262a2f;
+  --wire:#22262c;--wire2:#2c3038;
+  --fog:#8c929c;--fog2:#5c6370;--fog3:#3a3e46;
+  --snow:#d8dce4;--snow2:#f0f2f6;
+  --gold:#e8973a;--gold2:#f5b05c;--gold-dim:#1a1000;--gold-line:#3a2200;
+  --jade:#2ecc7a;--jade-dim:#061510;--jade-line:#0e3020;
+  --ruby:#e84040;--ruby-dim:#150808;--ruby-line:#320f0f;
+  --sky:#3b90e8;--sky-dim:#081322;--sky-line:#0d2545;
+  --violet:#9b6ef5;--violet-dim:#100c1f;
+  --teal:#16c0b0;--teal-dim:#041413;
+  --mono:'Geist Mono',monospace;
+  --sans:'Geist',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--ink)}
+body{color:var(--snow);font-family:var(--mono);font-size:12px;display:flex;flex-direction:column}
+
+/* ─── HEADER ─────────────────────────────────── */
+header{height:46px;background:var(--ink1);border-bottom:1px solid var(--wire);display:flex;align-items:center;padding:0 18px;gap:16px;flex-shrink:0;z-index:100}
+.brand{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:-.4px;color:var(--snow2)}
+.brand em{color:var(--gold);font-style:normal}
+.hclock{font-size:11px;color:var(--fog2);background:var(--ink2);border:1px solid var(--wire);padding:3px 10px;border-radius:3px;letter-spacing:.5px;white-space:nowrap}
+.hfill{flex:1}
+.hkey{display:flex;align-items:center;gap:8px}
+.hkey label{font-size:10px;letter-spacing:1.5px;color:var(--fog3);text-transform:uppercase}
+.hkey input{background:var(--ink2);border:1px solid var(--wire2);color:var(--fog);font-family:var(--mono);font-size:11px;padding:4px 10px;width:210px;border-radius:3px;outline:none;transition:.15s}
+.hkey input:focus{border-color:var(--gold);color:var(--snow)}
+.hkey input::placeholder{color:var(--fog3)}
+.hbtn{background:var(--ink2);border:1px solid var(--wire2);color:var(--fog);font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:3px;cursor:pointer;transition:.12s;letter-spacing:.3px}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ─── SHELL ──────────────────────────────────── */
+.shell{display:grid;grid-template-columns:210px 1fr 290px;flex:1;min-height:0;overflow:hidden}
+
+/* ─── NAV ────────────────────────────────────── */
+nav{background:var(--ink1);border-right:1px solid var(--wire);overflow-y:auto;padding:10px 0}
+.ng{padding:4px 14px 4px;font-size:9px;letter-spacing:2.5px;color:var(--fog3);text-transform:uppercase;margin-top:12px;font-family:var(--sans)}
+.ng:first-child{margin-top:0}
+.nb{display:flex;align-items:center;gap:9px;padding:6px 14px;cursor:pointer;border:none;background:transparent;color:var(--fog2);font-family:var(--mono);font-size:11px;text-align:left;width:100%;border-left:2px solid transparent;transition:.1s;letter-spacing:.2px}
+.nb:hover{color:var(--snow);background:var(--ink2)}
+.nb.on{color:var(--gold);border-left-color:var(--gold);background:var(--ink2)}
+.nb .ic{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.nb .ct{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:2px;background:var(--ink3);color:var(--fog3)}
+.nb.on .ct{background:var(--gold-dim);color:var(--gold)}
+
+/* ─── MAIN AREA ──────────────────────────────── */
+.main{overflow-y:auto;overflow-x:hidden}
+.pane{display:none;flex-direction:column;gap:18px;padding:22px 24px}
+.pane.on{display:flex}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:2px}
+.pt{font-family:var(--sans);font-size:17px;font-weight:500;color:var(--snow2);letter-spacing:-.3px}
+.ps{font-size:11px;color:var(--fog3);margin-top:3px;line-height:1.6}
+.pa{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+/* ─── STAT GRID ──────────────────────────────── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sc{background:var(--ink2);border:1px solid var(--wire);border-radius:4px;padding:14px 16px}
+.sn{font-size:20px;font-weight:500;color:var(--snow2);margin-bottom:4px;font-family:var(--sans)}
+.sl{font-size:9px;letter-spacing:1.5px;color:var(--fog3);text-transform:uppercase}
+
+/* ─── CARD ───────────────────────────────────── */
+.card{background:var(--ink2);border:1px solid var(--wire);border-radius:4px;overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--wire);background:var(--ink1)}
+.card-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--fog3);font-family:var(--sans)}
+.card-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+
+/* ─── TABLE ──────────────────────────────────── */
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:7px 12px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fog3);border-bottom:1px solid var(--wire);font-weight:400;font-family:var(--sans);white-space:nowrap}
+td{padding:8px 12px;color:var(--fog);border-bottom:1px solid var(--wire);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--ink3)}
+.td-main{color:var(--snow);font-size:12px}
+.td-mono{font-family:var(--mono);font-size:10px;color:var(--fog3)}
+.td-act{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+
+/* ─── FIELDS ─────────────────────────────────── */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fog3);font-family:var(--sans)}
+.field input,.field textarea,.field select{background:var(--ink3);border:1px solid var(--wire2);color:var(--snow);font-family:var(--mono);font-size:11px;padding:7px 10px;border-radius:3px;outline:none;transition:.12s;width:100%;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);background:var(--ink2)}
+.field input::placeholder,.field textarea::placeholder{color:var(--fog3)}
+.field select option{background:var(--ink2)}
+.field .hint{font-size:9px;color:var(--fog3);line-height:1.6;margin-top:1px}
+.field .cc{font-size:9px;color:var(--fog3);text-align:right}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+
+/* ─── BUTTONS ────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 13px;border:none;border-radius:3px;font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer;transition:.12s;letter-spacing:.3px;white-space:nowrap}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:#000}
+.btn-gold:hover:not(:disabled){background:var(--gold2)}
+.btn-jade{background:var(--jade);color:#000}
+.btn-jade:hover:not(:disabled){background:#3de088}
+.btn-ruby{background:var(--ruby);color:#fff}
+.btn-ruby:hover:not(:disabled){background:#f05050}
+.btn-sky{background:var(--sky);color:#fff}
+.btn-sky:hover:not(:disabled){background:#55a8f5}
+.btn-ghost{background:transparent;border:1px solid var(--wire2);color:var(--fog2)}
+.btn-ghost:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.btn-dim{background:var(--ink3);border:1px solid var(--wire);color:var(--fog3)}
+.btn-dim:hover:not(:disabled){color:var(--fog);border-color:var(--wire2)}
+.btn-sm{padding:4px 9px;font-size:10px}
+.btn-xs{padding:2px 7px;font-size:9px}
+.spin{width:11px;height:11px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:spin .6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.loading .spin{display:inline-block}
+.btn.loading .lbl{display:none}
+
+/* ─── BADGES ─────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:2px;font-size:9px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.b-jade{background:var(--jade-dim);color:var(--jade);border:1px solid var(--jade-line)}
+.b-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-line)}
+.b-ruby{background:var(--ruby-dim);color:var(--ruby);border:1px solid var(--ruby-line)}
+.b-sky{background:var(--sky-dim);color:var(--sky);border:1px solid var(--sky-line)}
+.b-violet{background:var(--violet-dim);color:var(--violet);border:1px solid #1e1435}
+.b-teal{background:var(--teal-dim);color:var(--teal);border:1px solid #0a2422}
+.b-fog{background:var(--ink3);color:var(--fog3);border:1px solid var(--wire)}
+.tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:var(--ink3);color:var(--fog3);border:1px solid var(--wire);margin:1px}
+
+/* ─── MSG BUILDER ────────────────────────────── */
+.mb-list{display:flex;flex-direction:column;gap:8px}
+.mb-item{background:var(--ink1);border:1px solid var(--wire);border-radius:3px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:8px}
+.mb-body{display:flex;flex-direction:column;gap:6px}
+.mb-num{font-size:9px;letter-spacing:1px;color:var(--fog3);margin-bottom:2px}
+.mb-item input{background:var(--ink2);border:1px solid var(--wire);color:var(--snow);font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:2px;outline:none;transition:.12s;width:100%}
+.mb-item input:focus{border-color:var(--gold)}
+.mb-item input::placeholder{color:var(--fog3)}
+.mb-del{background:none;border:none;color:var(--fog3);cursor:pointer;padding:3px 5px;border-radius:2px;align-self:flex-start;transition:.1s;font-size:14px}
+.mb-del:hover{color:var(--ruby);background:var(--ruby-dim)}
+.mb-add{background:var(--ink1);border:1px dashed var(--wire2);color:var(--fog3);font-family:var(--mono);font-size:11px;padding:8px;border-radius:3px;cursor:pointer;transition:.12s;text-align:center;width:100%}
+.mb-add:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ─── PROGRESS / RATE ────────────────────────── */
+.rbar{height:3px;background:var(--ink3);border-radius:2px;overflow:hidden;margin-top:5px}
+.rfill{height:100%;background:var(--jade);border-radius:2px;transition:.4s}
+.rstats{display:flex;gap:10px}
+.rstat{background:var(--ink2);border:1px solid var(--wire);border-radius:3px;padding:10px 14px;text-align:center;min-width:90px}
+.rstat-n{font-size:18px;font-weight:500;font-family:var(--sans);color:var(--snow2)}
+.rstat-l{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--fog3);margin-top:2px}
+
+/* ─── LOG PANEL ──────────────────────────────── */
+.log-pane{background:var(--ink1);border-left:1px solid var(--wire);display:flex;flex-direction:column;overflow:hidden}
+.log-head{padding:9px 14px;border-bottom:1px solid var(--wire);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.log-head h3{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--fog3);font-family:var(--sans)}
+.log-clr{background:none;border:1px solid var(--wire);color:var(--fog3);font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:2px;cursor:pointer}
+.log-clr:hover{color:var(--fog2)}
+.log-body{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+.le{border-left:2px solid var(--wire2);padding:5px 8px;background:var(--ink2);border-radius:0 3px 3px 0;animation:fa .15s ease}
+@keyframes fa{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.le.ok{border-left-color:var(--jade)}
+.le.err{border-left-color:var(--ruby)}
+.le.info{border-left-color:var(--sky)}
+.le-t{font-size:9px;color:var(--fog3);margin-bottom:2px}
+.le-m{font-size:11px;color:var(--fog2);word-break:break-word}
+.le-m.ok{color:var(--jade)}
+.le-m.err{color:var(--ruby)}
+
+/* ─── TOAST ──────────────────────────────────── */
+#toast{position:fixed;bottom:18px;right:18px;padding:9px 15px;border-radius:3px;font-size:11px;font-family:var(--mono);opacity:0;transition:.2s;pointer-events:none;z-index:9999;max-width:300px}
+#toast.show{opacity:1}
+#toast.ok{background:#0c2016;color:var(--jade);border:1px solid var(--jade-line)}
+#toast.err{background:#1a0808;color:var(--ruby);border:1px solid var(--ruby-line)}
+
+/* ─── MISC ───────────────────────────────────── */
+.empty{padding:28px;text-align:center;color:var(--fog3);font-size:11px}
+.sep{border:none;border-top:1px solid var(--wire);margin:0}
+.ist-note{font-size:9px;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-line);padding:4px 10px;border-radius:3px;display:inline-block}
+.preview-box{background:var(--ink1);border:1px solid var(--wire);border-radius:3px;padding:10px 12px;font-size:11px;color:var(--fog2);line-height:1.6}
+.preview-item{padding:6px 0;border-bottom:1px solid var(--wire)}
+.preview-item:last-child{border-bottom:none}
+.pi-num{font-size:9px;color:var(--fog3);margin-bottom:3px}
+.pi-prompt{color:var(--snow)}
+.pi-hint{color:var(--fog3);font-size:10px;margin-top:2px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--wire2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><em>PA</em> Notification Control</div>
+  <div class="hclock" id="hclock">— IST</div>
+  <div class="hfill"></div>
+  <div class="hkey">
+    <label>API KEY</label>
+    <input type="password" id="apiKey" placeholder="x-api-key" autocomplete="off">
+    <button class="hbtn" onclick="syncAll()">⟳ Sync</button>
+  </div>
+</header>
+
+<div class="shell">
+<nav>
+  <div class="ng">Overview</div>
+  <button class="nb on" data-p="dashboard" onclick="sw(this)"><span class="ic">◈</span>Dashboard</button>
+
+  <div class="ng">Build</div>
+  <button class="nb" data-p="audiences"  onclick="sw(this)"><span class="ic">◎</span>Audiences<span class="ct" id="c-aud">0</span></button>
+  <button class="nb" data-p="templates"  onclick="sw(this)"><span class="ic">◻</span>Templates<span class="ct" id="c-tpl">0</span></button>
+
+  <div class="ng">Run</div>
+  <button class="nb" data-p="campaigns"  onclick="sw(this)"><span class="ic">▷</span>Campaigns<span class="ct" id="c-cmp">0</span></button>
+  <button class="nb" data-p="runs"       onclick="sw(this)"><span class="ic">◈</span>Run history</button>
+  <button class="nb" data-p="responses"  onclick="sw(this)"><span class="ic">◇</span>Responses</button>
+
+  <div class="ng">Devices</div>
+  <button class="nb" data-p="devices"    onclick="sw(this)"><span class="ic">□</span>All devices<span class="ct" id="c-dev">0</span></button>
+  <button class="nb" data-p="groups"     onclick="sw(this)"><span class="ic">◈</span>Groups<span class="ct" id="c-grp">0</span></button>
+
+  <div class="ng">Quick Send</div>
+  <button class="nb" data-p="s-bc"  onclick="sw(this)"><span class="ic">◎</span>Broadcast<span class="ct">T1</span></button>
+  <button class="nb" data-p="s-sm"  onclick="sw(this)"><span class="ic">◌</span>Simple<span class="ct">T2</span></button>
+  <button class="nb" data-p="s-qn"  onclick="sw(this)"><span class="ic">◉</span>YES/NO Alarm<span class="ct">T3</span></button>
+  <button class="nb" data-p="s-in"  onclick="sw(this)"><span class="ic">◈</span>Text Input<span class="ct">T4</span></button>
+</nav>
+
+<div class="main">
+
+<!-- ── DASHBOARD ── -->
+<div class="pane on" id="pane-dashboard">
+  <div class="ph"><div><div class="pt">Dashboard</div><div class="ps">Live system overview — all times IST</div></div>
+  <div class="pa"><button class="btn btn-ghost btn-sm" onclick="syncAll()">⟳ Refresh</button></div></div>
+  <div class="sg">
+    <div class="sc"><div class="sn" id="ds-active">—</div><div class="sl">Active campaigns</div></div>
+    <div class="sc"><div class="sn" id="ds-devices">—</div><div class="sl">Registered devices</div></div>
+    <div class="sc"><div class="sn" id="ds-resp24">—</div><div class="sl">Responses (24h)</div></div>
+    <div class="sc"><div class="sn" id="ds-runs">—</div><div class="sl">Runs today IST</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Active campaigns</span>
+    <button class="btn btn-ghost btn-xs" onclick="gotoPane('campaigns')">View all →</button></div>
+    <div id="db-cmp"><div class="empty">Loading…</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Recent responses (last 20)</span>
+    <button class="btn btn-ghost btn-xs" onclick="gotoPane('responses')">View all →</button></div>
+    <div id="db-resp"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── AUDIENCES ── -->
+<div class="pane" id="pane-audiences">
+  <div class="ph">
+    <div><div class="pt">Audiences</div><div class="ps">Define WHO to send to. Reusable across campaigns.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Create audience</span></div>
+    <div class="card-body">
+      <div class="g2">
+        <div class="field"><label>Name</label><input id="an" placeholder="e.g. Early cohort A"></div>
+        <div class="field"><label>Type</label>
+          <select id="at" onchange="audTypeChange()">
+            <option value="all">all — every registered device</option>
+            <option value="device">device — single specific device</option>
+            <option value="group">group — tagged device group</option>
+            <option value="segment">segment — smart data filter</option>
+          </select></div>
+      </div>
+      <div class="field"><label>Description (optional)</label><input id="adesc" placeholder="When and why is this audience used?"></div>
+      <div id="a-cfg"></div>
+      <div class="pa"><button class="btn btn-gold" id="a-save" onclick="createAudience()">
+        <div class="spin"></div><span class="lbl">Create audience</span></button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">All audiences</span>
+    <button class="btn btn-ghost btn-xs" onclick="loadAudiences()">⟳</button></div>
+    <div id="aud-tbl"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── TEMPLATES ── -->
+<div class="pane" id="pane-templates">
+  <div class="ph">
+    <div><div class="pt">Message templates</div><div class="ps">Define WHAT to send. One template — many strategies.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Create template</span></div>
+    <div class="card-body">
+      <div class="g3">
+        <div class="field"><label>Name</label><input id="tn" placeholder="Morning goal prompts"></div>
+        <div class="field"><label>Notification type</label>
+          <select id="tt">
+            <option value="input">input — ask for typed response</option>
+            <option value="question">question — YES / NO alarm</option>
+            <option value="broadcast">broadcast — inform all</option>
+            <option value="simple">simple — inform one</option>
+          </select></div>
+        <div class="field"><label>Message strategy</label>
+          <select id="ts">
+            <option value="static">static — same message every time</option>
+            <option value="rotating">rotating — cycle through list (repeats)</option>
+            <option value="sequential">sequential — drip once, then campaign ends</option>
+            <option value="random">random — pick one randomly each run</option>
+          </select></div>
+      </div>
+      <div class="field"><label>Description (optional)</label><input id="tdesc" placeholder="What does this template do?"></div>
+      <div class="field"><label>Messages</label>
+        <div class="mb-list" id="mb-list"></div>
+        <button class="mb-add" onclick="addMsg()">+ Add message</button>
+      </div>
+      <div class="pa"><button class="btn btn-gold" id="t-save" onclick="createTemplate()">
+        <div class="spin"></div><span class="lbl">Create template</span></button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">All templates</span>
+    <button class="btn btn-ghost btn-xs" onclick="loadTemplates()">⟳</button></div>
+    <div id="tpl-tbl"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── CAMPAIGNS ── -->
+<div class="pane" id="pane-campaigns">
+  <div class="ph">
+    <div><div class="pt">Campaigns</div><div class="ps">Compose audience + template + schedule. Cron expressions in IST.</div></div>
+  </div>
+  <div class="ist-note">⏰ All cron expressions use IST (Asia/Kolkata, UTC+5:30)</div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Create campaign</span></div>
+    <div class="card-body">
+      <div class="g2">
+        <div class="field"><label>Campaign name</label><input id="cn" placeholder="Daily morning goal"></div>
+        <div class="field"><label>Schedule type</label>
+          <select id="cst" onchange="sTypeChange()">
+            <option value="recurring">recurring — repeats on cron schedule</option>
+            <option value="one_shot">one_shot — fires once immediately</option>
+            <option value="drip">drip — advances messages, stops at end</option>
+          </select></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Audience</label>
+          <select id="ca"><option value="">— select audience —</option></select>
+          <div class="hint"><button class="btn btn-dim btn-xs" style="margin-top:4px" onclick="previewAudience()">Preview device count</button>
+          <span id="aud-preview" style="margin-left:8px;font-size:10px;color:var(--jade)"></span></div>
+        </div>
+        <div class="field"><label>Template</label>
+          <select id="ct"><option value="">— select template —</option></select>
+          <div class="hint"><button class="btn btn-dim btn-xs" style="margin-top:4px" onclick="previewTemplate()">Preview messages</button></div>
+        </div>
+      </div>
+      <div id="cron-wrap" class="field"><label>Cron expression (IST)</label>
+        <input id="cce" placeholder="30 7 * * *" oninput="parseCron()">
+        <div class="hint" id="cron-human" style="color:var(--gold);margin-top:3px"></div>
+        <div class="hint">Common: <code>30 7 * * *</code>=7:30 AM daily · <code>0 9 * * 1-5</code>=9 AM weekdays · <code>0 20 * * 5</code>=8 PM Fridays · <code>30 21 * * *</code>=9:30 PM daily</div>
+      </div>
+      <div class="g4">
+        <div class="field"><label>Offline timeout (s)</label><input id="cot" type="number" value="45" min="10" max="300">
+          <div class="hint">TYPE 3 only</div></div>
+        <div class="field"><label>Dedup window (h)</label><input id="cdd" type="number" value="0" min="0" max="168">
+          <div class="hint">0 = no dedup</div></div>
+        <div class="field"><label>Priority</label>
+          <select id="cpri"><option value="normal">normal</option><option value="high">high</option></select></div>
+        <div class="field"><label>Description</label><input id="cdesc" placeholder="Optional notes"></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Starts at (IST, optional)</label><input id="csa" type="datetime-local">
+          <div class="hint">Leave blank to start immediately</div></div>
+        <div class="field"><label>Ends at (IST, optional)</label><input id="cea" type="datetime-local">
+          <div class="hint">Leave blank for no end</div></div>
+      </div>
+      <div class="pa"><button class="btn btn-gold" id="c-save" onclick="createCampaign()">
+        <div class="spin"></div><span class="lbl">Create campaign</span></button></div>
+    </div>
+  </div>
+  <div id="tpl-preview-box" style="display:none" class="card">
+    <div class="card-head"><span class="card-title">Template preview</span>
+    <button class="btn btn-ghost btn-xs" onclick="document.getElementById('tpl-preview-box').style.display='none'">✕</button></div>
+    <div id="tpl-preview-content" class="card-body"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">All campaigns</span>
+    <div style="display:flex;gap:6px">
+      <select id="cmp-filter" onchange="loadCampaigns()" style="background:var(--ink3);border:1px solid var(--wire);color:var(--fog2);font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:2px;outline:none">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="paused">Paused</option>
+        <option value="done">Archived</option>
+      </select>
+      <button class="btn btn-ghost btn-xs" onclick="loadCampaigns()">⟳</button>
+    </div></div>
+    <div id="cmp-tbl"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── RUN HISTORY ── -->
+<div class="pane" id="pane-runs">
+  <div class="ph"><div><div class="pt">Run history</div><div class="ps">Every campaign execution — times in IST</div></div></div>
+  <div class="g2">
+    <div class="field"><label>Campaign</label>
+      <select id="rh-cmp" onchange="loadRunHistory()"><option value="">— select campaign —</option></select></div>
+    <div class="field"><label>Limit</label>
+      <select id="rh-limit" onchange="loadRunHistory()">
+        <option value="20">Last 20</option><option value="50">Last 50</option><option value="100">Last 100</option>
+      </select></div>
+  </div>
+  <div id="rh-body"><div class="empty">Select a campaign above</div></div>
+</div>
+
+<!-- ── RESPONSES ── -->
+<div class="pane" id="pane-responses">
+  <div class="ph"><div><div class="pt">Responses</div><div class="ps">All user answers — times in IST</div></div></div>
+  <div class="g3">
+    <div class="field"><label>Campaign</label>
+      <select id="rsp-cmp" onchange="loadResponses()"><option value="">— select —</option></select></div>
+    <div class="field"><label>Filter by device</label>
+      <input id="rsp-dev" placeholder="device_id" oninput="debounceResp()"></div>
+    <div class="field"><label>Run number</label>
+      <input id="rsp-run" type="number" placeholder="All runs" oninput="debounceResp()"></div>
+  </div>
+  <div id="rsp-body"><div class="empty">Select a campaign above</div></div>
+</div>
+
+<!-- ── DEVICES ── -->
+<div class="pane" id="pane-devices">
+  <div class="ph">
+    <div><div class="pt">Devices</div><div class="ps">All registered FCM tokens</div></div>
+    <div class="pa"><button class="btn btn-ghost btn-sm" onclick="loadDevices()">⟳ Refresh</button></div>
+  </div>
+  <div id="dev-search-wrap" class="field" style="max-width:340px">
+    <label>Search device</label>
+    <input id="dev-search" placeholder="Filter by device ID…" oninput="filterDevices()">
+  </div>
+  <div id="dev-tbl"><div class="empty">Loading…</div></div>
+</div>
+
+<!-- ── GROUPS ── -->
+<div class="pane" id="pane-groups">
+  <div class="ph"><div><div class="pt">Device groups</div><div class="ps">Tag devices — campaigns target group:&lt;name&gt;</div></div></div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Add device to group</span></div>
+    <div class="card-body">
+      <div class="g3">
+        <div class="field"><label>Device</label>
+          <select id="grp-dev"><option value="">— select device —</option></select></div>
+        <div class="field"><label>Group name</label>
+          <input id="grp-nm" placeholder="e.g. cohort-a" list="grp-existing">
+          <datalist id="grp-existing"></datalist></div>
+        <div class="field" style="justify-content:flex-end">
+          <button class="btn btn-gold" id="grp-add" onclick="addToGroup()">
+            <div class="spin"></div><span class="lbl">Add to group</span></button></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Groups</span>
+    <button class="btn btn-ghost btn-xs" onclick="loadGroups()">⟳</button></div>
+    <div id="grp-tbl"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── QUICK: BROADCAST ── -->
+<div class="pane" id="pane-s-bc">
+  <div class="ph"><div><div class="pt">Broadcast</div><div class="ps">TYPE 1 — plain notification to every subscribed device. No response collected.</div></div></div>
+  <div class="card"><div class="card-body">
+    <div class="field"><label>Title (optional)</label><input id="bc-ti" placeholder="ProductiveAgent"></div>
+    <div class="field"><label>Message *</label>
+      <textarea id="bc-bo" rows="4" maxlength="500" oninput="ccUp(this,'bc-cc')"></textarea>
+      <div class="cc" id="bc-cc">0 / 500</div></div>
+    <div class="pa"><button class="btn btn-gold" id="bc-btn" onclick="qSendBroadcast()">
+      <div class="spin"></div><span class="lbl">Send to all devices</span></button></div>
+  </div></div>
+</div>
+
+<!-- ── QUICK: SIMPLE ── -->
+<div class="pane" id="pane-s-sm">
+  <div class="ph"><div><div class="pt">Simple notification</div><div class="ps">TYPE 2 — plain notification to one specific device. User can swipe it away.</div></div></div>
+  <div class="card"><div class="card-body">
+    <div class="field"><label>Device</label><select id="sm-dev"><option value="">— select —</option></select></div>
+    <div class="field"><label>Title (optional)</label><input id="sm-ti" placeholder="ProductiveAgent"></div>
+    <div class="field"><label>Message *</label>
+      <textarea id="sm-bo" rows="4" maxlength="500" oninput="ccUp(this,'sm-cc')"></textarea>
+      <div class="cc" id="sm-cc">0 / 500</div></div>
+    <div class="pa"><button class="btn btn-gold" id="sm-btn" onclick="qSendSimple()">
+      <div class="spin"></div><span class="lbl">Send</span></button></div>
+  </div></div>
+</div>
+
+<!-- ── QUICK: YES/NO ── -->
+<div class="pane" id="pane-s-qn">
+  <div class="ph"><div><div class="pt">YES / NO Alarm</div><div class="ps">TYPE 3 — full-screen alarm, back button disabled. Screen OFF → auto-answers "offline".</div></div></div>
+  <div class="card"><div class="card-body">
+    <div class="field"><label>Device</label><select id="qn-dev"><option value="">— select —</option></select></div>
+    <div class="field"><label>Question *</label>
+      <textarea id="qn-qu" rows="4" maxlength="400" oninput="ccUp(this,'qn-cc')"></textarea>
+      <div class="cc" id="qn-cc">0 / 400</div></div>
+    <div class="field" style="max-width:200px"><label>Offline timeout (seconds)</label>
+      <input id="qn-to" type="number" value="45" min="10" max="300"></div>
+    <div class="pa"><button class="btn btn-ruby" id="qn-btn" onclick="qSendQuestion()">
+      <div class="spin"></div><span class="lbl">Send alarm</span></button></div>
+  </div></div>
+</div>
+
+<!-- ── QUICK: INPUT ── -->
+<div class="pane" id="pane-s-in">
+  <div class="ph"><div><div class="pt">Text input request</div><div class="ps">TYPE 4 — persistent full-screen input. Cannot be dismissed. Re-arms every 30 min on OEM devices.</div></div></div>
+  <div class="card"><div class="card-body">
+    <div class="field"><label>Device</label><select id="in-dev"><option value="">— select —</option></select></div>
+    <div class="field"><label>Prompt *</label>
+      <textarea id="in-qu" rows="4" maxlength="400" oninput="ccUp(this,'in-cc')"></textarea>
+      <div class="cc" id="in-cc">0 / 400</div></div>
+    <div class="field"><label>Input hint text</label>
+      <input id="in-hi" placeholder="Type your answer…" maxlength="100"></div>
+    <div class="pa"><button class="btn btn-sky" id="in-btn" onclick="qSendInput()">
+      <div class="spin"></div><span class="lbl">Send input request</span></button></div>
+  </div></div>
+</div>
+
+</div><!-- .main -->
+
+<!-- ── LOG PANEL ── -->
+<div class="log-pane">
+  <div class="log-head">
+    <h3>Activity log</h3>
+    <button class="log-clr" onclick="document.getElementById('log-body').innerHTML=''">clear</button>
+  </div>
+  <div class="log-body" id="log-body"></div>
+</div>
+
+</div><!-- .shell -->
+<div id="toast"></div>
+
+<script>
+const BASE = '';
+const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+
+// ── IST helpers ──────────────────────────────────────────────────────────────
+function toIST(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+}
+function toISTShort(d) {
+  if (!d) return '—';
+  const n = new Date(d);
+  const now = new Date();
+  const diff = now - n;
+  if (diff < 60000)   return `${Math.floor(diff/1000)}s ago`;
+  if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  return n.toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short'});
+}
+
+// Live IST clock
+setInterval(() => {
+  document.getElementById('hclock').textContent =
+    new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}) + ' IST';
+}, 1000);
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+function key() { return document.getElementById('apiKey').value.trim(); }
+
+function log(msg, type='info') {
+  const b = document.getElementById('log-body');
+  const d = document.createElement('div');
+  d.className = `le ${type}`;
+  d.innerHTML = `<div class="le-t">${new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}) + ' IST'}</div><div class="le-m ${type}">${esc(msg)}</div>`;
+  b.prepend(d);
+  if (b.children.length > 80) b.lastChild.remove();
+}
+
+let _toastT;
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  clearTimeout(_toastT); _toastT = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function load(id, on) {
+  const b = document.getElementById(id);
+  if (b) { b.classList.toggle('loading', on); b.disabled = on; }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function ccUp(el, id) {
+  const c = document.getElementById(id);
+  if (c) c.textContent = `${el.value.length} / ${el.maxLength}`;
+}
+
+async function api(path, method='GET', body=null) {
+  if (!key()) { toast('Enter API key first', 'err'); return null; }
+  try {
+    const r = await fetch(BASE + path, {
+      method,
+      headers: { 'Content-Type':'application/json', 'x-api-key': key() },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { status: r.status, json: await r.json() };
+  } catch(e) { return { status:0, json:{ ok:false, error:e.message } }; }
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function sw(btn) {
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.getElementById('pane-' + btn.dataset.p)?.classList.add('on');
+  const p = btn.dataset.p;
+  if (p === 'runs')      loadRunHistory();
+  if (p === 'responses') { /* user must select campaign */ }
+  if (p === 'groups')    loadGroups();
+  if (p === 'devices')   loadDevices();
+}
+
+function gotoPane(p) {
+  const btn = document.querySelector(`.nb[data-p="${p}"]`);
+  if (btn) sw(btn);
+}
+
+// ── Sync all ─────────────────────────────────────────────────────────────────
+const TYPE_B = { input:'<span class="badge b-sky">input</span>', question:'<span class="badge b-gold">question</span>', broadcast:'<span class="badge b-violet">broadcast</span>', simple:'<span class="badge b-fog">simple</span>' };
+const STAT_B = { active:'<span class="badge b-jade">active</span>', paused:'<span class="badge b-gold">paused</span>', done:'<span class="badge b-fog">done</span>' };
+const STRAT_B = { static:'<span class="badge b-fog">static</span>', rotating:'<span class="badge b-teal">rotating</span>', sequential:'<span class="badge b-sky">drip</span>', random:'<span class="badge b-violet">random</span>' };
+const AUD_B  = { all:'<span class="badge b-jade">all</span>', device:'<span class="badge b-fog">device</span>', group:'<span class="badge b-teal">group</span>', segment:'<span class="badge b-violet">segment</span>' };
+
+let audiences=[], templates=[], campaigns=[], devices=[];
+
+async function syncAll() {
+  await Promise.all([loadDashStats(), loadAudiences(), loadTemplates(), loadCampaigns(), loadDevices()]);
+  renderDashboard();
+  log('Synced all data', 'ok');
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+async function loadDashStats() {
+  const r = await api('/api/admin/stats');
+  if (!r?.json?.ok) return;
+  const d = r.json;
+  document.getElementById('ds-active').textContent = d.campaigns.active;
+  document.getElementById('ds-devices').textContent = d.devices;
+  document.getElementById('ds-resp24').textContent = d.responses_24h;
+  document.getElementById('ds-runs').textContent = d.runs_today;
+}
+
+function renderDashboard() {
+  const active = campaigns.filter(c => c.status === 'active');
+  const el = document.getElementById('db-cmp');
+  if (!active.length) { el.innerHTML = '<div class="empty">No active campaigns</div>'; }
+  else el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Name</th><th>Type</th><th>Audience</th><th>Schedule (IST)</th><th>Sent</th><th>Rate</th><th>Last run</th><th></th>
+  </tr></thead><tbody>` + active.map(c => {
+    const rate = +c.total_sent > 0 ? Math.round(+c.total_responded / +c.total_sent * 100) : 0;
+    return `<tr><td class="td-main">${esc(c.name)}</td><td>${TYPE_B[c.notification_type]||''}</td>
+    <td><span class="tag">${esc(c.aud_name)}</span></td>
+    <td class="td-mono">${esc(c.cron_expr||'one-shot')}</td>
+    <td class="td-mono">${c.total_sent||0}</td>
+    <td class="td-mono">${rate}%</td>
+    <td class="td-mono">${toISTShort(c.last_run_at)}</td>
+    <td><button class="btn btn-jade btn-xs" onclick="runNow(${c.id},'${esc(c.name)}')">▷ run</button></td>
+    </tr>`;
+  }).join('') + '</tbody></table></div>';
+  loadRecentResponses();
+}
+
+async function loadRecentResponses() {
+  // No global responses endpoint — skip for now, show placeholder
+  const el = document.getElementById('db-resp');
+  if (!campaigns.length) { el.innerHTML = '<div class="empty">No campaigns yet</div>'; return; }
+  const first = campaigns.find(c => +c.total_responded > 0);
+  if (!first) { el.innerHTML = '<div class="empty">No responses yet</div>'; return; }
+  const r = await api(`/api/admin/campaigns/${first.id}/responses?limit=20`);
+  if (!r?.json?.ok) return;
+  const rows = r.json.data || [];
+  if (!rows.length) { el.innerHTML = '<div class="empty">No responses yet</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Campaign</th><th>Device</th><th>Response</th><th>Received (IST)</th>
+  </tr></thead><tbody>` + rows.map(row => {
+    const isYes=row.response==='yes', isNo=row.response==='no', isOff=row.response==='offline';
+    const cl = isYes ? 'color:var(--jade)' : isNo ? 'color:var(--ruby)' : isOff ? 'color:var(--fog3)' : 'color:var(--teal)';
+    return `<tr><td><span class="tag">${esc(first.name)}</span></td>
+    <td class="td-mono">${esc(row.device_id?.slice(0,14))}…</td>
+    <td style="${cl};font-size:11px;font-weight:500">${esc(row.response?.slice(0,60)||'—')}</td>
+    <td class="td-mono">${toISTShort(row.received_at)}</td></tr>`;
+  }).join('') + '</tbody></table></div>';
+}
+
+// ── Audiences ────────────────────────────────────────────────────────────────
+function audTypeChange() {
+  const t = document.getElementById('at').value, w = document.getElementById('a-cfg');
+  if (t==='device') w.innerHTML = `<div class="field"><label>Device ID</label><input id="ac-d" placeholder="Android ANDROID_ID string"></div>`;
+  else if (t==='group') w.innerHTML = `<div class="field"><label>Group name</label>
+    <input id="ac-g" placeholder="cohort-a" list="grp-existing"></div>`;
+  else if (t==='segment') w.innerHTML = `<div class="g2">
+    <div class="field"><label>Segment filter</label>
+    <select id="ac-s">
+      <option value="active_7d">active_7d — any usage in last 7 days</option>
+      <option value="active_14d">active_14d — any usage in last 14 days</option>
+      <option value="inactive_14d">inactive_14d — no usage for 14 days</option>
+      <option value="inactive_30d">inactive_30d — no usage for 30 days</option>
+      <option value="never_responded">never_responded — never answered a campaign</option>
+      <option value="responded_today">responded_today — already answered today (IST)</option>
+      <option value="no_response_7d">no_response_7d — no campaign response in 7 days</option>
+    </select></div>
+    <div class="field"><label>Custom tag (optional override)</label>
+    <input id="ac-ct" placeholder="custom_tag:cohort:A"></div>
+  </div>`;
+  else w.innerHTML = '';
+}
+
+async function loadAudiences() {
+  const r = await api('/api/admin/audiences');
+  if (!r?.json?.ok) { log('Failed to load audiences', 'err'); return; }
+  audiences = r.json.data || [];
+  document.getElementById('c-aud').textContent = audiences.length;
+  refreshAudienceSelects();
+  const el = document.getElementById('aud-tbl');
+  if (!audiences.length) { el.innerHTML = '<div class="empty">No audiences yet</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Name</th><th>Type</th><th>Config</th><th>Description</th><th>Created (IST)</th><th></th>
+  </tr></thead><tbody>` + audiences.map(a => `<tr>
+    <td class="td-main">${esc(a.name)}</td>
+    <td>${AUD_B[a.type]||a.type}</td>
+    <td class="td-mono">${esc(JSON.stringify(a.config))}</td>
+    <td style="font-size:11px;color:var(--fog3)">${esc(a.description||'')}</td>
+    <td class="td-mono">${toISTShort(a.created_at)}</td>
+    <td><div class="td-act">
+      <button class="btn btn-ghost btn-xs" onclick="audiencePreviewById(${a.id})">preview</button>
+      <button class="btn btn-ghost btn-xs" style="color:var(--ruby)" onclick="deleteAudience(${a.id},'${esc(a.name)}')">delete</button>
+    </div></td></tr>`).join('') + '</tbody></table></div>';
+}
+
+function refreshAudienceSelects() {
+  ['ca'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">— select audience —</option>' +
+      audiences.map(a => `<option value="${a.id}">${esc(a.name)} (${a.type})</option>`).join('');
+    if (cur) el.value = cur;
+  });
+}
+
+async function createAudience() {
+  const name = document.getElementById('an').value.trim();
+  const type = document.getElementById('at').value;
+  const desc = document.getElementById('adesc').value.trim();
+  if (!name) { toast('Name required', 'err'); return; }
+  let config = {};
+  if (type==='device')  { const v=document.getElementById('ac-d')?.value.trim(); if(!v){toast('Device ID required','err');return;} config={device_id:v}; }
+  else if (type==='group') { const v=document.getElementById('ac-g')?.value.trim(); if(!v){toast('Group name required','err');return;} config={group_name:v}; }
+  else if (type==='segment') {
+    const f = document.getElementById('ac-ct')?.value.trim() || document.getElementById('ac-s')?.value;
+    config = { filter: f };
+  }
+  load('a-save', true);
+  const r = await api('/api/admin/audiences','POST',{ name, description:desc||undefined, type, config });
+  load('a-save', false);
+  if (r?.json?.ok) { toast('Audience created','ok'); log(`Audience: ${name} (${type})`,'ok'); document.getElementById('an').value=''; loadAudiences(); }
+  else { toast('Error: '+(r?.json?.error||'failed'),'err'); log('Audience error: '+(r?.json?.error||''),'err'); }
+}
+
+async function audiencePreviewById(id) {
+  const r = await api(`/api/admin/audiences/${id}/preview`);
+  if (r?.json?.ok) {
+    toast(`${r.json.device_count} device(s) match`,'ok');
+    log(`Audience preview: ${r.json.device_count} devices`,'info');
+  }
+}
+
+async function previewAudience() {
+  const id = document.getElementById('ca').value;
+  if (!id) { toast('Select an audience first','err'); return; }
+  const r = await api(`/api/admin/audiences/${id}/preview`);
+  if (r?.json?.ok) {
+    document.getElementById('aud-preview').textContent = `${r.json.device_count} device(s)`;
+    log(`Audience preview: ${r.json.device_count} devices`,'info');
+  }
+}
+
+async function deleteAudience(id, name) {
+  if (!confirm(`Delete audience "${name}"?`)) return;
+  const r = await api(`/api/admin/audiences/${id}`,'DELETE');
+  if (r?.json?.ok) { toast('Deleted','ok'); loadAudiences(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+// ── Templates ────────────────────────────────────────────────────────────────
+let _mc = 0;
+function addMsg() {
+  _mc++;
+  const n = _mc, list = document.getElementById('mb-list');
+  const d = document.createElement('div');
+  d.className='mb-item'; d.id=`mi-${n}`;
+  d.innerHTML = `<div class="mb-body">
+    <div class="mb-num">MESSAGE ${list.children.length+1}</div>
+    <input id="mp-${n}" placeholder="Prompt text / question" maxlength="400">
+    <input id="mh-${n}" placeholder="Hint (for input type — shown as placeholder)" maxlength="100">
+    <input id="mtit-${n}" placeholder="Title (for broadcast/simple — notification title)" maxlength="80">
+  </div>
+  <button class="mb-del" onclick="this.closest('.mb-item').remove();renum()" title="Remove">✕</button>`;
+  list.appendChild(d);
+}
+
+function renum() {
+  document.querySelectorAll('#mb-list .mb-num').forEach((el,i) => el.textContent = `MESSAGE ${i+1}`);
+}
+
+async function loadTemplates() {
+  const r = await api('/api/admin/templates');
+  if (!r?.json?.ok) return;
+  templates = r.json.data || [];
+  document.getElementById('c-tpl').textContent = templates.length;
+  refreshTemplateSelects();
+  const el = document.getElementById('tpl-tbl');
+  if (!templates.length) { el.innerHTML = '<div class="empty">No templates yet</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Name</th><th>Type</th><th>Strategy</th><th>Messages</th><th>Description</th><th>Created (IST)</th><th></th>
+  </tr></thead><tbody>` + templates.map(t => `<tr>
+    <td class="td-main">${esc(t.name)}</td>
+    <td>${TYPE_B[t.notification_type]||''}</td>
+    <td>${STRAT_B[t.strategy]||''}</td>
+    <td><span class="tag">${Array.isArray(t.messages)?t.messages.length:0} msgs</span></td>
+    <td style="font-size:11px;color:var(--fog3);max-width:160px">${esc(t.description||'')}</td>
+    <td class="td-mono">${toISTShort(t.created_at)}</td>
+    <td><div class="td-act">
+      <button class="btn btn-ghost btn-xs" onclick="showTplPreview(${t.id})">preview</button>
+      <button class="btn btn-ghost btn-xs" style="color:var(--ruby)" onclick="deleteTemplate(${t.id},'${esc(t.name)}')">delete</button>
+    </div></td></tr>`).join('') + '</tbody></table></div>';
+}
+
+function refreshTemplateSelects() {
+  const el = document.getElementById('ct'); if (!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">— select template —</option>' +
+    templates.map(t => `<option value="${t.id}">${esc(t.name)} (${t.notification_type}/${t.strategy})</option>`).join('');
+  if (cur) el.value = cur;
+}
+
+async function createTemplate() {
+  const name = document.getElementById('tn').value.trim();
+  const nt   = document.getElementById('tt').value;
+  const st   = document.getElementById('ts').value;
+  const desc = document.getElementById('tdesc').value.trim();
+  if (!name) { toast('Name required','err'); return; }
+  const items = document.querySelectorAll('#mb-list .mb-item');
+  const messages = [];
+  items.forEach(item => {
+    const id = item.id.replace('mi-','');
+    const p  = document.getElementById(`mp-${id}`)?.value.trim();
+    const h  = document.getElementById(`mh-${id}`)?.value.trim();
+    const ti = document.getElementById(`mtit-${id}`)?.value.trim();
+    if (p) messages.push({ prompt:p, hint:h||'', title:ti||'' });
+  });
+  if (!messages.length) { toast('Add at least one message','err'); return; }
+  load('t-save', true);
+  const r = await api('/api/admin/templates','POST',{ name, description:desc||undefined, notification_type:nt, strategy:st, messages });
+  load('t-save', false);
+  if (r?.json?.ok) {
+    toast('Template created','ok'); log(`Template: "${name}" (${nt}/${st}, ${messages.length} msgs)`,'ok');
+    document.getElementById('tn').value='';
+    document.getElementById('mb-list').innerHTML=''; _mc=0; addMsg();
+    loadTemplates();
+  } else { toast('Error: '+(r?.json?.error||''),'err'); }
+}
+
+function showTplPreview(id) {
+  const t = templates.find(x => x.id===id); if (!t) return;
+  const msgs = Array.isArray(t.messages) ? t.messages : [];
+  const box = document.getElementById('tpl-preview-box');
+  const content = document.getElementById('tpl-preview-content');
+  content.innerHTML = `<div style="font-size:10px;color:var(--fog3);margin-bottom:8px">
+    Type: ${t.notification_type} · Strategy: ${t.strategy} · ${msgs.length} message(s)</div>` +
+    msgs.map((m,i) => `<div class="preview-item">
+      <div class="pi-num">MESSAGE ${i+1}</div>
+      <div class="pi-prompt">${esc(m.prompt||'')}</div>
+      ${m.hint ? `<div class="pi-hint">Hint: ${esc(m.hint)}</div>` : ''}
+      ${m.title ? `<div class="pi-hint">Title: ${esc(m.title)}</div>` : ''}
+    </div>`).join('');
+  box.style.display = 'block';
+}
+
+function previewTemplate() {
+  const id = document.getElementById('ct').value;
+  if (!id) { toast('Select a template first','err'); return; }
+  showTplPreview(parseInt(id));
+}
+
+async function deleteTemplate(id, name) {
+  if (!confirm(`Delete template "${name}"?`)) return;
+  const r = await api(`/api/admin/templates/${id}`,'DELETE');
+  if (r?.json?.ok) { toast('Deleted','ok'); loadTemplates(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+// ── Campaigns ────────────────────────────────────────────────────────────────
+function sTypeChange() {
+  const t = document.getElementById('cst').value;
+  document.getElementById('cron-wrap').style.display = t==='one_shot' ? 'none' : 'flex';
+}
+
+function parseCron() {
+  const v = document.getElementById('cce').value.trim();
+  const el = document.getElementById('cron-human');
+  if (!v) { el.textContent=''; return; }
+  const parts = v.split(/\s+/);
+  if (parts.length !== 5) { el.textContent='Expected 5 parts: min hour dom mon dow'; return; }
+  const [min, hr, dom, mon, dow] = parts;
+  const days = {'0':'Sun','1':'Mon','2':'Tue','3':'Wed','4':'Thu','5':'Fri','6':'Sat','*':'every day'};
+  let desc = '';
+  if (hr==='*') desc += 'every hour';
+  else desc += `${hr.padStart(2,'0')}:${min.padStart(2,'0')} IST`;
+  if (dom!=='*') desc += `, day ${dom}`;
+  if (mon!=='*') desc += `, month ${mon}`;
+  if (dow==='1-5') desc += ', weekdays';
+  else if (dow==='6,0'||dow==='0,6') desc += ', weekends';
+  else if (dow!=='*') desc += `, ${dow.split(',').map(d=>days[d]||d).join('/')}`;
+  el.textContent = '→ ' + desc;
+}
+
+async function loadCampaigns() {
+  const filter = document.getElementById('cmp-filter')?.value || '';
+  const r = await api('/api/admin/campaigns' + (filter ? `?status=${filter}` : ''));
+  if (!r?.json?.ok) return;
+  campaigns = r.json.data || [];
+  document.getElementById('c-cmp').textContent = campaigns.filter(c=>c.status==='active').length;
+  refreshCampaignSelects();
+  const el = document.getElementById('cmp-tbl');
+  if (!campaigns.length) { el.innerHTML = '<div class="empty">No campaigns yet</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Name</th><th>Type</th><th>Audience</th><th>Schedule (IST)</th><th>Runs</th><th>Sent</th><th>Responded</th><th>Status</th><th>Last run (IST)</th><th></th>
+  </tr></thead><tbody>` + campaigns.map(c => {
+    const rate = +c.total_sent>0 ? Math.round(+c.total_responded/+c.total_sent*100) : 0;
+    return `<tr>
+    <td><div class="td-main">${esc(c.name)}</div>${c.description?`<div style="font-size:10px;color:var(--fog3)">${esc(c.description)}</div>`:''}</td>
+    <td>${TYPE_B[c.notification_type]||''}</td>
+    <td><span class="tag">${esc(c.aud_name)}</span></td>
+    <td class="td-mono">${esc(c.cron_expr||'one-shot')}</td>
+    <td class="td-mono">${c.run_count||0}</td>
+    <td class="td-mono">${c.total_sent||0}</td>
+    <td class="td-mono">${c.total_responded||0} <span style="color:var(--fog3)">${rate}%</span></td>
+    <td>${STAT_B[c.status]||c.status}</td>
+    <td class="td-mono">${toISTShort(c.last_run_at)}</td>
+    <td><div class="td-act">
+      <button class="btn btn-jade btn-xs" onclick="runNow(${c.id},'${esc(c.name)}')">▷</button>
+      ${c.status==='active' ? `<button class="btn btn-ghost btn-xs" onclick="setStatus(${c.id},'paused')">pause</button>` : ''}
+      ${c.status==='paused' ? `<button class="btn btn-ghost btn-xs" onclick="setStatus(${c.id},'active')">resume</button>` : ''}
+      <button class="btn btn-ghost btn-xs" onclick="viewResponses(${c.id})">resp</button>
+      <button class="btn btn-ghost btn-xs" onclick="cloneCamp(${c.id})">clone</button>
+      ${c.status!=='done'?`<button class="btn btn-ghost btn-xs" style="color:var(--fog3)" onclick="archiveCamp(${c.id})">arch</button>`:''}
+    </div></td></tr>`;
+  }).join('') + '</tbody></table></div>';
+}
+
+function refreshCampaignSelects() {
+  ['rh-cmp','rsp-cmp'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">— select campaign —</option>' +
+      campaigns.map(c => `<option value="${c.id}">${esc(c.name)} (${c.status})</option>`).join('');
+    if (cur) el.value = cur;
+  });
+}
+
+async function createCampaign() {
+  const name  = document.getElementById('cn').value.trim();
+  const aud   = document.getElementById('ca').value;
+  const tpl   = document.getElementById('ct').value;
+  const stype = document.getElementById('cst').value;
+  const cron  = document.getElementById('cce')?.value.trim();
+  const ot    = parseInt(document.getElementById('cot').value) * 1000;
+  const dd    = parseInt(document.getElementById('cdd').value) || 0;
+  const pri   = document.getElementById('cpri').value;
+  const desc  = document.getElementById('cdesc').value.trim();
+  const sa    = document.getElementById('csa').value;
+  const ea    = document.getElementById('cea').value;
+
+  if (!name||!aud||!tpl) { toast('Name, audience, and template required','err'); return; }
+  if (stype!=='one_shot' && !cron) { toast('Cron expression required for recurring/drip','err'); return; }
+
+  const body = { name, audience_id:+aud, template_id:+tpl, schedule_type:stype,
+    offline_timeout_ms:ot, send_dedup_hours:dd, priority:pri,
+    description:desc||undefined };
+  if (cron) body.cron_expr = cron;
+  // Convert local datetime-local (treated as IST) to ISO UTC for the server
+  if (sa) body.starts_at = new Date(sa + ':00+05:30').toISOString();
+  if (ea) body.ends_at   = new Date(ea + ':00+05:30').toISOString();
+
+  load('c-save', true);
+  const r = await api('/api/admin/campaigns','POST', body);
+  load('c-save', false);
+  if (r?.json?.ok) {
+    toast('Campaign created','ok'); log(`Campaign: "${name}" (${stype})`,'ok');
+    document.getElementById('cn').value = '';
+    loadCampaigns();
+  } else { toast('Error: '+(r?.json?.error||''),'err'); log('Campaign error: '+(r?.json?.error||''),'err'); }
+}
+
+async function runNow(id, name) {
+  const r = await api(`/api/admin/campaigns/${id}/run`,'POST');
+  if (r?.json?.ok) { toast(`"${name}" dispatching…`,'ok'); log(`Run now: ${name}`,'ok'); setTimeout(loadCampaigns, 2000); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+async function setStatus(id, status) {
+  const r = await api(`/api/admin/campaigns/${id}`,'PATCH',{ status });
+  if (r?.json?.ok) { toast(`Campaign ${status}`,'ok'); loadCampaigns(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+async function archiveCamp(id) {
+  if (!confirm('Archive this campaign? It will stop firing.')) return;
+  const r = await api(`/api/admin/campaigns/${id}`,'DELETE');
+  if (r?.json?.ok) { toast('Archived','ok'); loadCampaigns(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+async function cloneCamp(id) {
+  const r = await api(`/api/admin/campaigns/${id}/clone`,'POST');
+  if (r?.json?.ok) { toast('Cloned as paused','ok'); log(`Cloned campaign ${id}`,'ok'); loadCampaigns(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+function viewResponses(id) {
+  document.getElementById('rsp-cmp').value = id;
+  gotoPane('responses');
+  loadResponses();
+}
+
+// ── Run History ───────────────────────────────────────────────────────────────
+async function loadRunHistory() {
+  const id    = document.getElementById('rh-cmp').value;
+  const limit = document.getElementById('rh-limit').value;
+  const el    = document.getElementById('rh-body');
+  if (!id) { el.innerHTML = '<div class="empty">Select a campaign above</div>'; return; }
+  el.innerHTML = '<div class="empty">Loading…</div>';
+  const r = await api(`/api/admin/campaigns/${id}/runs?limit=${limit}`);
+  if (!r?.json?.ok) { el.innerHTML = `<div class="empty" style="color:var(--ruby)">${r?.json?.error||'Failed'}</div>`; return; }
+  const rows = r.json.data || [];
+  if (!rows.length) { el.innerHTML = '<div class="empty">No runs yet</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Run #</th><th>Started (IST)</th><th>Finished (IST)</th><th>Triggered by</th>
+    <th>Audience</th><th>Sent</th><th>Failed</th><th>Skipped</th><th>Status</th><th>Message used</th>
+  </tr></thead><tbody>` + rows.map(row => `<tr>
+    <td class="td-mono">#${row.run_number}</td>
+    <td class="td-mono">${toIST(row.started_at)}</td>
+    <td class="td-mono">${toIST(row.finished_at)}</td>
+    <td><span class="badge ${row.triggered_by==='admin'?'b-gold':'b-fog'}">${row.triggered_by}</span></td>
+    <td class="td-mono">${row.audience_size}</td>
+    <td class="td-mono" style="color:var(--jade)">${row.sent_count}</td>
+    <td class="td-mono" style="color:${row.failed_count>0?'var(--ruby)':'var(--fog3)'}">${row.failed_count}</td>
+    <td class="td-mono" style="color:var(--fog3)">${row.skipped_count}</td>
+    <td><span class="badge ${row.status==='completed'?'b-jade':row.status==='failed'?'b-ruby':'b-gold'}">${row.status}</span></td>
+    <td style="font-size:10px;max-width:180px;color:var(--fog2)">${esc((row.prompt_snapshot||'').slice(0,60))}</td>
+  </tr>`).join('') + '</tbody></table></div>';
+}
+
+// ── Responses ─────────────────────────────────────────────────────────────────
+let _respDebounce;
+function debounceResp() { clearTimeout(_respDebounce); _respDebounce = setTimeout(loadResponses, 400); }
+
+async function loadResponses() {
+  const id  = document.getElementById('rsp-cmp').value;
+  const dev = document.getElementById('rsp-dev').value.trim();
+  const run = document.getElementById('rsp-run').value.trim();
+  const el  = document.getElementById('rsp-body');
+  if (!id) { el.innerHTML = '<div class="empty">Select a campaign above</div>'; return; }
+  el.innerHTML = '<div class="empty">Loading…</div>';
+  let qs = '?limit=200';
+  if (dev) qs += `&device_id=${encodeURIComponent(dev)}`;
+  if (run) qs += `&run_number=${run}`;
+  const r = await api(`/api/admin/campaigns/${id}/responses${qs}`);
+  if (!r?.json?.ok) { el.innerHTML = `<div class="empty" style="color:var(--ruby)">${r?.json?.error||'Failed'}</div>`; return; }
+  const d   = r.json;
+  const rows = d.data || [];
+  const rate = d.stats?.response_rate || 0;
+  el.innerHTML = `<div class="rstats">
+    <div class="rstat"><div class="rstat-n">${d.stats?.total_sent||0}</div><div class="rstat-l">Sent</div></div>
+    <div class="rstat"><div class="rstat-n">${d.stats?.total_answered||0}</div><div class="rstat-l">Answered</div></div>
+    <div class="rstat" style="flex:1"><div class="rstat-n">${rate}%</div><div class="rstat-l">Response rate</div>
+      <div class="rbar"><div class="rfill" style="width:${rate}%"></div></div></div>
+  </div>` + (rows.length ? `<div class="tbl-scroll" style="margin-top:14px"><table><thead><tr>
+    <th>Run #</th><th>Device</th><th>Prompt</th><th>Response</th><th>Answered (IST)</th><th>Sent (IST)</th><th>Status</th>
+  </tr></thead><tbody>` + rows.map(row => {
+    const y=row.response==='yes', n=row.response==='no', o=row.response==='offline';
+    const cl = y?'color:var(--jade)':n?'color:var(--ruby)':o?'color:var(--fog3)':'color:var(--teal)';
+    return `<tr>
+      <td class="td-mono">#${row.run_number||'?'}</td>
+      <td class="td-mono">${esc(row.device_id?.slice(0,14))}…</td>
+      <td style="max-width:180px;font-size:11px;color:var(--fog2)">${esc((row.prompt_snapshot||'').slice(0,60))}</td>
+      <td style="${cl};font-size:11px;font-weight:500;max-width:160px;word-break:break-word">${row.response?esc(row.response.slice(0,80)):'<span style="color:var(--fog3)">—</span>'}</td>
+      <td class="td-mono">${row.answered_at?toIST(row.answered_at):'<span style="color:var(--fog3)">—</span>'}</td>
+      <td class="td-mono">${toIST(row.sent_at)}</td>
+      <td><span class="badge ${row.status==='answered'?'b-jade':'b-gold'}">${row.status}</span></td>
+    </tr>`;
+  }).join('') + '</tbody></table></div>' : '<div class="empty" style="margin-top:14px">No sends yet</div>');
+}
+
+// ── Devices ───────────────────────────────────────────────────────────────────
+let _allDevices = [];
+async function loadDevices() {
+  const r = await api('/api/admin/devices');
+  if (!r?.json?.ok) return;
+  _allDevices = r.json.devices || [];
+  document.getElementById('c-dev').textContent = _allDevices.length;
+  refreshDeviceSelects();
+  filterDevices();
+}
+
+function filterDevices() {
+  const q = (document.getElementById('dev-search')?.value||'').toLowerCase();
+  const filtered = q ? _allDevices.filter(d => d.device_id.toLowerCase().includes(q) || (d.display_name||'').toLowerCase().includes(q)) : _allDevices;
+  const el = document.getElementById('dev-tbl');
+  if (!filtered.length) { el.innerHTML = '<div class="empty">No devices found</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Device ID</th><th>Label</th><th>Groups</th><th>Platform</th><th>Registered (IST)</th><th>Last active (IST)</th><th></th>
+  </tr></thead><tbody>` + filtered.map(d => `<tr>
+    <td class="td-mono" style="font-size:10px;max-width:180px">${esc(d.device_id)}</td>
+    <td style="color:var(--snow);font-size:11px">${esc(d.display_name||'')}</td>
+    <td>${(d.groups||[]).filter(Boolean).map(g=>`<span class="tag">${esc(g)}</span>`).join('')}</td>
+    <td class="td-mono">${d.platform||'android'}</td>
+    <td class="td-mono">${toISTShort(d.registered_at||d.updated_at)}</td>
+    <td class="td-mono">${d.last_active?toISTShort(d.last_active):'—'}</td>
+    <td><button class="btn btn-ghost btn-xs" onclick="editDeviceMeta('${esc(d.device_id)}','${esc(d.display_name||'')}')">label</button></td>
+  </tr>`).join('') + '</tbody></table></div>';
+}
+
+function refreshDeviceSelects() {
+  ['sm-dev','qn-dev','in-dev','grp-dev'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">— select device —</option>' +
+      _allDevices.map(d => `<option value="${d.device_id}">${d.display_name ? esc(d.display_name)+' — ' : ''}${esc(d.device_id.slice(0,30))}</option>`).join('');
+    if (cur) el.value = cur;
+  });
+  // groups device select
+  const gd = document.getElementById('grp-dev'); if (!gd) return;
+  const gc = gd.value;
+  gd.innerHTML = '<option value="">— select device —</option>' +
+    _allDevices.map(d => `<option value="${d.device_id}">${d.display_name?esc(d.display_name)+' — ':''}${esc(d.device_id.slice(0,30))}</option>`).join('');
+  if (gc) gd.value = gc;
+}
+
+async function editDeviceMeta(deviceId, currentName) {
+  const newName = prompt(`Set label for device ${deviceId.slice(0,20)}…:`, currentName);
+  if (newName === null) return;
+  const r = await api(`/api/admin/devices/${encodeURIComponent(deviceId)}/metadata`,'PATCH',{ display_name: newName });
+  if (r?.json?.ok) { toast('Label saved','ok'); loadDevices(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+// ── Groups ────────────────────────────────────────────────────────────────────
+async function loadGroups() {
+  const r = await api('/api/admin/groups');
+  if (!r?.json?.ok) return;
+  const groups = r.json.data || [];
+  document.getElementById('c-grp').textContent = groups.length;
+  // Populate datalist for group name suggestions
+  const dl = document.getElementById('grp-existing');
+  dl.innerHTML = groups.map(g => `<option value="${esc(g.group_name)}">`).join('');
+  const el = document.getElementById('grp-tbl');
+  if (!groups.length) { el.innerHTML = '<div class="empty">No groups yet</div>'; return; }
+  el.innerHTML = `<div class="tbl-scroll"><table><thead><tr>
+    <th>Group name</th><th>Devices</th><th>Created (IST)</th><th>Use in audience</th><th></th>
+  </tr></thead><tbody>` + groups.map(g => `<tr>
+    <td class="td-main">${esc(g.group_name)}</td>
+    <td class="td-mono">${g.device_count}</td>
+    <td class="td-mono">${toISTShort(g.created_at)}</td>
+    <td class="td-mono" style="font-size:10px;color:var(--fog3)">type: group · config: {"group_name":"${esc(g.group_name)}"}</td>
+    <td><div class="td-act">
+      <button class="btn btn-ghost btn-xs" onclick="viewGroupMembers('${esc(g.group_name)}')">members</button>
+      <button class="btn btn-ghost btn-xs" style="color:var(--ruby)" onclick="deleteGroup('${esc(g.group_name)}')">delete</button>
+    </div></td></tr>`).join('') + '</tbody></table></div>';
+}
+
+async function addToGroup() {
+  const dev = document.getElementById('grp-dev').value;
+  const nm  = document.getElementById('grp-nm').value.trim();
+  if (!dev||!nm) { toast('Select device and enter group name','err'); return; }
+  load('grp-add', true);
+  const r = await api(`/api/admin/devices/${encodeURIComponent(dev)}/groups`,'POST',{ group_name:nm });
+  load('grp-add', false);
+  if (r?.json?.ok) { toast(`Added to "${nm}"`,'ok'); log(`Device → group:${nm}`,'ok'); document.getElementById('grp-nm').value=''; loadGroups(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+async function viewGroupMembers(group) {
+  const r = await api(`/api/admin/groups/${encodeURIComponent(group)}/members`);
+  if (!r?.json?.ok) return;
+  const members = r.json.members || [];
+  toast(`Group "${group}": ${members.length} member(s)`,'ok');
+  log(`Group ${group}: ${members.map(m=>m.display_name||m.device_id.slice(0,12)).join(', ')} (${members.length})`, 'info');
+}
+
+async function deleteGroup(group) {
+  if (!confirm(`Delete group "${group}"? Devices remain but are removed from this group.`)) return;
+  const r = await api(`/api/admin/groups/${encodeURIComponent(group)}`,'DELETE');
+  if (r?.json?.ok) { toast('Group deleted','ok'); loadGroups(); }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+// ── Quick sends ───────────────────────────────────────────────────────────────
+async function qSendBroadcast() {
+  const body = document.getElementById('bc-bo').value.trim();
+  if (!body) { toast('Message required','err'); return; }
+  load('bc-btn', true);
+  const r = await api('/api/admin/notify/broadcast','POST',{
+    title: document.getElementById('bc-ti').value.trim()||undefined, body
+  });
+  load('bc-btn', false);
+  if (r?.json?.ok) { toast('Broadcast sent','ok'); log('BROADCAST sent to all','ok'); document.getElementById('bc-bo').value=''; }
+  else { toast('Error: '+(r?.json?.error||''),'err'); log('Broadcast error: '+(r?.json?.error||''),'err'); }
+}
+
+async function qSendSimple() {
+  const device_id = document.getElementById('sm-dev').value;
+  const body      = document.getElementById('sm-bo').value.trim();
+  if (!device_id||!body) { toast('Device and message required','err'); return; }
+  load('sm-btn', true);
+  const r = await api('/api/admin/notify/simple','POST',{
+    device_id, title:document.getElementById('sm-ti').value.trim()||undefined, body
+  });
+  load('sm-btn', false);
+  if (r?.json?.ok) { toast('Sent','ok'); log(`SIMPLE → ${device_id.slice(0,14)}…`,'ok'); document.getElementById('sm-bo').value=''; }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+async function qSendQuestion() {
+  const device_id = document.getElementById('qn-dev').value;
+  const message   = document.getElementById('qn-qu').value.trim();
+  const timeout   = parseInt(document.getElementById('qn-to').value)*1000;
+  if (!device_id||!message) { toast('Device and question required','err'); return; }
+  load('qn-btn', true);
+  const r = await api('/api/admin/notify/question','POST',{ device_id, message, offline_timeout_ms:timeout });
+  load('qn-btn', false);
+  if (r?.json?.ok) { toast(`Alarm sent q=${r.json.question_id?.slice(-8)}`,'ok'); log(`QUESTION → ${device_id.slice(0,14)}…`,'ok'); document.getElementById('qn-qu').value=''; }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+async function qSendInput() {
+  const device_id = document.getElementById('in-dev').value;
+  const message   = document.getElementById('in-qu').value.trim();
+  const hint      = document.getElementById('in-hi').value.trim();
+  if (!device_id||!message) { toast('Device and prompt required','err'); return; }
+  load('in-btn', true);
+  const r = await api('/api/admin/notify/input','POST',{ device_id, message, hint:hint||undefined });
+  load('in-btn', false);
+  if (r?.json?.ok) { toast(`Input sent id=${r.json.input_id?.slice(-8)}`,'ok'); log(`INPUT → ${device_id.slice(0,14)}…`,'ok'); document.getElementById('in-qu').value=''; }
+  else toast('Error: '+(r?.json?.error||''),'err');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+addMsg(); // seed first message row
+
+const savedKey = localStorage.getItem('pa_admin_key');
+if (savedKey) { document.getElementById('apiKey').value = savedKey; setTimeout(syncAll, 300); }
+document.getElementById('apiKey').addEventListener('change', e => localStorage.setItem('pa_admin_key', e.target.value));
+</script>
+</body>
+</html>
