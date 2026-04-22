@@ -38,7 +38,6 @@ com.DefaultCompany.CrimescenerecreationMobile,entertainment
 com.Dominos,shop
 com.JindoBlu.TwoPlayerGamesChallenge,entertainment
 com.LuB.DeliveryConstruct,entertainment
-com.Mediatonic.FallGuys_client,entertainment
 com.Psyonix.RL2D,entertainment
 com.Slack,communication
 com.Splitwise.SplitwiseMobile,payment
@@ -52,7 +51,6 @@ com.agoda.mobile.consumer,shop
 com.airbnb.android,shop
 com.alokmandavgane.hinducalendar,productivity
 com.amazon.avod.thirdpartyclient,shop
-com.amazon.dee.app,utility
 com.amazon.mp3,entertainment
 com.android.bbk.lockscreen3,system
 com.android.bbkmusic,entertainment
@@ -145,7 +143,6 @@ com.camerasideas.instashot,productivity
 com.canarabank.mobility,payment
 com.candelalabs.devbytes,knowledge
 com.careerwill.careerwillapp,knowledge
-com.carxtech.sr,entertainment
 com.cashkaro,shop
 com.cheq.retail,payment
 com.chess,entertainment
@@ -169,7 +166,6 @@ com.coloros.safecenter,system
 com.coloros.screenrecorder,system
 com.coloros.simsettings,system
 com.coloros.soundrecorder,system
-com.coloros.uxdesign,system
 com.coloros.weather2,system
 com.coloros.wirelesssettings,system
 com.community.mbox.in,social
@@ -181,12 +177,10 @@ com.coromandelinfotech.csk,entertainment
 com.creditcard.onecard,payment
 com.cricbuzz.android,entertainment
 com.cricheroes.cricheroes.alpha,entertainment
-com.criclineguru.criclinegurupro,entertainment
 com.cris.utsmobile,utility
 com.crrepa.band.dafit,health
 com.crunchyroll.crunchyroid,entertainment
 com.cv.docscanner,productivity
-com.dai.wallpapers,entertainment
 com.dailyyoga.inc,health
 com.dare2compete.app,knowledge
 com.darwinbox.darwinbox,productivity
@@ -212,7 +206,6 @@ com.duolingo,productivity
 com.dywx.larkplayer,entertainment
 com.ea.game.pvzfree_row,entertainment
 com.ea.gp.fifamobile,entertainment
-com.easybrain.sudoku.android,entertainment
 com.einnovation.temu,shop
 com.epicgames.portal,entertainment
 com.epifi.paisa,payment
@@ -222,7 +215,6 @@ com.example.edgedetector,utility
 com.example.event_buddy_1,productivity
 com.example.gpsupdate,gps
 com.example.gpsuploader,gps
-com.example.heartrate,health
 com.example.productiveagent5,system
 com.example.productiveagent52,system
 com.example.southbook,knowledge
@@ -330,7 +322,6 @@ com.hashifytech.stickers,entertainment
 com.hdfcbank.android.now,payment
 com.heytap.browser,browser
 com.heytap.headset,system
-com.heytap.music,entertainment
 com.heytap.pictorial,system
 com.heytap.themestore,system
 com.heytap.usercenter,system
@@ -361,7 +352,6 @@ com.instagram.barcelona,social
 com.instagram.lite,social
 com.intelligentchange.fiveminutejournal,productivity
 com.interactech.rcb,entertainment
-com.internshala.app,productivity
 com.iqiyi.i18n,entertainment
 com.iqoo.powersaving,system
 com.ishafoundation.app,health
@@ -423,7 +413,6 @@ com.microsoft.teams,communication
 com.microsoft.xboxfamily,utility
 com.microsoft.xboxone.smartglass,entertainment
 com.milink.service,system
-com.miui.accessibility,system
 com.miui.android.fashiongallery,browser
 com.miui.aod,system
 com.miui.bugreport,system
@@ -499,7 +488,6 @@ com.nextbillion.groww,payment
 com.nianticlabs.pokemongo,entertainment
 com.nibble.lesson,knowledge
 com.niksoftware.snapseed,productivity
-com.nis.app,utility
 com.noisefit.prime,health
 com.nomonkeys.ballblast,entertainment
 com.nothing.smartcenter,system
@@ -567,7 +555,6 @@ com.popclub.android,shop
 com.prefr.credit,payment
 com.pt.ar.wallet,entertainment
 com.pubg.imobile,entertainment
-com.punjabkings.android.app,entertainment
 com.pzolee.bluetoothscanner,utility
 com.rapido.passenger,gps
 com.rarlab.rar,utility
@@ -577,7 +564,6 @@ com.realvnc.viewer.android,system
 com.rectu.DroneSimulatorRealistic,entertainment
 com.reddit.frontpage,entertainment
 com.redlinegames.attackhole,entertainment
-com.redteamobile.roaming,utility
 com.revanced.net.revancedmanager,utility
 com.ridgge.conquercountries,knowledge
 com.ril.ajio,shop
@@ -587,7 +573,6 @@ com.rsupport.rs.activity.rsupport.aas2,utility
 com.run.tower.defense,entertainment
 com.salon_surf,shop
 com.samsung.SMT,system
-com.samsung.accessibility,system
 com.samsung.android.app.contacts,communication
 com.samsung.android.app.dressroom,system
 com.samsung.android.app.notes,productivity
@@ -600,7 +585,6 @@ com.samsung.android.app.soundpicker,system
 com.samsung.android.app.spage,entertainment
 com.samsung.android.app.telephonyui,system
 com.samsung.android.app.tips,system
-com.samsung.android.ardrawing,entertainment
 com.samsung.android.aremoji,entertainment
 com.samsung.android.authfw,system
 com.samsung.android.biometrics.app.setting,system
@@ -635,7 +619,6 @@ com.samsung.android.stickercenter,system
 com.samsung.android.themedesigner,system
 com.samsung.android.themestore,system
 com.samsung.android.video,entertainment
-com.samsung.android.voc,system
 com.samsung.app.newtrim,entertainment
 com.samsung.crane,system
 com.samsung.ecomm.global.in,shop
@@ -657,7 +640,6 @@ com.sec.android.app.soundalive,system
 com.sec.android.app.vepreload,system
 com.sec.android.app.voicenote,system
 com.sec.android.daemonapp,utility
-com.sec.android.easyMover,utility
 com.sec.android.emergencylauncher,system
 com.sec.android.gallery3d,entertainment
 com.sec.android.mimage.photoretouching,entertainment
@@ -670,7 +652,6 @@ com.shopping.limeroad,shop
 com.si.heynote,productivity
 com.slowmo.twinvolley,entertainment
 com.smallcase.android,payment
-com.smart.phonelauncher.os.style,system
 com.smartwidgetlabs.nfctools,utility
 com.smmservice.authenticator,utility
 com.snapchat.android,social
@@ -680,9 +661,7 @@ com.sonova.chb.control,health
 com.sonyericsson.android.camera,system
 com.sonyericsson.soundenhancement,system
 com.sonyericsson.usbux,system
-com.sonyliv,entertainment
 com.sonymobile.android.dialer,communication
-com.sonymobile.cinemapro,productivity
 com.sonymobile.colorgamut,system
 com.sonymobile.launcher,system
 com.sonymobile.photopro,system
@@ -693,7 +672,6 @@ com.sonymobile.uiccdetection,system
 com.sorted.consumerflutterapp,shop
 com.spotify.music,entertainment
 com.star.customer_app,shop
-com.stickify.stickermaker,entertainment
 com.supercell.clashofclans,entertainment
 com.supercell.clashroyale,entertainment
 com.swishapp,payment
@@ -735,7 +713,6 @@ com.twitter.android,entertainment
 com.u2ygames.unicorn.dash.magic.run,entertainment
 com.ubercab,gps
 com.unitybank.app.mobilebanking,payment
-com.uptodown,utility
 com.usfb.roarbank,payment
 com.vblast.flipaclip,entertainment
 com.video.fun.app,entertainment
@@ -748,8 +725,6 @@ com.vivo.assistantfunction,system
 com.vivo.browser,browser
 com.vivo.calculator,system
 com.vivo.compass,system
-com.vivo.connbase.connectcenter,system
-com.vivo.doubleinstance,system
 com.vivo.faceunlock,system
 com.vivo.fingerprint,system
 com.vivo.gallery,entertainment
@@ -769,9 +744,7 @@ com.vivo.smartoffice,productivity
 com.vivo.smartshot,system
 com.vivo.stepcount,health
 com.vivo.systemuiplugin,system
-com.vivo.upnpserver,system
 com.vivo.vhome,utility
-com.vivo.videoeditor,entertainment
 com.vivo.vtouch,system
 com.vivo.weather,utility
 com.vivo.website,system
@@ -818,30 +791,25 @@ eu.tsoml.graphicssettings,utility
 free.programming.programming,productivity
 free.vpn.unblock.proxy.turbovpn,utility
 games.vaveda.militaryoverturn,entertainment
-homeworkout.homeworkouts.noequipment,health
 host.exp.exponent,productivity
 icici.lombard.ghi,payment
 imagetopdf.pdfconverter.jpgtopdf.pdfeditor,productivity
-in.amazon.mShop.android.business.shopping,shop
 in.amazon.mShop.android.shopping,shop
 in.burgerking.android,shop
 in.cricketexchange.app.cricketexchange,entertainment
 in.dmart,shop
 in.dmifinance.app,payment
 in.folknet,social
-in.goindigo.android,gps
 in.gov.scholarships.nspotr,knowledge
 in.gov.uidai.facerd,utility
 in.gov.uidai.mAadhaarPlus,productivity
 in.gov.umang.negd.g2c,utility
 in.hanafintech,payment
-in.indwealth,payment
 in.irisbyyes.app,payment
 in.juspay.nammayatri,payment
 in.mygov.mobile,knowledge
 in.org.npci.upiapp,payment
 in.paycraftsol.metro.rblprepaid,payment
-in.pranaydas.inovact,productivity
 in.pratiksachaniya.sharemarket_ipo,knowledge
 in.pricehistory.app,shop
 in.rebase.app,social
@@ -877,7 +845,6 @@ net.bat.store,shop
 net.one97.paytm,payment
 net.oneplus.weather,utility
 net.openvpn.openvpn,utility
-net.zedge.android,entertainment
 oops.tallycounter,utility
 org.altruist.BajajExperia,payment
 org.briarproject.briar.android,communication
@@ -887,12 +854,10 @@ org.chromium.webapk.a37d96e34f62f102c_v2,browser
 org.chromium.webapk.a50ee83e8dd87f4e8_v2,browser
 org.chromium.webapk.a603b9191b7a7c4d7_v2,browser
 org.chromium.webapk.a85d6da11ed489a0a_v2,browser
-org.chromium.webapk.a86db54f1a2c7157f_v2,browser
 org.coursera.android,knowledge
 org.cris.aikyam,gps
 org.fdroid.fdroid,system
 org.kde.kdeconnect_tp,utility
-org.monroeinstitute.expand,health
 org.mozilla.firefox,browser
 org.ondc.nirmitbap,shop
 org.sadhguru.miracleofmind,health
@@ -912,7 +877,6 @@ ru.iiec.pydroid3,productivity
 ru.ok.android,social
 ru.zdevs.zarchiver,utility
 ryey.easer.beta,system
-smartapps38.instadp.hd.downloader.big.profile.picture.fullsize.forinstagram,utility
 sortpuz.water.sort.puzzle.game,entertainment
 stepcounter.pedometer.stepstracker,health
 story.tv.drama.reels,entertainment

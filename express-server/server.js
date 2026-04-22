@@ -6,11 +6,12 @@ const morgan = require("morgan");
 const cors = require("cors");
 require('dotenv').config(); 
 const { startFcmScheduler } = require("./fcmScheduler");
-const { startNotificationEngine } = require("./notificationEngine");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const cron = require('node-cron');
-
+const { runAutomatedAnalysis } = require('./controllers/geminicontroller');
+const { runAutomatedAnalysis1 } = require("./workers/processBuckets");
 // ✅ Trust reverse proxy headers
 app.set("trust proxy", true);
 
@@ -137,19 +138,16 @@ app.use("/api/gps",require("./routes/gps"));
 
 
 
-// ── Add to server.js ──────────────────────────────────────────────────────
 
-// 1. Require at top:
 const instanceId = parseInt(process.env.NODE_APP_INSTANCE || "0");
-
-// 2. Inside instanceId === 0 block:
 if (instanceId === 0) {
   startFcmScheduler();
-  startNotificationEngine();   // IST cron, fires every minute
-  console.log("✅ Notification engine started");
+  console.log("✅ FCM scheduler started on instance 0");
+} else {
+  console.log(`ℹ️  Instance ${instanceId} — FCM scheduler skipped`);
 }
 
-// 3. Install:  npm install cron-parser
+
 
 
 
