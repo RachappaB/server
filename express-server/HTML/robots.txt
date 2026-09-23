@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://data.sunita.space/sitemap.xml
+Sitemap: https://sunita.space/sitemap.xml
